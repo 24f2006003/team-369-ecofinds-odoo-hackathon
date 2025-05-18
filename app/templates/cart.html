@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Cart - EcoFinds{% endblock %}
+{% block content %}
+<div class="container">
+    <h2>My Cart</h2>
+    <div class="product-list">
+        {% for item in cart_items %}
+            <div class="product-card">
+                <img src="{{ item.product.image_url or url_for('static', filename='img/placeholder.png') }}" alt="Product Image">
+                <h3>{{ item.product.title }}</h3>
+                <p style="color:#388e3c; font-weight:bold;">${{ '%.2f'|format(item.product.price) }}</p>
+                <form action="{{ url_for('remove_from_cart', cart_item_id=item.id) }}" method="POST" style="margin-bottom:0.5rem;">
+                    <button type="submit" class="btn" style="background:#d32f2f; width:100%;">Remove</button>
+                </form>
+                <form action="{{ url_for('purchase', cart_item_id=item.id) }}" method="POST">
+                    <button type="submit" class="btn" style="background:#388e3c; width:100%;">Purchase</button>
+                </form>
+            </div>
+        {% else %}
+            <p>Your cart is empty.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

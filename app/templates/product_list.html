@@ -1,32 +1,40 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <title>Your Product Listings</title>
-</head>
-<body>
-    {% include 'base.html' %}
-    <div class="container">
-        <h1>Your Product Listings</h1>
-        <a href="{{ url_for('products.create') }}" class="btn btn-primary">Add New Product</a>
-        <div class="product-list">
-            {% for product in products %}
-                <div class="product-card">
-                    <h2>{{ product.title }}</h2>
-                    <p>{{ product.description }}</p>
-                    <p>Price: ${{ product.price }}</p>
-                    <a href="{{ url_for('products.edit', product_id=product.id) }}" class="btn btn-secondary">Edit</a>
-                    <form action="{{ url_for('products.delete', product_id=product.id) }}" method="POST" style="display:inline;">
-                        <button type="submit" class="btn btn-danger">Delete</button>
+{% extends 'base.html' %}
+{% block title %}Product Listings - EcoFinds{% endblock %}
+{% block content %}
+<div class="container">
+    <h1>Product Listings</h1>
+    <form method="get" style="display:flex; gap:1rem; align-items:center; margin-bottom:1.5rem;">
+        <input type="text" name="search" placeholder="Search by title..." value="{{ search }}" style="flex:1;">
+        <select name="category">
+            <option value="">All Categories</option>
+            {% for cat in categories %}
+                <option value="{{ cat }}" {% if selected_category == cat %}selected{% endif %}>{{ cat }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn">Filter</button>
+        <a href="{{ url_for('new_product') }}" class="btn">Add New Product</a>
+    </form>
+    <div class="product-list">
+        {% for product in products %}
+            <div class="product-card">
+                <img src="{{ product.image_url or url_for('static', filename='img/placeholder.png') }}" alt="Product Image">
+                <h2>{{ product.title }}</h2>
+                <p style="color:#388e3c; font-weight:bold;">${{ '%.2f'|format(product.price) }}</p>
+                <p style="font-size:0.95rem; color:#666;">{{ product.category }}</p>
+                <div style="margin-top:auto; width:100%; display:flex; gap:0.5rem;">
+                    <a href="{{ url_for('product_detail', product_id=product.id) }}" class="btn" style="flex:1; background:#388e3c;">View</a>
+                    <a href="{{ url_for('edit_product', product_id=product.id) }}" class="btn" style="flex:1; background:#1976d2;">Edit</a>
+                    <form action="{{ url_for('delete_product', product_id=product.id) }}" method="POST" style="flex:1;">
+                        <button type="submit" class="btn" style="background:#d32f2f; width:100%;">Delete</button>
                     </form>
                 </div>
-            {% else %}
-                <p>No products found. Please add some products!</p>
-            {% endfor %}
-        </div>
+                <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="POST" style="margin-top:0.5rem; width:100%;">
+                    <button type="submit" class="btn" style="width:100%; background:#ff9800;">Add to Cart</button>
+                </form>
+            </div>
+        {% else %}
+            <p>No products found. Please add some products!</p>
+        {% endfor %}
     </div>
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-</body>
-</html>
+</div>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Previous Purchases - EcoFinds{% endblock %}
+{% block content %}
+<div class="container">
+    <h2>Previous Purchases</h2>
+    <div class="product-list">
+        {% for purchase in purchases %}
+            <div class="product-card">
+                <img src="{{ purchase.product.image_url or url_for('static', filename='img/placeholder.png') }}" alt="Product Image">
+                <h3>{{ purchase.product.title }}</h3>
+                <p style="color:#388e3c; font-weight:bold;">${{ '%.2f'|format(purchase.product.price) }}</p>
+                <p style="font-size:0.95rem; color:#666;">Purchased on {{ purchase.purchased_at.strftime('%Y-%m-%d') }}</p>
+            </div>
+        {% else %}
+            <p>No previous purchases found.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 
