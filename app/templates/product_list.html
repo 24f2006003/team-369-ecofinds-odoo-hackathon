@@ -26,7 +26,7 @@
     <div class="product-list">
         {% for product in products %}
             <div class="product-card">
-                <img src="{{ product.image_url if product.image_url else 'https://www.citypng.com/public/uploads/preview/recycle-recycling-green-illustration-logo-icon-png-701751694964819fw7dltehsp.png' }}" alt="Product Image">
+                <img src="{{ product.image_url if product.image_url else 'https://static.vecteezy.com/system/resources/previews/024/382/868/non_2x/green-recycle-icon-sign-symbol-design-transparent-background-free-png.png' }}" alt="Product Image">
                 <h2>{{ product.title }}</h2>
                 <p style="color:#388e3c; font-weight:bold;">₹{{ '%.2f'|format(product.price) }}</p>
                 <p style="font-size:0.95rem; color:#666;">{{ product.category }}</p>

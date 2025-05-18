@@ -8,6 +8,7 @@
             <div class="card shadow p-4 mb-4">
                 <h2 class="text-center mb-3">User Dashboard</h2>
                 <div class="d-flex flex-column align-items-center mb-3">
+                    <span class="badge bg-success mb-2">ECO Points: {{ user.eco_points }}</span>
                     <form action="{{ url_for('dashboard') }}" method="POST" enctype="multipart/form-data">
                         <label for="profile_img">
                             <div style="width:90px; height:90px; background:#e0e0e0; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2.5rem; color:#888; margin-bottom:1rem; cursor:pointer;">
@@ -38,10 +39,11 @@
             </div>
             <div class="card shadow p-4 mb-4">
                 <h4 class="mb-3">Previous Purchases</h4>
+                <span class="badge bg-success mb-2">ECO Points: {{ user.eco_points }}</span>
                 <div class="product-list">
                     {% for purchase in user.purchases %}
                         <div class="product-card mb-3">
-                            <img src="{{ purchase.product.image_url if purchase.product.image_url else url_for('static', filename='img/placeholder.png') }}" alt="Product Image">
+                            <img src="{{ purchase.product.image_url if purchase.product.image_url else 'https://static.vecteezy.com/system/resources/previews/024/382/868/non_2x/green-recycle-icon-sign-symbol-design-transparent-background-free-png.png' }}" alt="Product Image">
                             <h4>{{ purchase.product.title }}</h4>
                             <p class="text-success fw-bold">₹{{ '%.2f'|format(purchase.purchase_price) }}</p>
                             <p class="text-muted">Purchased on {{ purchase.purchased_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
@@ -58,7 +60,7 @@
                 <div class="product-list">
                     {% for product in user.products %}
                         <div class="product-card mb-3">
-                            <img src="{{ product.image_url or url_for('static', filename='img/placeholder.png') }}" alt="Product Image">
+                            <img src="{{ product.image_url if product.image_url else 'https://static.vecteezy.com/system/resources/previews/024/382/868/non_2x/green-recycle-icon-sign-symbol-design-transparent-background-free-png.png' }}" alt="Product Image">
                             <h4>{{ product.title }}</h4>
                             <p class="text-success fw-bold">₹{{ '%.2f'|format(product.price) }}</p>
                             <p class="text-muted">{{ product.category }}</p>
