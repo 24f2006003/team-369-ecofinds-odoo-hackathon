@@ -42,14 +42,15 @@ EcoFinds
 
 1. **Clone the Repository**: 
    ```
-   git clone <repository-url>
+   git clone https://github.com/24f2006003/team-369-ecofinds-odoo-hackathon
    cd EcoFinds
    ```
 
 2. **Create a Virtual Environment**:
    ```
    python -m venv venv
-   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+   On Mac use `source venv/bin/activate`
+   On Windows use `venv\Scripts\activate`
    ```
 
 3. **Install Dependencies**:
@@ -63,11 +64,3 @@ EcoFinds
    ```
 
 5. **Access the Application**: Open your web browser and go to `http://127.0.0.1:5000`.
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a pull request or open an issue for any suggestions or improvements.
-
-## License
-
-This project is licensed under the MIT License. See the LICENSE file for more details.

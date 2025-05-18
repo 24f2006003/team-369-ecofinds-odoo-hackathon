@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from app.models import Product
 from app import db
+from app.products.models import Product  # Import your models here
 
 products_bp = Blueprint('products', __name__)
 
