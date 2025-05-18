@@ -14,10 +14,9 @@
 - **Previous Purchases**: A dedicated section that displays users' previous orders, helping them keep track of their purchasing history.
 - **Cart Management**: Users can add products to a cart, view selected items, modify quantities, and proceed to checkout when ready.
 
-## Conclusion
+## Vision
 
-In conclusion, the EcoFinds Platform is a robust, user-friendly solution designed to streamline the buying and selling experience. By offering an intuitive interface, seamless product management, and powerful search and filtering capabilities, it simplifies e-commerce for users of all kinds. Whether you're a seller looking to showcase your products or a buyer seeking to discover new items, the app provides everything you need in one cohesive platform. With a strong focus on security, responsiveness, and user experience, it is perfectly suited for both casual shoppers and active marketplace participants.
-
+EcoFinds aims to promote sustainability by facilitating the resale of pre-owned goods. It offers a convenient, secure alternative to buying new items, fostering a community of responsible consumers.
 
 ## Project Structure
 
@@ -74,3 +73,8 @@ EcoFinds
    ```
 
 5. **Access the Application**: Open your web browser and go to `http://127.0.0.1:5000`.
+
+
+## Conclusion
+
+In conclusion, the EcoFinds Platform is a robust, user-friendly solution designed to streamline the buying and selling experience. By offering an intuitive interface, seamless product management, and powerful search and filtering capabilities, it simplifies e-commerce for users of all kinds. Whether you're a seller looking to showcase your products or a buyer seeking to discover new items, the app provides everything you need in one cohesive platform. With a strong focus on security, responsiveness, and user experience, it is perfectly suited for both casual shoppers and active marketplace participants.
