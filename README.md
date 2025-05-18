@@ -24,24 +24,36 @@ EcoFinds aims to promote sustainability by facilitating the resale of pre-owned 
 EcoFinds
 ├── app
 │   ├── __init__.py
-│   ├── auth
-│   │   ├── __init__.py
-│   │   └── routes.py
-│   ├── products
-│   │   ├── __init__.py
-│   │   └── routes.py
 │   ├── models.py
-│   ├── templates
+│   ├── auth/
+│   │   ├── __init__.py
+│   │   └── routes.py
+│   ├── main/
+│   │   ├── __init__.py
+│   │   └── routes.py
+│   ├── products/
+│   │   ├── __init__.py
+│   │   └── routes.py
+│   ├── templates/
 │   │   ├── base.html
 │   │   ├── index.html
 │   │   ├── login.html
 │   │   ├── register.html
-│   │   └── product_list.html
-│   └── static
-│       ├── css
+│   │   ├── dashboard.html
+│   │   ├── cart.html
+│   │   ├── purchases.html
+│   │   ├── product_list.html
+│   │   ├── product_detail.html
+│   │   ├── new_product.html
+│   │   └── edit_product.html
+│   └── static/
+│       ├── css/
 │       │   └── styles.css
-│       └── js
-│           └── main.js
+│       ├── js/
+│       │   └── main.js
+│       └── img/
+│           └── logo.png
+├── instance/
 ├── run.py
 ├── requirements.txt
 └── README.md
