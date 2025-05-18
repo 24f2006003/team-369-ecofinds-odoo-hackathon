@@ -3,9 +3,10 @@ from flask_login import login_user, logout_user, login_required, current_user
 from app.models import User
 from app import db
 
-auth = Blueprint('auth', __name__)
+# Create the Blueprint object
+auth_bp = Blueprint('auth', __name__)
 
-@auth.route('/login', methods=['GET', 'POST'])
+@auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         email = request.form.get('email')
@@ -18,14 +19,14 @@ def login():
         flash('Login failed. Check your email and password.', 'danger')
     return render_template('login.html')
 
-@auth.route('/logout')
+@auth_bp.route('/logout')
 @login_required
 def logout():
     logout_user()
     flash('You have been logged out.', 'success')
     return redirect(url_for('auth.login'))
 
-@auth.route('/register', methods=['GET', 'POST'])
+@auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         email = request.form.get('email')

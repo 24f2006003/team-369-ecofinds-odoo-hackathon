@@ -1,13 +1,22 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
-app.config['SECRET_KEY'] = 'your_secret_key_here'
-db = SQLAlchemy(app)
+db = SQLAlchemy()
 
-from app.auth import routes as auth_routes
-from app.products import routes as product_routes
-
-app.register_blueprint(auth_routes.auth_bp)
-app.register_blueprint(product_routes.product_bp)
+def create_app():
+    app = Flask(__name__)
+    # Configure your app
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    
+    # Initialize extensions
+    db.init_app(app)
+    
+    # Import and register blueprints
+    from app.products.routes import products_bp
+    from app.auth.routes import auth_bp
+    
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(products_bp)
+    
+    return app
