@@ -10,6 +10,9 @@
         <p class="text-success fw-bold" style="font-size:1.3rem;">₹{{ '%.2f'|format(product.price) }}</p>
         <p style="font-size:1.1rem; color:#666;">Category: {{ product.category }}</p>
         <p style="margin-top:1.5rem;">{{ product.description }}</p>
+        <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="POST" class="mt-3 w-100" style="max-width:320px;">
+            <button type="submit" class="btn btn-warning w-100">Add to Cart</button>
+        </form>
     </div>
 </div>
 {% endblock %} 
