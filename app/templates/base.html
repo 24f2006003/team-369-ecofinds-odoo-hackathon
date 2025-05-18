@@ -9,8 +9,7 @@
 <body>
     <header class="main-header">
         <div class="header-left">
-            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="EcoFinds Logo" style="height:100px; width:auto; margin-right:0.5rem;">
-            <span class="brand">EcoFinds</span>
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="EcoFinds Logo" style="height:100px; width:auto; margin-right:0.5rem; margin-left:4rem;">
         </div>
         <div class="header-center">
             <form class="search-bar" action="/products" method="get">
@@ -19,9 +18,9 @@
             </form>
         </div>
         <div class="header-right">
-            <a href="/products" class="cart-icon" title="My Products">🛒</a>
+            <a href="/cart" class="cart-icon" title="My Cart">🛒</a>
             {% if session.get('user_id') %}
-                <span style="font-weight:bold; color:#388e3c; margin-right:1rem;">{{ g.user.username if g.user else 'User' }}</span>
+                <a href="/dashboard" style="font-weight:bold; color:#388e3c; margin-right:1rem; text-decoration:none;">{{ g.user.username if g.user else 'User' }}</a>
                 <a href="/logout">Logout</a>
             {% else %}
                 <a href="/login">Login</a>

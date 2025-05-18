@@ -5,6 +5,7 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
     username = db.Column(db.String(64), unique=True, nullable=True)
+    profile_img = db.Column(db.String(128), nullable=True)
     products = db.relationship('Product', backref='owner', lazy=True)
     purchases = db.relationship('Purchase', backref='buyer', lazy=True)
     cart_items = db.relationship('CartItem', backref='user', lazy=True)
@@ -24,6 +25,7 @@ class Purchase(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
     purchased_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    purchase_price = db.Column(db.Float, nullable=False)
     product = db.relationship('Product')
 
 class CartItem(db.Model):
