@@ -1,34 +1,44 @@
 {% extends 'base.html' %}
 {% block title %}EcoFinds - Home{% endblock %}
 {% block content %}
-<div class="container">
-    <div class="banner-section">
-        <div class="banner-image" style="background:#e8f5e9; border-radius:12px; height:180px; display:flex; align-items:center; justify-content:center; margin-bottom:2rem;">
-            <h1 style="font-size:2.5rem; color:#388e3c;">Welcome to EcoFinds</h1>
-        </div>
-        <p style="text-align:center; font-size:1.2rem; color:#555;">Your one-stop shop for sustainable products.</p>
-    </div>
-    <div class="categories-section" style="margin:2rem 0;">
-        <h2 style="margin-bottom:1rem;">Categories</h2>
-        <div style="display:flex; gap:2rem; flex-wrap:wrap; justify-content:flex-start;">
-            <div class="category-card" style="background:#fafafa; border:1px solid #e0e0e0; border-radius:8px; padding:1.5rem 2rem; min-width:160px; text-align:center;">
-                <span style="font-size:2rem;">🍃</span>
-                <div>Eco-Friendly</div>
-            </div>
-            <div class="category-card" style="background:#fafafa; border:1px solid #e0e0e0; border-radius:8px; padding:1.5rem 2rem; min-width:160px; text-align:center;">
-                <span style="font-size:2rem;">♻️</span>
-                <div>Recycled</div>
-            </div>
-            <div class="category-card" style="background:#fafafa; border:1px solid #e0e0e0; border-radius:8px; padding:1.5rem 2rem; min-width:160px; text-align:center;">
-                <span style="font-size:2rem;">🌊</span>
-                <div>Water Saving</div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8 text-center mb-4">
+            <div class="banner-section mb-4 p-4 rounded bg-light">
+                <h1 class="display-4 fw-bold mb-3">Welcome to EcoFinds</h1>
+                <p class="lead mb-4">Your one-stop shop for sustainable products.</p>
+                <a href="/products" class="btn btn-success btn-lg">Browse Products</a>
             </div>
         </div>
     </div>
-    <div class="featured-section">
-        <h2>Featured Products</h2>
-        <p style="color:#666;">Check out our latest collection of sustainable products.</p>
-        <!-- Optionally, show a few featured products here -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-12 col-md-10 col-lg-8">
+            <h2 class="mb-3 text-center">Categories</h2>
+            <div class="d-flex flex-wrap justify-content-center gap-3">
+                <div class="category-card p-4 rounded bg-white shadow text-center flex-fill" style="min-width:120px; max-width:180px;">
+                    <span style="font-size:2rem;">🍃</span>
+                    <div>Eco-Friendly</div>
+                </div>
+                <div class="category-card p-4 rounded bg-white shadow text-center flex-fill" style="min-width:120px; max-width:180px;">
+                    <span style="font-size:2rem;">♻️</span>
+                    <div>Recycled</div>
+                </div>
+                <div class="category-card p-4 rounded bg-white shadow text-center flex-fill" style="min-width:120px; max-width:180px;">
+                    <span style="font-size:2rem;">🌊</span>
+                    <div>Water Saving</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8">
+            <div class="featured-section text-center">
+                <h2>Featured Products</h2>
+                <p class="text-muted">Check out our latest collection of sustainable products.</p>
+                <a href="/products" class="btn btn-outline-success">See All Products</a>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

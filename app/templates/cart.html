@@ -1,24 +1,40 @@
 {% extends 'base.html' %}
 {% block title %}Cart - EcoFinds{% endblock %}
 {% block content %}
-<div class="container">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+<div class="container py-4">
     <h2>My Cart</h2>
-    <div class="product-list">
+    <div class="product-list mb-4">
+        {% set total = 0 %}
         {% for item in cart_items %}
-            <div class="product-card">
-                <img src="{{ item.product.image_url or url_for('static', filename='img/placeholder.png') }}" alt="Product Image">
+            {% set total = total + item.product.price %}
+            <div class="product-card mb-3">
+                <img src="{{ item.product.image_url if item.product.image_url else 'https://www.citypng.com/public/uploads/preview/recycle-recycling-green-illustration-logo-icon-png-701751694964819fw7dltehsp.png' }}" alt="Product Image" class="img-fluid rounded mb-2">
                 <h3>{{ item.product.title }}</h3>
-                <p style="color:#388e3c; font-weight:bold;">${{ '%.2f'|format(item.product.price) }}</p>
+                <p class="text-success fw-bold">₹{{ '%.2f'|format(item.product.price) }}</p>
                 <form action="{{ url_for('remove_from_cart', cart_item_id=item.id) }}" method="POST" style="margin-bottom:0.5rem;">
-                    <button type="submit" class="btn" style="background:#d32f2f; width:100%;">Remove</button>
-                </form>
-                <form action="{{ url_for('purchase', cart_item_id=item.id) }}" method="POST">
-                    <button type="submit" class="btn" style="background:#388e3c; width:100%;">Purchase</button>
+                    <button type="submit" class="btn btn-danger w-100">Remove</button>
                 </form>
             </div>
         {% else %}
             <p>Your cart is empty.</p>
         {% endfor %}
+    </div>
+    <div class="card p-3 mb-3">
+        <h4 class="mb-3">Total: <span class="text-success">₹{{ '%.2f'|format(total) }}</span></h4>
+        {% if cart_items %}
+            <form id="purchase-form" action="{{ url_for('purchase_cart') }}" method="POST" data-total="{{ '%.2f'|format(total) }}">
+                <button type="submit" class="btn btn-success w-100">Purchase All</button>
+            </form>
+            <script>
+                document.getElementById('purchase-form').onsubmit = function(e) {
+                    var total = this.getAttribute('data-total');
+                    if (!confirm('Are you sure you want to purchase all items in your cart? Your total will be ₹' + total + '.')) {
+                        e.preventDefault();
+                    }
+                };
+            </script>
+        {% endif %}
     </div>
 </div>
 {% endblock %} 

@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, g
 from flask_sqlalchemy import SQLAlchemy
+import os
+from werkzeug.utils import secure_filename
 
 db = SQLAlchemy()
 
@@ -71,7 +73,21 @@ def create_app():
         if not user:
             return redirect(url_for('login'))
         if request.method == 'POST':
-            user.username = request.form['username']
+            username = request.form['username']
+            email = request.form['email']
+            password = request.form.get('password')
+            user.username = username
+            user.email = email
+            if password:
+                user.password_hash = password
+            # Handle profile image upload
+            if 'profile_img' in request.files:
+                file = request.files['profile_img']
+                if file and file.filename:
+                    filename = secure_filename(file.filename)
+                    img_path = os.path.join(app.static_folder, 'img', filename)
+                    file.save(img_path)
+                    user.profile_img = filename
             db.session.commit()
             flash('Profile updated!', 'success')
         return render_template('dashboard.html', user=user)
@@ -187,17 +203,51 @@ def create_app():
         if not user or cart_item.user_id != user.id:
             flash('Unauthorized', 'danger')
             return redirect(url_for('cart'))
-        purchase = Purchase(user_id=user.id, product_id=cart_item.product_id)
+        purchase = Purchase(user_id=user.id, product_id=cart_item.product_id, purchase_price=cart_item.product.price)
         db.session.add(purchase)
         db.session.delete(cart_item)
         db.session.commit()
         flash('Purchase successful!', 'success')
         return redirect(url_for('purchases'))
 
+    @app.route('/cart/purchase', methods=['POST'])
+    def purchase_cart():
+        user = current_user()
+        if not user:
+            return redirect(url_for('login'))
+        cart_items = CartItem.query.filter_by(user_id=user.id).all()
+        if not cart_items:
+            flash('Your cart is empty.', 'warning')
+            return redirect(url_for('cart'))
+        for item in cart_items:
+            purchase = Purchase(user_id=user.id, product_id=item.product_id, purchase_price=item.product.price)
+            db.session.add(purchase)
+            db.session.delete(item)
+        db.session.commit()
+        flash('Purchase successful! All items have been purchased.', 'success')
+        return redirect(url_for('purchases'))
+
     return app
 
 app = create_app()
 
+
 with app.app_context():
     from app.models import User, Product, Purchase, CartItem
     db.create_all()
+    # Insert dummy products if table is empty
+    if Product.query.count() == 0:
+        demo_products = [
+            Product(title='Eco Water Bottle', description='Reusable water bottle made from recycled materials.', price=12.99, category='Eco-Friendly', image_url='', owner_id=1),
+            Product(title='Bamboo Toothbrush', description='Biodegradable toothbrush with bamboo handle.', price=3.49, category='Eco-Friendly', image_url='', owner_id=1),
+            Product(title='Recycled Notebook', description='Notebook made from 100% recycled paper.', price=5.99, category='Recycled', image_url='', owner_id=1),
+            Product(title='Water Saver Showerhead', description='Showerhead that reduces water usage by 40%.', price=19.99, category='Water Saving', image_url='', owner_id=1),
+        ]
+        # Ensure at least one user exists for owner_id=1
+        if not User.query.get(1):
+            user = User(email='demo@ecofinds.com', password_hash='demo', username='DemoUser')
+            db.session.add(user)
+            db.session.commit()
+        for prod in demo_products:
+            db.session.add(prod)
+        db.session.commit()

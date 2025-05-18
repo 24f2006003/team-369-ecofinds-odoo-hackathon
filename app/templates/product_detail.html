@@ -1,12 +1,13 @@
 {% extends 'base.html' %}
 {% block title %}{{ product.title }} - EcoFinds{% endblock %}
 {% block content %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 <div class="container" style="max-width:600px;">
-    <a href="{{ url_for('product_list') }}" class="btn" style="background:#888; margin-bottom:1rem;">&larr; Back</a>
-    <div style="display:flex; flex-direction:column; align-items:center;">
-        <img src="{{ product.image_url or url_for('static', filename='img/placeholder.png') }}" alt="Product Image" style="width:320px; height:220px; object-fit:cover; border-radius:10px; margin-bottom:1.5rem;">
+    <a href="{{ url_for('product_list') }}" class="btn btn-secondary mb-3">&larr; Back</a>
+    <div class="d-flex flex-column align-items-center">
+        <img src="{{ product.image_url if product.image_url else url_for('static', filename='img/placeholder.png') }}" alt="Product Image" style="width:320px; height:220px; object-fit:cover; border-radius:10px; margin-bottom:1.5rem;">
         <h2>{{ product.title }}</h2>
-        <p style="color:#388e3c; font-size:1.3rem; font-weight:bold;">${{ '%.2f'|format(product.price) }}</p>
+        <p class="text-success fw-bold" style="font-size:1.3rem;">₹{{ '%.2f'|format(product.price) }}</p>
         <p style="font-size:1.1rem; color:#666;">Category: {{ product.category }}</p>
         <p style="margin-top:1.5rem;">{{ product.description }}</p>
     </div>
