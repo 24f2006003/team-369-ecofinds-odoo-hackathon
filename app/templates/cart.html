@@ -1,40 +1,144 @@
 {% extends 'base.html' %}
 {% block title %}Cart - EcoFinds{% endblock %}
 {% block content %}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 <div class="container py-4">
-    <h2>My Cart</h2>
-    <div class="product-list mb-4">
-        {% set total = 0 %}
-        {% for item in cart_items %}
-            {% set total = total + item.product.price %}
-            <div class="product-card mb-3">
-                <img src="{{ item.product.image_url if item.product.image_url else 'https://www.citypng.com/public/uploads/preview/recycle-recycling-green-illustration-logo-icon-png-701751694964819fw7dltehsp.png' }}" alt="Product Image" class="img-fluid rounded mb-2">
-                <h3>{{ item.product.title }}</h3>
-                <p class="text-success fw-bold">₹{{ '%.2f'|format(item.product.price) }}</p>
-                <form action="{{ url_for('remove_from_cart', cart_item_id=item.id) }}" method="POST" style="margin-bottom:0.5rem;">
-                    <button type="submit" class="btn btn-danger w-100">Remove</button>
-                </form>
+    <h2 class="mb-4">My Cart</h2>
+    
+    {% if cart_items %}
+        <div class="row">
+            <div class="col-md-8">
+                {% for item in cart_items %}
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-2">
+                                    <img src="{{ item.product.image_url if item.product.image_url else 'https://static.vecteezy.com/system/resources/previews/024/382/868/non_2x/green-recycle-icon-sign-symbol-design-transparent-background-free-png.png' }}" 
+                                         alt="{{ item.product.title }}" 
+                                         class="img-fluid rounded">
+                                </div>
+                                <div class="col-md-4">
+                                    <h5 class="card-title">{{ item.product.title }}</h5>
+                                    <p class="text-success fw-bold mb-0">₹{{ '%.2f'|format(item.product.price) }} each</p>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="d-flex align-items-center">
+                                        <form action="{{ url_for('update_cart_quantity', cart_item_id=item.id) }}" method="POST" class="me-2">
+                                            <input type="hidden" name="action" value="decrement">
+                                            <button type="submit" class="btn btn-outline-secondary btn-sm">-</button>
+                                        </form>
+                                        <span class="mx-2">{{ item.quantity }}</span>
+                                        <form action="{{ url_for('update_cart_quantity', cart_item_id=item.id) }}" method="POST" class="ms-2">
+                                            <input type="hidden" name="action" value="increment">
+                                            <button type="submit" class="btn btn-outline-secondary btn-sm">+</button>
+                                        </form>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <p class="fw-bold mb-0">₹{{ '%.2f'|format(item.product.price * item.quantity) }}</p>
+                                </div>
+                                <div class="col-md-1">
+                                    <form action="{{ url_for('remove_from_cart', cart_item_id=item.id) }}" method="POST">
+                                        <button type="submit" class="btn btn-danger btn-sm">×</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
-        {% else %}
-            <p>Your cart is empty.</p>
-        {% endfor %}
-    </div>
-    <div class="card p-3 mb-3">
-        <h4 class="mb-3">Total: <span class="text-success">₹{{ '%.2f'|format(total) }}</span></h4>
-        {% if cart_items %}
-            <form id="purchase-form" action="{{ url_for('purchase_cart') }}" method="POST" data-total="{{ '%.2f'|format(total) }}">
-                <button type="submit" class="btn btn-success w-100">Purchase All</button>
-            </form>
-            <script>
-                document.getElementById('purchase-form').onsubmit = function(e) {
-                    var total = this.getAttribute('data-total');
-                    if (!confirm('Are you sure you want to purchase all items in your cart? Your total will be ₹' + total + '.')) {
-                        e.preventDefault();
-                    }
-                };
-            </script>
-        {% endif %}
-    </div>
+            
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title mb-3">Order Summary</h4>
+                        
+                        {% set subtotal = namespace(total=0) %}
+                        {% for item in cart_items %}
+                            {% set subtotal.total = subtotal.total + (item.product.price * item.quantity) %}
+                        {% endfor %}
+                        
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal:</span>
+                            <span>₹{{ '%.2f'|format(subtotal.total) }}</span>
+                        </div>
+                        
+                        {% if g.user %}
+                            <div class="mb-3">
+                                <label for="redeem_eco_points" class="form-label">
+                                    Redeem ECO Points (Available: {{ g.user.eco_points }})
+                                </label>
+                                <input type="number" 
+                                       class="form-control" 
+                                       id="redeem_eco_points" 
+                                       min="0" 
+                                       max="{{ g.user.eco_points }}" 
+                                       value="0">
+                                <small class="text-muted">1 point = ₹1 discount</small>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mb-3">
+                                <span>ECO Points Discount:</span>
+                                <span id="eco-points-discount">₹0.00</span>
+                            </div>
+                        {% endif %}
+                        
+                        <hr>
+                        
+                        <div class="d-flex justify-content-between mb-3">
+                            <strong>Total:</strong>
+                            <strong id="final-total">₹{{ '%.2f'|format(subtotal.total) }}</strong>
+                        </div>
+                        
+                        <form id="purchase-form" action="{{ url_for('purchase_cart') }}" method="POST">
+                            <input type="hidden" id="hidden_eco_points" name="redeem_eco_points" value="0">
+                            <button type="submit" class="btn btn-success w-100">Purchase All</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            Your cart is empty. <a href="{{ url_for('product_list') }}" class="alert-link">Continue shopping</a>
+        </div>
+    {% endif %}
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ecoPointsInput = document.getElementById('redeem_eco_points');
+    const hiddenEcoPoints = document.getElementById('hidden_eco_points');
+    const ecoPointsDiscount = document.getElementById('eco-points-discount');
+    const finalTotal = document.getElementById('final-total');
+    const purchaseForm = document.getElementById('purchase-form');
+    
+    if (ecoPointsInput) {
+        const subtotal = parseFloat(finalTotal.textContent.replace('₹', ''));
+        
+        ecoPointsInput.addEventListener('input', function() {
+            const points = Math.min(
+                Math.max(0, parseInt(this.value) || 0),
+                parseInt('{{ g.user.eco_points if g.user else 0 }}')
+            );
+            
+            const discount = points;
+            const newTotal = Math.max(0, subtotal - discount);
+            
+            ecoPointsDiscount.textContent = `₹${discount.toFixed(2)}`;
+            finalTotal.textContent = `₹${newTotal.toFixed(2)}`;
+            hiddenEcoPoints.value = points;
+            this.value = points;
+        });
+    }
+    
+    if (purchaseForm) {
+        purchaseForm.addEventListener('submit', function(e) {
+            const total = finalTotal.textContent;
+            if (!confirm(`Are you sure you want to purchase all items in your cart? Your total will be ${total}.`)) {
+                e.preventDefault();
+            }
+        });
+    }
+});
+</script>
 {% endblock %} 

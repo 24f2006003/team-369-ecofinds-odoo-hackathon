@@ -40,12 +40,19 @@ def create_app():
             email = request.form['email']
             password = request.form['password']
             user = User.query.filter_by(email=email).first()
-            if user and user.password_hash == password:
+            
+            if not user:
+                flash('No account found with this email. Please sign up first.', 'warning')
+                return redirect(url_for('signup'))
+            
+            if user.password_hash == password:
                 session['user_id'] = user.id
                 flash('Login successful!', 'success')
                 return redirect(url_for('dashboard'))
             else:
-                flash('Invalid email or password', 'danger')
+                flash('Invalid password. Please try again.', 'danger')
+                return redirect(url_for('login'))
+            
         return render_template('login.html')
 
     @app.route('/signup', methods=['GET', 'POST'])
@@ -54,11 +61,24 @@ def create_app():
             email = request.form['email']
             password = request.form['password']
             username = request.form['username']
+            
+            # Check if user already exists
+            existing_user = User.query.filter((User.email == email) | (User.username == username)).first()
+            if existing_user:
+                if existing_user.email == email:
+                    flash('An account with this email already exists. Please login instead.', 'warning')
+                else:
+                    flash('This username is already taken. Please choose another one.', 'warning')
+                return redirect(url_for('signup'))
+            
+            # Create new user
             user = User(email=email, password_hash=password, username=username)
             db.session.add(user)
             db.session.commit()
-            flash('Signup successful! Please log in.', 'success')
+            
+            flash('Account created successfully! Please login to continue.', 'success')
             return redirect(url_for('login'))
+            
         return render_template('register.html')
 
     @app.route('/logout')
@@ -170,8 +190,12 @@ def create_app():
         user = current_user()
         if not user:
             return redirect(url_for('login'))
-        cart_item = CartItem(user_id=user.id, product_id=product_id)
-        db.session.add(cart_item)
+        cart_item = CartItem.query.filter_by(user_id=user.id, product_id=product_id).first()
+        if cart_item:
+            cart_item.quantity += 1
+        else:
+            cart_item = CartItem(user_id=user.id, product_id=product_id, quantity=1)
+            db.session.add(cart_item)
         db.session.commit()
         flash('Added to cart!', 'success')
         return redirect(url_for('cart'))
@@ -186,6 +210,24 @@ def create_app():
         db.session.delete(cart_item)
         db.session.commit()
         flash('Removed from cart!', 'success')
+        return redirect(url_for('cart'))
+
+    @app.route('/cart/update/<int:cart_item_id>', methods=['POST'])
+    def update_cart_quantity(cart_item_id):
+        user = current_user()
+        cart_item = CartItem.query.get_or_404(cart_item_id)
+        if not user or cart_item.user_id != user.id:
+            flash('Unauthorized', 'danger')
+            return redirect(url_for('cart'))
+        action = request.form.get('action')
+        if action == 'increment':
+            cart_item.quantity += 1
+        elif action == 'decrement':
+            if cart_item.quantity > 1:
+                cart_item.quantity -= 1
+            else:
+                db.session.delete(cart_item)
+        db.session.commit()
         return redirect(url_for('cart'))
 
     @app.route('/purchases')
@@ -219,18 +261,27 @@ def create_app():
         if not cart_items:
             flash('Your cart is empty.', 'warning')
             return redirect(url_for('cart'))
+        redeem_points = int(request.form.get('redeem_eco_points', 0))
+        total_spent = 0
         for item in cart_items:
-            purchase = Purchase(user_id=user.id, product_id=item.product_id, purchase_price=item.product.price)
-            db.session.add(purchase)
+            for _ in range(item.quantity):
+                purchase = Purchase(user_id=user.id, product_id=item.product_id, purchase_price=item.product.price)
+                db.session.add(purchase)
+                total_spent += item.product.price
             db.session.delete(item)
+        # ECO Points: 1 point per Rs. 10 spent
+        points_earned = int(total_spent // 10)
+        user.eco_points += points_earned
+        # Redeem ECO Points
+        if redeem_points > 0 and redeem_points <= user.eco_points:
+            user.eco_points -= redeem_points
         db.session.commit()
-        flash('Purchase successful! All items have been purchased.', 'success')
+        flash(f'Purchase successful! You earned {points_earned} ECO Points.', 'success')
         return redirect(url_for('purchases'))
 
     return app
 
 app = create_app()
-
 
 with app.app_context():
     from app.models import User, Product, Purchase, CartItem
@@ -238,10 +289,10 @@ with app.app_context():
     # Insert dummy products if table is empty
     if Product.query.count() == 0:
         demo_products = [
-            Product(title='Eco Water Bottle', description='Reusable water bottle made from recycled materials.', price=12.99, category='Eco-Friendly', image_url='', owner_id=1),
-            Product(title='Bamboo Toothbrush', description='Biodegradable toothbrush with bamboo handle.', price=3.49, category='Eco-Friendly', image_url='', owner_id=1),
-            Product(title='Recycled Notebook', description='Notebook made from 100% recycled paper.', price=5.99, category='Recycled', image_url='', owner_id=1),
-            Product(title='Water Saver Showerhead', description='Showerhead that reduces water usage by 40%.', price=19.99, category='Water Saving', image_url='', owner_id=1),
+            Product(title='Eco Water Bottle', description='Reusable water bottle made from recycled materials.', price=129.99, category='Eco-Friendly', image_url='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQRZ1rOtZUOy4m3hbbgp27D_IKXBkaO2_mwXQ&s', owner_id=1),
+            Product(title='Bamboo Toothbrush', description='Biodegradable toothbrush with bamboo handle.', price=39.49, category='Eco-Friendly', image_url='https://m.media-amazon.com/images/I/71edeKpYPpL.jpg', owner_id=1),
+            Product(title='Recycled Notebook', description='Notebook made from 100% recycled paper.', price=59.99, category='Recycled', image_url='https://images2.habeco.si/Upload/Product/sonora-plus---recycled-paper-notebook-pen_8494_productmain.webp', owner_id=1),
+            Product(title='Water Saver Showerhead', description='Showerhead that reduces water usage by 40%.', price=1999.99, category='Water Saving', image_url='https://m.media-amazon.com/images/I/81eF1mDe5gL.jpg', owner_id=1),
         ]
         # Ensure at least one user exists for owner_id=1
         if not User.query.get(1):

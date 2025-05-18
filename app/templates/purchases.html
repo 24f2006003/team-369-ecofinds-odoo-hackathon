@@ -7,7 +7,7 @@
     <div class="product-list row justify-content-center">
         {% for purchase in purchases %}
             <div class="product-card mb-3 col-12 col-md-6 col-lg-4">
-                <img src="{{ purchase.product.image_url if purchase.product.image_url else 'https://www.citypng.com/public/uploads/preview/recycle-recycling-green-illustration-logo-icon-png-701751694964819fw7dltehsp.png' }}" alt="Product Image" class="img-fluid rounded mb-2">
+                <img src="{{ purchase.product.image_url if purchase.product.image_url else 'https://static.vecteezy.com/system/resources/previews/024/382/868/non_2x/green-recycle-icon-sign-symbol-design-transparent-background-free-png.png' }}" alt="Product Image" class="img-fluid rounded mb-2">
                 <h4>{{ purchase.product.title }}</h4>
                 <p class="text-success fw-bold">₹{{ '%.2f'|format(purchase.purchase_price) }}</p>
                 <p class="text-muted">Purchased on {{ purchase.purchased_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
