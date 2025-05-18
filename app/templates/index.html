@@ -3,48 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoFinds - Home</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <title>EcoFinds - Sustainable Marketplace</title>
 </head>
 <body>
-    {% include 'base.html' %}
-    
     <header>
         <h1>Welcome to EcoFinds</h1>
-        <p>Your sustainable second-hand marketplace</p>
+        <p>Your one-stop shop for sustainable products.</p>
     </header>
-
-    <section class="search-bar">
-        <input type="text" placeholder="Search for products..." aria-label="Search">
-        <button type="button">Search</button>
-    </section>
-
-    <section class="categories">
-        <h2>Categories</h2>
-        <ul>
-            <li><a href="#">Clothing</a></li>
-            <li><a href="#">Furniture</a></li>
-            <li><a href="#">Electronics</a></li>
-            <li><a href="#">Books</a></li>
-        </ul>
-    </section>
-
-    <section class="product-list">
-        <h2>Featured Products</h2>
-        <div class="product-card">
-            <img src="path/to/image.jpg" alt="Product Image">
-            <h3>Product Title</h3>
-            <p>Product Description</p>
-            <span>Price: $XX.XX</span>
-            <button type="button">View Details</button>
-        </div>
-        <!-- Repeat product-card for more products -->
-    </section>
-
+    <main>
+        <section>
+            <h2>Our Mission</h2>
+            <p>EcoFinds is dedicated to promoting eco-friendly and sustainable products to help you make a positive impact on the planet.</p>
+        </section>
+        <section>
+            <h2>Featured Products</h2>
+            <p>Check out our latest collection of sustainable products.</p>
+        </section>
+    </main>
     <footer>
-        <p>&copy; 2023 EcoFinds. All rights reserved.</p>
+        <p>&copy; 2025 EcoFinds. All rights reserved.</p>
     </footer>
-
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

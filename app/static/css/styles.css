@@ -1,15 +1,43 @@
 body {
     font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
     margin: 0;
     padding: 0;
-    background-color: #f4f4f4;
+    color: #333;
 }
 
 header {
-    background: #4CAF50;
+    background-color: #4CAF50;
     color: white;
-    padding: 10px 0;
+    padding: 1rem;
     text-align: center;
+}
+
+main {
+    padding: 2rem;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 1rem;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
 }
 
 .container {
@@ -50,16 +78,6 @@ h1, h2, h3 {
 
 .btn:hover {
     background: #45a049;
-}
-
-footer {
-    text-align: center;
-    padding: 20px 0;
-    background: #333;
-    color: white;
-    position: relative;
-    bottom: 0;
-    width: 100%;
 }
 
 @media (max-width: 768px) {
