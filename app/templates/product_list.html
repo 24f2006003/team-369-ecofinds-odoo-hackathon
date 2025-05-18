@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <title>Your Product Listings</title>
+</head>
+<body>
+    {% include 'base.html' %}
+    <div class="container">
+        <h1>Your Product Listings</h1>
+        <a href="{{ url_for('products.create') }}" class="btn btn-primary">Add New Product</a>
+        <div class="product-list">
+            {% for product in products %}
+                <div class="product-card">
+                    <h2>{{ product.title }}</h2>
+                    <p>{{ product.description }}</p>
+                    <p>Price: ${{ product.price }}</p>
+                    <a href="{{ url_for('products.edit', product_id=product.id) }}" class="btn btn-secondary">Edit</a>
+                    <form action="{{ url_for('products.delete', product_id=product.id) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            {% else %}
+                <p>No products found. Please add some products!</p>
+            {% endfor %}
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
