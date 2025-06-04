@@ -8,12 +8,20 @@
         {
             "src": "app/static/**",
             "use": "@vercel/static"
+        },
+        {
+            "src": "app/translations/**",
+            "use": "@vercel/static"
         }
     ],
     "routes": [
         {
             "src": "/static/(.*)",
             "dest": "/app/static/$1"
+        },
+        {
+            "src": "/translations/(.*)",
+            "dest": "/app/translations/$1"
         },
         {
             "src": "/(.*)",
@@ -24,6 +32,7 @@
         "FLASK_ENV": "production",
         "FLASK_APP": "run.py",
         "PYTHONPATH": ".",
-        "DATABASE_URL": "@database_url"
+        "DATABASE_URL": "@database_url",
+        "BABEL_DEFAULT_LOCALE": "en"
     }
 } 

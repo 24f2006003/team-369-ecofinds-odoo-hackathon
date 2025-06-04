@@ -31,8 +31,13 @@ def create_app():
     # Configure supported languages
     app.config['LANGUAGES'] = {
         'en': 'English',
-        'hi': 'हिंदी'
+        'hi': 'हिंदी',
+        'gu': 'ગુજરાતી'
     }
+
+    # Configure Babel
+    app.config['BABEL_DEFAULT_LOCALE'] = 'en'
+    app.config['BABEL_TRANSLATION_DIRECTORIES'] = os.path.join(app.root_path, 'translations')
 
     # Register blueprints
     from app.auth.routes import auth as auth_blueprint
@@ -268,13 +273,18 @@ def create_app():
 
     @babel.localeselector
     def get_locale():
-        return session.get('lang', 'en')
+        # Try to get the language from the session
+        if 'lang' in session:
+            return session['lang']
+        # Try to get the language from the user's browser
+        return request.accept_languages.best_match(app.config['LANGUAGES'].keys())
 
     @app.route('/set_language/<lang_code>')
     def set_language(lang_code):
         if lang_code not in app.config['LANGUAGES']:
             lang_code = 'en'
         session['lang'] = lang_code
+        g.lang_code = lang_code
         return redirect(request.referrer or url_for('home'))
 
     return app

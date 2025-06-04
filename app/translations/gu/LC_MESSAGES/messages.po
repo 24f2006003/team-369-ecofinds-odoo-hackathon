@@ -1,0 +1,124 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: EcoFinds\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-03-05 12:00+0000\n"
+"PO-Revision-Date: 2024-03-05 12:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Gujarati\n"
+"Language: gu\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Register for EcoFinds"
+msgstr "EcoFinds માટે નોંધણી કરો"
+
+msgid "Username"
+msgstr "વપરાશકર્તા નામ"
+
+msgid "Email address"
+msgstr "ઇમેઇલ સરનામું"
+
+msgid "Phone Number"
+msgstr "ફોન નંબર"
+
+msgid "Password"
+msgstr "પાસવર્ડ"
+
+msgid "Confirm Password"
+msgstr "પાસવર્ડની પુષ્ટિ કરો"
+
+msgid "Register"
+msgstr "નોંધણી કરો"
+
+msgid "Already have an account?"
+msgstr "પહેલેથી જ એકાઉન્ટ છે?"
+
+msgid "Login here"
+msgstr "અહીં લૉગિન કરો"
+
+msgid "Login"
+msgstr "લૉગિન"
+
+msgid "Logout"
+msgstr "લૉગઆઉટ"
+
+msgid "Products"
+msgstr "ઉત્પાદનો"
+
+msgid "Cart"
+msgstr "કાર્ટ"
+
+msgid "Add to Cart"
+msgstr "કાર્ટમાં ઉમેરો"
+
+msgid "Chat with Seller"
+msgstr "વેચનાર સાથે ચેટ કરો"
+
+msgid "Login to Chat or Purchase"
+msgstr "ચેટ અથવા ખરીદી માટે લૉગિન કરો"
+
+msgid "Back"
+msgstr "પાછળ"
+
+msgid "Category"
+msgstr "શ્રેણી"
+
+msgid "Description"
+msgstr "વર્ણન"
+
+msgid "Price"
+msgstr "કિંમત"
+
+msgid "Search"
+msgstr "શોધો"
+
+msgid "All Categories"
+msgstr "બધી શ્રેણીઓ"
+
+msgid "Eco-Finds"
+msgstr "ઇકો-ફાઇન્ડ્સ"
+
+msgid "Eco-Friendly"
+msgstr "પર્યાવરણ અનુકૂળ"
+
+msgid "Recycled"
+msgstr "પુનઃપ્રક્રિયા કરેલ"
+
+msgid "Water Saving"
+msgstr "પાણી બચત"
+
+msgid "Home"
+msgstr "હોમ"
+
+msgid "Add Product"
+msgstr "ઉત્પાદન ઉમેરો"
+
+msgid "Search products..."
+msgstr "ઉત્પાદનો શોધો..."
+
+msgid "My Cart"
+msgstr "મારો કાર્ટ"
+
+msgid "ECO Points"
+msgstr "ઇકો પોઇન્ટ્સ"
+
+msgid "Sign Up"
+msgstr "સાઇન અપ"
+
+msgid "Language"
+msgstr "ભાષા"
+
+msgid "English"
+msgstr "અંગ્રેજી"
+
+msgid "Hindi"
+msgstr "હિન્દી"
+
+msgid "Spanish"
+msgstr "સ્પેનિશ"
+
+msgid "All rights reserved."
+msgstr "બધા હક્કો સુરક્ષિત છે." 

@@ -1,6 +1,10 @@
 from app import create_app, db
 from app.models import User, Product, CartItem, Purchase
 import os
+from compile_translations import compile_translations
+
+# Compile translations before starting the app
+compile_translations()
 
 app = create_app()
 
