@@ -2,12 +2,15 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
 from flask_babel import Babel, _
+from flask_migrate import Migrate
 import os
 from werkzeug.utils import secure_filename
 from app.config import Config
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from sqlalchemy import or_
 
 db = SQLAlchemy()
+migrate = Migrate()
 login_manager = LoginManager()
 mail = Mail()
 babel = Babel()
@@ -23,6 +26,7 @@ def create_app():
     
     # Initialize extensions
     db.init_app(app)
+    migrate.init_app(app, db)
     login_manager.init_app(app)
     mail.init_app(app)
     babel.init_app(app)
@@ -164,25 +168,33 @@ def create_app():
     @app.route('/dashboard')
     @login_required
     def dashboard():
-        return render_template('dashboard.html')
+        user = current_user
+        return render_template('dashboard.html', user=user)
 
     @app.route('/products')
-    def product_list():
-        try:
-            search = request.args.get('search', '')
-            category = request.args.get('category', '')
-            query = Product.query
-            if search:
-                query = query.filter(Product.title.ilike(f'%{search}%'))
-            if category:
-                query = query.filter_by(category=category)
-            products = query.all()
-            categories = ['Eco-Finds', 'Eco-Friendly', 'Recycled', 'Water Saving']
-            return render_template('product_list.html', products=products, categories=categories, selected_category=category, search=search)
-        except Exception as e:
-            current_app.logger.error(f'Error in product_list route: {str(e)}')
-            flash('An error occurred while loading products. Please try again.', 'danger')
-            return redirect(url_for('home'))
+    def products():
+        search_query = request.args.get('search', '')
+        city_query = request.args.get('city', '')
+        state_query = request.args.get('state', '')
+        
+        query = Product.query
+        
+        if search_query:
+            query = query.filter(
+                or_(
+                    Product.title.ilike(f'%{search_query}%'),
+                    Product.description.ilike(f'%{search_query}%')
+                )
+            )
+        
+        if city_query:
+            query = query.filter(Product.city.ilike(f'%{city_query}%'))
+        
+        if state_query:
+            query = query.filter(Product.state.ilike(f'%{state_query}%'))
+        
+        products = query.order_by(Product.created_at.desc()).all()
+        return render_template('products.html', products=products)
 
     @app.route('/products/<int:product_id>')
     def product_detail(product_id):

@@ -117,8 +117,95 @@ msgstr "अंग्रेज़ी"
 msgid "Hindi"
 msgstr "हिंदी"
 
-msgid "Spanish"
-msgstr "स्पेनिश"
+msgid "Gujarati"
+msgstr "गुजराती"
 
 msgid "All rights reserved."
-msgstr "सर्वाधिकार सुरक्षित।" 
+msgstr "सर्वाधिकार सुरक्षित।"
+
+msgid "User Dashboard"
+msgstr "उपयोगकर्ता डैशबोर्ड"
+
+msgid "Recent Activity"
+msgstr "हाल की गतिविधि"
+
+msgid "Previous Purchases"
+msgstr "पिछली खरीदारी"
+
+msgid "My Product Listings"
+msgstr "मेरी उत्पाद सूची"
+
+msgid "Edit"
+msgstr "संपादित करें"
+
+msgid "Delete"
+msgstr "हटाएं"
+
+msgid "No recent purchases"
+msgstr "कोई हाल की खरीदारी नहीं"
+
+msgid "No previous purchases found."
+msgstr "कोई पिछली खरीदारी नहीं मिली।"
+
+msgid "You have not listed any products yet."
+msgstr "आपने अभी तक कोई उत्पाद सूचीबद्ध नहीं किया है।"
+
+msgid "Leave blank to keep current password"
+msgstr "वर्तमान पासवर्ड रखने के लिए खाली छोड़ें"
+
+msgid "Update Profile"
+msgstr "प्रोफ़ाइल अपडेट करें"
+
+msgid "View All Purchases"
+msgstr "सभी खरीदारी देखें"
+
+msgid "Purchased on"
+msgstr "खरीदा गया"
+
+msgid "Please provide both email and password"
+msgstr "कृपया ईमेल और पासवर्ड दोनों प्रदान करें"
+
+msgid "No account found with this email. Please register first."
+msgstr "इस ईमेल के साथ कोई खाता नहीं मिला। कृपया पहले पंजीकरण करें।"
+
+msgid "Invalid password. Please try again."
+msgstr "अमान्य पासवर्ड। कृपया पुनः प्रयास करें।"
+
+msgid "Login successful!"
+msgstr "लॉगिन सफल!"
+
+msgid "You have been logged out."
+msgstr "आप लॉग आउट कर दिए गए हैं।"
+
+msgid "Product created successfully!"
+msgstr "उत्पाद सफलतापूर्वक बनाया गया!"
+
+msgid "Product updated successfully!"
+msgstr "उत्पाद सफलतापूर्वक अपडेट किया गया!"
+
+msgid "Product added to cart!"
+msgstr "उत्पाद कार्ट में जोड़ा गया!"
+
+msgid "An error occurred while adding the product to cart"
+msgstr "कार्ट में उत्पाद जोड़ते समय एक त्रुटि हुई"
+
+msgid "Unauthorized"
+msgstr "अनधिकृत"
+
+msgid "An error occurred while loading products. Please try again."
+msgstr "उत्पाद लोड करते समय एक त्रुटि हुई। कृपया पुनः प्रयास करें।"
+
+msgid "An error occurred while loading the product. Please try again."
+msgstr "उत्पाद लोड करते समय एक त्रुटि हुई। कृपया पुनः प्रयास करें।"
+
+msgid "Seller"
+msgstr "विक्रेता"
+
+msgid "Location"
+msgstr "स्थान"
+
+msgid "City"
+msgstr "शहर"
+
+msgid "State"
+msgstr "राज्य" 

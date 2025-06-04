@@ -6,9 +6,9 @@
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card shadow p-4 mb-4">
-                <h2 class="text-center mb-3">User Dashboard</h2>
+                <h2 class="text-center mb-3">{{ _('User Dashboard') }}</h2>
                 <div class="d-flex flex-column align-items-center mb-3">
-                    <span class="badge bg-success mb-2">ECO Points: {{ user.eco_points }}</span>
+                    <span class="badge bg-success mb-2">{{ _('ECO Points') }}: {{ user.eco_points }}</span>
                     <form action="{{ url_for('dashboard') }}" method="POST" enctype="multipart/form-data">
                         <label for="profile_img">
                             <div style="width:90px; height:90px; background:#e0e0e0; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2.5rem; color:#888; margin-bottom:1rem; cursor:pointer;">
@@ -21,22 +21,22 @@
                         </label>
                         <input type="file" id="profile_img" name="profile_img" accept="image/*" style="display:none;">
                         <div class="mb-3">
-                            <label for="username" class="form-label">Username:</label>
+                            <label for="username" class="form-label">{{ _('Username') }}:</label>
                             <input type="text" id="username" name="username" class="form-control" value="{{ user.username }}" required>
                         </div>
                         <div class="mb-3">
-                            <label for="email" class="form-label">Email:</label>
+                            <label for="email" class="form-label">{{ _('Email') }}:</label>
                             <input type="email" id="email" name="email" class="form-control" value="{{ user.email }}" required>
                         </div>
                         <div class="mb-3">
-                            <label for="password" class="form-label">Password:</label>
-                            <input type="password" id="password" name="password" class="form-control" placeholder="Leave blank to keep current password">
+                            <label for="password" class="form-label">{{ _('Password') }}:</label>
+                            <input type="password" id="password" name="password" class="form-control" placeholder="{{ _('Leave blank to keep current password') }}">
                         </div>
-                        <button type="submit" class="btn btn-success w-100 mb-2">Update Profile</button>
+                        <button type="submit" class="btn btn-success w-100 mb-2">{{ _('Update Profile') }}</button>
                     </form>
                 </div>
                 <div class="mt-3">
-                    <h4 class="mb-3">Recent Activity</h4>
+                    <h4 class="mb-3">{{ _('Recent Activity') }}</h4>
                     <div class="list-group">
                         {% for purchase in user.purchases[-5:] %}
                             <div class="list-group-item">
@@ -44,35 +44,35 @@
                                     <h6 class="mb-1">{{ purchase.product.title }}</h6>
                                     <small>₹{{ '%.2f'|format(purchase.purchase_price) }}</small>
                                 </div>
-                                <small class="text-muted">Purchased on {{ purchase.created_at.strftime('%Y-%m-%d') }}</small>
+                                <small class="text-muted">{{ _('Purchased on') }} {{ purchase.created_at.strftime('%Y-%m-%d') }}</small>
                             </div>
                         {% else %}
-                            <div class="list-group-item">No recent purchases</div>
+                            <div class="list-group-item">{{ _('No recent purchases') }}</div>
                         {% endfor %}
                     </div>
                 </div>
-                <a href="{{ url_for('purchases') }}" class="btn btn-outline-primary w-100 mt-3">View All Purchases</a>
+                <a href="{{ url_for('purchases') }}" class="btn btn-outline-primary w-100 mt-3">{{ _('View All Purchases') }}</a>
             </div>
             <div class="card shadow p-4 mb-4">
-                <h4 class="mb-3">Previous Purchases</h4>
-                <span class="badge bg-success mb-2">ECO Points: {{ user.eco_points }}</span>
+                <h4 class="mb-3">{{ _('Previous Purchases') }}</h4>
+                <span class="badge bg-success mb-2">{{ _('ECO Points') }}: {{ user.eco_points }}</span>
                 <div class="product-list">
                     {% for purchase in user.purchases %}
                         <div class="product-card mb-3">
                             <img src="{{ purchase.product.image_url if purchase.product.image_url else 'https://static.vecteezy.com/system/resources/previews/024/382/868/non_2x/green-recycle-icon-sign-symbol-design-transparent-background-free-png.png' }}" alt="Product Image">
                             <h4>{{ purchase.product.title }}</h4>
                             <p class="text-success fw-bold">₹{{ '%.2f'|format(purchase.purchase_price) }}</p>
-                            <p class="text-muted">Purchased on {{ purchase.purchased_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                            <p class="text-muted">{{ _('Purchased on') }} {{ purchase.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
                         </div>
                     {% else %}
-                        <p>No previous purchases found.</p>
+                        <p>{{ _('No previous purchases found.') }}</p>
                     {% endfor %}
                 </div>
             </div>
         </div>
         <div class="col-md-8">
             <div class="card shadow p-4">
-                <h3 class="mb-3">My Product Listings</h3>
+                <h3 class="mb-3">{{ _('My Product Listings') }}</h3>
                 <div class="product-list">
                     {% for product in user.products %}
                         <div class="product-card mb-3">
@@ -81,14 +81,14 @@
                             <p class="text-success fw-bold">₹{{ '%.2f'|format(product.price) }}</p>
                             <p class="text-muted">{{ product.category }}</p>
                             <div class="d-flex gap-2">
-                                <a href="{{ url_for('edit_product', product_id=product.id) }}" class="btn btn-primary btn-sm">Edit</a>
+                                <a href="{{ url_for('edit_product', product_id=product.id) }}" class="btn btn-primary btn-sm">{{ _('Edit') }}</a>
                                 <form action="{{ url_for('delete_product', product_id=product.id) }}" method="POST">
-                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                    <button type="submit" class="btn btn-danger btn-sm">{{ _('Delete') }}</button>
                                 </form>
                             </div>
                         </div>
                     {% else %}
-                        <p>You have not listed any products yet.</p>
+                        <p>{{ _('You have not listed any products yet.') }}</p>
                     {% endfor %}
                 </div>
             </div>

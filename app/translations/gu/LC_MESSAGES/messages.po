@@ -13,13 +13,13 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgid "Register for EcoFinds"
-msgstr "EcoFinds માટે નોંધણી કરો"
+msgstr "EcoFinds માટે રજિસ્ટર કરો"
 
 msgid "Username"
 msgstr "વપરાશકર્તા નામ"
 
 msgid "Email address"
-msgstr "ઇમેઇલ સરનામું"
+msgstr "ઈમેલ સરનામું"
 
 msgid "Phone Number"
 msgstr "ફોન નંબર"
@@ -31,19 +31,19 @@ msgid "Confirm Password"
 msgstr "પાસવર્ડની પુષ્ટિ કરો"
 
 msgid "Register"
-msgstr "નોંધણી કરો"
+msgstr "રજિસ્ટર કરો"
 
 msgid "Already have an account?"
-msgstr "પહેલેથી જ એકાઉન્ટ છે?"
+msgstr "પહેલેથી એકાઉન્ટ છે?"
 
 msgid "Login here"
-msgstr "અહીં લૉગિન કરો"
+msgstr "અહીં લોગિન કરો"
 
 msgid "Login"
-msgstr "લૉગિન"
+msgstr "લોગિન"
 
 msgid "Logout"
-msgstr "લૉગઆઉટ"
+msgstr "લોગઆઉટ"
 
 msgid "Products"
 msgstr "ઉત્પાદનો"
@@ -55,13 +55,13 @@ msgid "Add to Cart"
 msgstr "કાર્ટમાં ઉમેરો"
 
 msgid "Chat with Seller"
-msgstr "વેચનાર સાથે ચેટ કરો"
+msgstr "વિક્રેતા સાથે ચેટ કરો"
 
 msgid "Login to Chat or Purchase"
-msgstr "ચેટ અથવા ખરીદી માટે લૉગિન કરો"
+msgstr "ચેટ અથવા ખરીદી માટે લોગિન કરો"
 
 msgid "Back"
-msgstr "પાછળ"
+msgstr "પાછા"
 
 msgid "Category"
 msgstr "શ્રેણી"
@@ -79,16 +79,16 @@ msgid "All Categories"
 msgstr "બધી શ્રેણીઓ"
 
 msgid "Eco-Finds"
-msgstr "ઇકો-ફાઇન્ડ્સ"
+msgstr "ઈકો-ફાઇન્ડ્સ"
 
 msgid "Eco-Friendly"
-msgstr "પર્યાવરણ અનુકૂળ"
+msgstr "પર્યાવરણ માટે અનુકૂળ"
 
 msgid "Recycled"
-msgstr "પુનઃપ્રક્રિયા કરેલ"
+msgstr "રીસાયકલ"
 
 msgid "Water Saving"
-msgstr "પાણી બચત"
+msgstr "પાણી બચાવ"
 
 msgid "Home"
 msgstr "હોમ"
@@ -103,7 +103,7 @@ msgid "My Cart"
 msgstr "મારો કાર્ટ"
 
 msgid "ECO Points"
-msgstr "ઇકો પોઇન્ટ્સ"
+msgstr "ઈકો પોઇન્ટ્સ"
 
 msgid "Sign Up"
 msgstr "સાઇન અપ"
@@ -117,8 +117,95 @@ msgstr "અંગ્રેજી"
 msgid "Hindi"
 msgstr "હિન્દી"
 
-msgid "Spanish"
-msgstr "સ્પેનિશ"
+msgid "Gujarati"
+msgstr "ગુજરાતી"
 
 msgid "All rights reserved."
-msgstr "બધા હક્કો સુરક્ષિત છે." 
+msgstr "બધા અધિકારો સુરક્ષિત."
+
+msgid "User Dashboard"
+msgstr "વપરાશકર્તા ડેશબોર્ડ"
+
+msgid "Recent Activity"
+msgstr "તાજેતરની પ્રવૃત્તિ"
+
+msgid "Previous Purchases"
+msgstr "પાછલી ખરીદી"
+
+msgid "My Product Listings"
+msgstr "મારી ઉત્પાદન સૂચિ"
+
+msgid "Edit"
+msgstr "સંપાદિત કરો"
+
+msgid "Delete"
+msgstr "કાઢી નાખો"
+
+msgid "No recent purchases"
+msgstr "કોઈ તાજેતરની ખરીદી નથી"
+
+msgid "No previous purchases found."
+msgstr "કોઈ પાછલી ખરીદી મળી નથી."
+
+msgid "You have not listed any products yet."
+msgstr "તમે હજુ સુધી કોઈ ઉત્પાદનો યાદીમાં મૂક્યા નથી."
+
+msgid "Leave blank to keep current password"
+msgstr "વર્તમાન પાસવર્ડ રાખવા માટે ખાલી છોડો"
+
+msgid "Update Profile"
+msgstr "પ્રોફાઇલ અપડેટ કરો"
+
+msgid "View All Purchases"
+msgstr "બધી ખરીદી જુઓ"
+
+msgid "Purchased on"
+msgstr "ખરીદી કરેલી"
+
+msgid "Please provide both email and password"
+msgstr "કૃપા કરીને ઈમેલ અને પાસવર્ડ બંને પ્રદાન કરો"
+
+msgid "No account found with this email. Please register first."
+msgstr "આ ઈમેલ સાથે કોઈ એકાઉન્ટ મળ્યો નથી. કૃપા કરીને પહેલા રજિસ્ટર કરો."
+
+msgid "Invalid password. Please try again."
+msgstr "અમાન્ય પાસવર્ડ. કૃપા કરીને ફરીથી પ્રયાસ કરો."
+
+msgid "Login successful!"
+msgstr "લોગિન સફળ!"
+
+msgid "You have been logged out."
+msgstr "તમે લોગઆઉટ કરી દીધા છો."
+
+msgid "Product created successfully!"
+msgstr "ઉત્પાદન સફળતાપૂર્વક બનાવવામાં આવ્યું!"
+
+msgid "Product updated successfully!"
+msgstr "ઉત્પાદન સફળતાપૂર્વક અપડેટ કરવામાં આવ્યું!"
+
+msgid "Product added to cart!"
+msgstr "ઉત્પાદન કાર્ટમાં ઉમેરવામાં આવ્યું!"
+
+msgid "An error occurred while adding the product to cart"
+msgstr "કાર્ટમાં ઉત્પાદન ઉમેરતી વખતે એક ભૂલ આવી"
+
+msgid "Unauthorized"
+msgstr "અનધિકૃત"
+
+msgid "An error occurred while loading products. Please try again."
+msgstr "ઉત્પાદનો લોડ કરતી વખતે એક ભૂલ આવી. કૃપા કરીને ફરીથી પ્રયાસ કરો."
+
+msgid "An error occurred while loading the product. Please try again."
+msgstr "ઉત્પાદન લોડ કરતી વખતે એક ભૂલ આવી. કૃપા કરીને ફરીથી પ્રયાસ કરો."
+
+msgid "Seller"
+msgstr "વિક્રેતા"
+
+msgid "Location"
+msgstr "સ્થાન"
+
+msgid "City"
+msgstr "શહેર"
+
+msgid "State"
+msgstr "રાજ્ય" 
