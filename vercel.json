@@ -4,12 +4,16 @@
         {
             "src": "run.py",
             "use": "@vercel/python"
+        },
+        {
+            "src": "app/static/**",
+            "use": "@vercel/static"
         }
     ],
     "routes": [
         {
             "src": "/static/(.*)",
-            "dest": "/static/$1"
+            "dest": "/app/static/$1"
         },
         {
             "src": "/(.*)",
@@ -19,6 +23,7 @@
     "env": {
         "FLASK_ENV": "production",
         "FLASK_APP": "run.py",
-        "PYTHONPATH": "."
+        "PYTHONPATH": ".",
+        "DATABASE_URL": "@database_url"
     }
 } 

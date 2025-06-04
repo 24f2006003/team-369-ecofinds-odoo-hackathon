@@ -25,11 +25,14 @@ def register():
     if request.method == 'POST':
         try:
             # Get form data
-            username = request.form.get('username')
-            email = request.form.get('email')
-            phone_number = request.form.get('phone_number')
-            password = request.form.get('password')
-            confirm_password = request.form.get('confirm_password')
+            username = request.form.get('username', '').strip()
+            email = request.form.get('email', '').strip()
+            phone_number = request.form.get('phone_number', '').strip()
+            password = request.form.get('password', '')
+            confirm_password = request.form.get('confirm_password', '')
+            
+            # Log form data for debugging
+            current_app.logger.info(f'Registration attempt - Username: {username}, Email: {email}, Phone: {phone_number}')
             
             # Validate required fields
             if not all([username, email, phone_number, password, confirm_password]):
@@ -70,37 +73,19 @@ def register():
                 user = User(
                     email=email,
                     username=username,
-                    phone_number=phone_number
+                    phone_number=phone_number,
+                    is_email_verified=True,  # Temporarily set to True for testing
+                    is_phone_verified=True   # Temporarily set to True for testing
                 )
                 user.set_password(password)
                 
-                # Generate email verification token
-                verification_token = user.generate_email_verification_token()
-                
-                # Create OTP for phone verification
-                otp = OTP(user.id)
-                
                 db.session.add(user)
-                db.session.add(otp)
                 db.session.commit()
                 
-                # Send verification email
-                try:
-                    send_verification_email(user)
-                except Exception as e:
-                    current_app.logger.error(f'Failed to send verification email: {str(e)}')
-                    # Continue with registration even if email fails
-                    pass
+                # Log successful registration
+                current_app.logger.info(f'User registered successfully - ID: {user.id}, Email: {user.email}')
                 
-                # Send OTP via SMS
-                try:
-                    send_otp_sms(user.phone_number, otp.otp_code)
-                except Exception as e:
-                    current_app.logger.error(f'Failed to send OTP SMS: {str(e)}')
-                    # Continue with registration even if SMS fails
-                    pass
-                
-                flash('Registration successful! Please check your email and phone for verification.', 'success')
+                flash('Registration successful! You can now login.', 'success')
                 return redirect(url_for('auth.login'))
                 
             except Exception as e:
@@ -157,31 +142,31 @@ def verify_phone():
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        data = request.get_json()
+        email = request.form.get('email')
+        password = request.form.get('password')
         
-        if not all(k in data for k in ['email', 'password']):
-            return jsonify({'error': 'Missing required fields'}), 400
-            
-        user = User.query.filter_by(email=data['email']).first()
-        if not user or not user.check_password(data['password']):
-            return jsonify({'error': 'Invalid email or password'}), 401
-            
-        if not user.is_email_verified:
-            return jsonify({'error': 'Please verify your email first'}), 401
-            
-        if not user.is_phone_verified:
-            return jsonify({'error': 'Please verify your phone number first'}), 401
-            
+        if not email or not password:
+            flash('Please provide both email and password', 'danger')
+            return redirect(url_for('auth.login'))
+        
+        user = User.query.filter_by(email=email).first()
+        
+        if not user or not user.check_password(password):
+            flash('Invalid email or password', 'danger')
+            return redirect(url_for('auth.login'))
+        
         login_user(user)
-        return jsonify({'message': 'Login successful'}), 200
-        
+        flash('Login successful!', 'success')
+        return redirect(url_for('dashboard'))
+    
     return render_template('auth/login.html')
 
 @auth.route('/logout')
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('main.index'))
+    flash('You have been logged out.', 'info')
+    return redirect(url_for('auth.login'))
 
 @auth.route('/resend-otp', methods=['POST'])
 def resend_otp():
