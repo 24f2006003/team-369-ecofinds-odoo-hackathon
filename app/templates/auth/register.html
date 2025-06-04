@@ -9,8 +9,14 @@
                     <h3 class="text-center">Register for EcoFinds</h3>
                 </div>
                 <div class="card-body">
-                    <div id="error-message" class="alert alert-danger d-none"></div>
-                    <form id="registerForm" onsubmit="handleRegister(event)">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }}">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    <form method="POST" action="{{ url_for('auth.register') }}">
                         <div class="mb-3">
                             <label for="username" class="form-label">Username</label>
                             <input type="text" class="form-control" id="username" name="username" required>
@@ -47,66 +53,28 @@
 </div>
 
 <script>
-function showError(message) {
-    const errorDiv = document.getElementById('error-message');
-    errorDiv.textContent = message;
-    errorDiv.classList.remove('d-none');
-}
-
-async function handleRegister(event) {
-    event.preventDefault();
+document.getElementById('registerForm').addEventListener('submit', function(event) {
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirm_password').value;
+    const phoneNumber = document.getElementById('phone_number').value;
     
-    const form = event.target;
-    const formData = new FormData(form);
-    
-    // Clear any previous error messages
-    document.getElementById('error-message').classList.add('d-none');
-    
-    // Validate passwords match
-    if (formData.get('password') !== formData.get('confirm_password')) {
-        showError('Passwords do not match!');
+    if (password !== confirmPassword) {
+        event.preventDefault();
+        alert('Passwords do not match!');
         return;
     }
     
-    // Validate password length
-    if (formData.get('password').length < 6) {
-        showError('Password must be at least 6 characters long');
+    if (password.length < 6) {
+        event.preventDefault();
+        alert('Password must be at least 6 characters long');
         return;
     }
     
-    // Validate phone number format
-    const phoneNumber = formData.get('phone_number');
     if (!phoneNumber.startsWith('+')) {
-        showError('Phone number must start with country code (e.g., +1)');
+        event.preventDefault();
+        alert('Phone number must start with country code (e.g., +1)');
         return;
     }
-    
-    try {
-        const response = await fetch('/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                username: formData.get('username'),
-                email: formData.get('email'),
-                phone_number: formData.get('phone_number'),
-                password: formData.get('password')
-            })
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-            alert('Registration successful! Please check your email and phone for verification.');
-            window.location.href = '/login';
-        } else {
-            showError(data.error || 'Registration failed. Please try again.');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        showError('An error occurred. Please try again.');
-    }
-}
+});
 </script>
 {% endblock %} 
