@@ -1,7 +1,6 @@
 import os
 from dotenv import load_dotenv
 from datetime import timedelta
-import dj_database_url
 
 load_dotenv()
 
@@ -21,6 +20,10 @@ class Config:
         SQLALCHEMY_DATABASE_URI = 'sqlite:///app.db'
     
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        'pool_pre_ping': True,
+        'pool_recycle': 300,
+    }
     
     # Mail config
     MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
