@@ -1,34 +1,54 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, g
 from flask_sqlalchemy import SQLAlchemy
+from flask_mail import Mail
 import os
 from werkzeug.utils import secure_filename
+from app.config import Config
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
 db = SQLAlchemy()
+login_manager = LoginManager()
+mail = Mail()
+
+@login_manager.user_loader
+def load_user(user_id):
+    from app.models import User
+    return User.query.get(int(user_id))
 
 def create_app():
     app = Flask(__name__)
-    app.secret_key = 'your_secret_key'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config.from_object(Config)
+    
+    # Ensure the instance folder exists
+    try:
+        os.makedirs(app.instance_path)
+    except OSError:
+        pass
+    
     db.init_app(app)
+    login_manager.init_app(app)
+    mail.init_app(app)
+    login_manager.login_view = 'auth.login'
 
     from app.models import User, Product, Purchase, CartItem
+    from app.auth.routes import auth as auth_blueprint
+    app.register_blueprint(auth_blueprint)
 
-    CATEGORIES = [
-        'Eco-Friendly',
-        'Recycled',
-        'Water Saving',
-    ]
-
-    def current_user():
-        if 'user_id' in session:
-            return User.query.get(session['user_id'])
-        return None
-
-    @app.before_request
-    def load_logged_in_user():
-        user_id = session.get('user_id')
-        g.user = User.query.get(user_id) if user_id else None
+    # Create database tables
+    with app.app_context():
+        db.create_all()
+        # Create demo user if it doesn't exist
+        if not User.query.filter_by(email='demo@ecofinds.com').first():
+            user = User(
+                email='demo@ecofinds.com',
+                username='DemoUser',
+                phone_number='+1234567890',
+                is_email_verified=True,
+                is_phone_verified=True
+            )
+            user.set_password('demo123')
+            db.session.add(user)
+            db.session.commit()
 
     @app.route('/')
     def home():
@@ -45,74 +65,33 @@ def create_app():
                 flash('No account found with this email. Please sign up first.', 'warning')
                 return redirect(url_for('signup'))
             
-            if user.password_hash == password:
-                session['user_id'] = user.id
+            if user.check_password(password):
+                login_user(user)
                 flash('Login successful!', 'success')
                 return redirect(url_for('dashboard'))
             else:
                 flash('Invalid password. Please try again.', 'danger')
                 return redirect(url_for('login'))
             
-        return render_template('login.html')
+        return render_template('auth/login.html')
 
-    @app.route('/signup', methods=['GET', 'POST'])
+    @app.route('/signup')
     def signup():
-        if request.method == 'POST':
-            email = request.form['email']
-            password = request.form['password']
-            username = request.form['username']
-            
-            # Check if user already exists
-            existing_user = User.query.filter((User.email == email) | (User.username == username)).first()
-            if existing_user:
-                if existing_user.email == email:
-                    flash('An account with this email already exists. Please login instead.', 'warning')
-                else:
-                    flash('This username is already taken. Please choose another one.', 'warning')
-                return redirect(url_for('signup'))
-            
-            # Create new user
-            user = User(email=email, password_hash=password, username=username)
-            db.session.add(user)
-            db.session.commit()
-            
-            flash('Account created successfully! Please login to continue.', 'success')
-            return redirect(url_for('login'))
-            
-        return render_template('register.html')
+        return render_template('auth/register.html')
 
     @app.route('/logout')
+    @login_required
     def logout():
-        session.pop('user_id', None)
+        logout_user()
         flash('You have been logged out.', 'info')
         return redirect(url_for('login'))
 
-    @app.route('/dashboard', methods=['GET', 'POST'])
+    @app.route('/dashboard')
+    @login_required
     def dashboard():
-        user = current_user()
-        if not user:
-            return redirect(url_for('login'))
-        if request.method == 'POST':
-            username = request.form['username']
-            email = request.form['email']
-            password = request.form.get('password')
-            user.username = username
-            user.email = email
-            if password:
-                user.password_hash = password
-            # Handle profile image upload
-            if 'profile_img' in request.files:
-                file = request.files['profile_img']
-                if file and file.filename:
-                    filename = secure_filename(file.filename)
-                    img_path = os.path.join(app.static_folder, 'img', filename)
-                    file.save(img_path)
-                    user.profile_img = filename
-            db.session.commit()
-            flash('Profile updated!', 'success')
-        return render_template('dashboard.html', user=user)
+        return render_template('dashboard.html')
 
-    @app.route('/products', methods=['GET'])
+    @app.route('/products')
     def product_list():
         search = request.args.get('search', '')
         category = request.args.get('category', '')
@@ -122,7 +101,7 @@ def create_app():
         if category:
             query = query.filter_by(category=category)
         products = query.all()
-        return render_template('product_list.html', products=products, categories=CATEGORIES, selected_category=category, search=search)
+        return render_template('product_list.html', products=products)
 
     @app.route('/products/<int:product_id>')
     def product_detail(product_id):
@@ -130,28 +109,26 @@ def create_app():
         return render_template('product_detail.html', product=product)
 
     @app.route('/products/new', methods=['GET', 'POST'])
+    @login_required
     def new_product():
-        user = current_user()
-        if not user:
-            return redirect(url_for('login'))
         if request.method == 'POST':
             title = request.form['title']
             description = request.form['description']
             price = request.form['price']
             category = request.form['category']
             image_url = request.form['image_url']
-            new_product = Product(title=title, description=description, price=price, category=category, image_url=image_url, owner_id=user.id)
+            new_product = Product(title=title, description=description, price=price, category=category, image_url=image_url, owner_id=current_user.id)
             db.session.add(new_product)
             db.session.commit()
             flash('Product created successfully!', 'success')
             return redirect(url_for('product_list'))
-        return render_template('new_product.html', categories=CATEGORIES)
+        return render_template('new_product.html')
 
     @app.route('/products/edit/<int:product_id>', methods=['GET', 'POST'])
+    @login_required
     def edit_product(product_id):
-        user = current_user()
         product = Product.query.get_or_404(product_id)
-        if not user or product.owner_id != user.id:
+        if product.owner_id != current_user.id:
             flash('Unauthorized', 'danger')
             return redirect(url_for('product_list'))
         if request.method == 'POST':
@@ -163,121 +140,19 @@ def create_app():
             db.session.commit()
             flash('Product updated successfully!', 'success')
             return redirect(url_for('product_list'))
-        return render_template('edit_product.html', product=product, categories=CATEGORIES)
-
-    @app.route('/products/delete/<int:product_id>', methods=['POST'])
-    def delete_product(product_id):
-        user = current_user()
-        product = Product.query.get_or_404(product_id)
-        if not user or product.owner_id != user.id:
-            flash('Unauthorized', 'danger')
-            return redirect(url_for('product_list'))
-        db.session.delete(product)
-        db.session.commit()
-        flash('Product deleted successfully!', 'success')
-        return redirect(url_for('product_list'))
+        return render_template('edit_product.html', product=product)
 
     @app.route('/cart')
+    @login_required
     def cart():
-        user = current_user()
-        if not user:
-            return redirect(url_for('login'))
-        cart_items = CartItem.query.filter_by(user_id=user.id).all()
+        cart_items = CartItem.query.filter_by(user_id=current_user.id).all()
         return render_template('cart.html', cart_items=cart_items)
 
-    @app.route('/cart/add/<int:product_id>', methods=['POST'])
-    def add_to_cart(product_id):
-        user = current_user()
-        if not user:
-            return redirect(url_for('login'))
-        cart_item = CartItem.query.filter_by(user_id=user.id, product_id=product_id).first()
-        if cart_item:
-            cart_item.quantity += 1
-        else:
-            cart_item = CartItem(user_id=user.id, product_id=product_id, quantity=1)
-            db.session.add(cart_item)
-        db.session.commit()
-        flash('Added to cart!', 'success')
-        return redirect(url_for('cart'))
-
-    @app.route('/cart/remove/<int:cart_item_id>', methods=['POST'])
-    def remove_from_cart(cart_item_id):
-        user = current_user()
-        cart_item = CartItem.query.get_or_404(cart_item_id)
-        if not user or cart_item.user_id != user.id:
-            flash('Unauthorized', 'danger')
-            return redirect(url_for('cart'))
-        db.session.delete(cart_item)
-        db.session.commit()
-        flash('Removed from cart!', 'success')
-        return redirect(url_for('cart'))
-
-    @app.route('/cart/update/<int:cart_item_id>', methods=['POST'])
-    def update_cart_quantity(cart_item_id):
-        user = current_user()
-        cart_item = CartItem.query.get_or_404(cart_item_id)
-        if not user or cart_item.user_id != user.id:
-            flash('Unauthorized', 'danger')
-            return redirect(url_for('cart'))
-        action = request.form.get('action')
-        if action == 'increment':
-            cart_item.quantity += 1
-        elif action == 'decrement':
-            if cart_item.quantity > 1:
-                cart_item.quantity -= 1
-            else:
-                db.session.delete(cart_item)
-        db.session.commit()
-        return redirect(url_for('cart'))
-
     @app.route('/purchases')
+    @login_required
     def purchases():
-        user = current_user()
-        if not user:
-            return redirect(url_for('login'))
-        purchases = Purchase.query.filter_by(user_id=user.id).all()
+        purchases = Purchase.query.filter_by(user_id=current_user.id).all()
         return render_template('purchases.html', purchases=purchases)
-
-    @app.route('/purchase/<int:cart_item_id>', methods=['POST'])
-    def purchase(cart_item_id):
-        user = current_user()
-        cart_item = CartItem.query.get_or_404(cart_item_id)
-        if not user or cart_item.user_id != user.id:
-            flash('Unauthorized', 'danger')
-            return redirect(url_for('cart'))
-        purchase = Purchase(user_id=user.id, product_id=cart_item.product_id, purchase_price=cart_item.product.price)
-        db.session.add(purchase)
-        db.session.delete(cart_item)
-        db.session.commit()
-        flash('Purchase successful!', 'success')
-        return redirect(url_for('purchases'))
-
-    @app.route('/cart/purchase', methods=['POST'])
-    def purchase_cart():
-        user = current_user()
-        if not user:
-            return redirect(url_for('login'))
-        cart_items = CartItem.query.filter_by(user_id=user.id).all()
-        if not cart_items:
-            flash('Your cart is empty.', 'warning')
-            return redirect(url_for('cart'))
-        redeem_points = int(request.form.get('redeem_eco_points', 0))
-        total_spent = 0
-        for item in cart_items:
-            for _ in range(item.quantity):
-                purchase = Purchase(user_id=user.id, product_id=item.product_id, purchase_price=item.product.price)
-                db.session.add(purchase)
-                total_spent += item.product.price
-            db.session.delete(item)
-        # ECO Points: 1 point per Rs. 10 spent
-        points_earned = int(total_spent // 10)
-        user.eco_points += points_earned
-        # Redeem ECO Points
-        if redeem_points > 0 and redeem_points <= user.eco_points:
-            user.eco_points -= redeem_points
-        db.session.commit()
-        flash(f'Purchase successful! You earned {points_earned} ECO Points.', 'success')
-        return redirect(url_for('purchases'))
 
     return app
 
@@ -296,7 +171,14 @@ with app.app_context():
         ]
         # Ensure at least one user exists for owner_id=1
         if not User.query.get(1):
-            user = User(email='demo@ecofinds.com', password_hash='demo', username='DemoUser')
+            user = User(
+                email='demo@ecofinds.com',
+                username='DemoUser',
+                phone_number='+1234567890',
+                is_email_verified=True,
+                is_phone_verified=True
+            )
+            user.set_password('demo123')
             db.session.add(user)
             db.session.commit()
         for prod in demo_products:
