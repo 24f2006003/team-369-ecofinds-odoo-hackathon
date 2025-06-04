@@ -13,7 +13,11 @@
         <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="POST" class="mt-3 w-100" style="max-width:320px;">
             <button type="submit" class="btn btn-warning w-100">Add to Cart</button>
         </form>
-        <a href="{{ url_for('chat.chat_with_seller', seller_id=product.owner_id, product_id=product.id) }}" class="btn btn-success w-100 mt-2">Chat with Seller</a>
+        {% if current_user.is_authenticated and current_user.id != product.owner_id %}
+            <a href="{{ url_for('chat.chat_room', product_id=product.id) }}" class="btn btn-success w-100 mt-2">Chat with Seller</a>
+        {% elif not current_user.is_authenticated %}
+            <a href="{{ url_for('login') }}" class="btn btn-success w-100 mt-2">Login to Chat or Purchase</a>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
