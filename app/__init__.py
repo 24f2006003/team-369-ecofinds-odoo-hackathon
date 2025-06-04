@@ -5,7 +5,6 @@ import os
 from werkzeug.utils import secure_filename
 from app.config import Config
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-from app.models import User, Product, CartItem, Purchase
 
 db = SQLAlchemy()
 login_manager = LoginManager()
@@ -30,12 +29,14 @@ def create_app():
     from app.auth.routes import auth as auth_blueprint
     app.register_blueprint(auth_blueprint)
 
+    # Import models here to avoid circular imports
+    from app.models import User, Product, CartItem, Purchase
+
     # Create database tables only in development
     if os.environ.get('FLASK_ENV') != 'production':
         with app.app_context():
             db.create_all()
             # Create demo user if it doesn't exist
-            from app.models import User
             if not User.query.filter_by(email='demo@ecofinds.com').first():
                 user = User(
                     email='demo@ecofinds.com',
@@ -49,21 +50,18 @@ def create_app():
                 db.session.commit()
 
             # Add default products if none exist
-            from app.models import Product
             if Product.query.count() == 0:
                 demo_products = [
-                    Product(title='Eco Water Bottle', description='Reusable water bottle made from recycled materials.', price=129.99, category='Eco Finds', image_url='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQRZ1rOtZUOy4m3hbbgp27D_IKXBkaO2_mwXQ&s', owner_id=1)
-                    Product(title='Bamboo Toothbrush', description='Biodegradable toothbrush with bamboo handle.', price=39.49, category='Eco Finds', image_url='https://m.media-amazon.com/images/I/71edeKpYPpL.jpg', owner_id=1),
-                    Product(title='Recycled Notebook', description='Notebook made from 100% recycled paper.', price=59.99, category='Eco Finds', image_url='https://images2.habeco.si/Upload/Product/sonora-plus---recycled-paper-notebook-pen_8494_productmain.webp', owner_id=1),
-                    Product(title='Water Saver Showerhead', description='Showerhead that reduces water usage by 40%.', price=1999.99, category='Eco Finds', image_url='https://m.media-amazon.com/images/I/81eF1mDe5gL.jpg', owner_id=1),
+                    Product(title='Eco Water Bottle', description='Reusable water bottle made from recycled materials.', price=129.99, category='Eco-Friendly', image_url='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQRZ1rOtZUOy4m3hbbgp27D_IKXBkaO2_mwXQ&s', owner_id=1),
+                    Product(title='Bamboo Toothbrush', description='Biodegradable toothbrush with bamboo handle.', price=39.49, category='Eco-Friendly', image_url='https://m.media-amazon.com/images/I/71edeKpYPpL.jpg', owner_id=1),
+                    Product(title='Recycled Notebook', description='Notebook made from 100% recycled paper.', price=59.99, category='Recycled', image_url='https://images2.habeco.si/Upload/Product/sonora-plus---recycled-paper-notebook-pen_8494_productmain.webp', owner_id=1),
+                    Product(title='Water Saver Showerhead', description='Showerhead that reduces water usage by 40%.', price=1999.99, category='Water Saving', image_url='https://m.media-amazon.com/images/I/81eF1mDe5gL.jpg', owner_id=1),
                     Product(title='Eco Finds Wooden Water Bottle(750ml)', description='Made from recycled materials, this durable bottle features the Eco Finds logo perfect for sustainable hydration on the go.', price=599, category='Eco-Finds', image_url='https://pplx-res.cloudinary.com/image/upload/v1749017272/gpt4o_images/kfvxpybk0ldixn89rhug.png', owner_id=1),
                     Product(title='T-shirt Eco Finds', description='Show your commitment to sustainability with this comfortable T-shirt, made from recycled and eco-friendly materials and featuring the Eco Finds logo. Perfect for everyday wear while making a positive impact on the planet.', price=299, category='Eco-Finds',image_url='https://pplx-res.cloudinary.com/image/upload/v1749017789/gpt4o_images/bsz1nd5eddn0f7fzfth0.png' , owner_id=1),
-                    Product(title='Eco Finds Wooden Water Bottle(750ml)', description='Made from recycled materials, this durable bottle features the Eco Finds logo perfect for sustainable hydration on the go.', price=599, category='Eco-Finds', image_url='https://pplx-res.cloudinary.com/image/upload/v1749017272/gpt4o_images/kfvxpybk0ldixn89rhug.png', owner_id=1),
                     Product(title='Key Chain Eco Finds', description='Carry your commitment to sustainability everywhere! This landscape keychain features the Eco Finds logo and is crafted from eco-friendly materials—perfect for your keys or bag.', price=99, category='Eco-Finds', image_url='https://pplx-res.cloudinary.com/image/upload/v1749017410/gpt4o_images/niqwd5dplgm4iwwylupe.png' , owner_id=1),
                     Product(title='Eco Finds Black T-shirt', description='Make a statement for sustainability with this black Eco Finds T-shirt. Crafted from recycled and organic materials, it features the Eco Finds logo for a stylish, eco-friendly look you can wear anywhere', price=299, category='Eco-Finds',image_url='https://pplx-res.cloudinary.com/image/upload/v1749024630/gpt4o_images/rbnmez9sdd91glbo0f6i.png' , owner_id=1),
-                    Product(title='Eco Finds Wooden Toothbrush', description='Make the switch to sustainability with our Eco Finds wooden toothbrush. Crafted from biodegradable bamboo with BPA-free, soft bristles, it’s an eco-friendly choice for a cleaner mouth and a cleaner planet', price=89, category='Eco-Finds',image_url='https://i.postimg.cc/nLBgbmMj/Tooth.png' , owner_id=1),
-                    Product(title='T-shirt Eco Finds', description='Show your commitment to sustainability with this comfortable T-shirt, made from recycled and eco-friendly materials and featuring the Eco Finds logo. Perfect for everyday wear while making a positive impact on the planet.', price=699, category='Eco-Finds',image_url='https://pplx-res.cloudinary.com/image/upload/v1749017981/gpt4o_images/s3rtl7i6hqrqxorx4zlc.png' , owner_id=1),
-
+                    Product(title='Eco Finds Wooden Toothbrush', description="Make the switch to sustainability with our Eco Finds wooden toothbrush. Crafted from biodegradable bamboo with BPA-free, soft bristles, it's an eco-friendly choice for a cleaner mouth and a cleaner planet", price=89, category='Eco-Finds', image_url='https://i.postimg.cc/nLBgbmMj/Tooth.png', owner_id=1),
+                    Product(title='Eco Finds Hoodie', description='Show your commitment to sustainability with this comfortable T-shirt, made from recycled and eco-friendly materials and featuring the Eco Finds logo. Perfect for everyday wear while making a positive impact on the planet.', price=699, category='Eco-Finds',image_url='https://pplx-res.cloudinary.com/image/upload/v1749017981/gpt4o_images/s3rtl7i6hqrqxorx4zlc.png' , owner_id=1),
                 ]
                 for product in demo_products:
                     db.session.add(product)
@@ -121,7 +119,8 @@ def create_app():
         if category:
             query = query.filter_by(category=category)
         products = query.all()
-        return render_template('product_list.html', products=products)
+        categories = ['Eco-Finds', 'Eco-Friendly', 'Recycled', 'Water Saving']
+        return render_template('product_list.html', products=products, categories=categories, selected_category=category, search=search)
 
     @app.route('/products/<int:product_id>')
     def product_detail(product_id):
@@ -142,7 +141,8 @@ def create_app():
             db.session.commit()
             flash('Product created successfully!', 'success')
             return redirect(url_for('product_list'))
-        return render_template('new_product.html')
+        categories = ['Eco-Finds', 'Eco-Friendly', 'Recycled', 'Water Saving']
+        return render_template('new_product.html', categories=categories)
 
     @app.route('/products/edit/<int:product_id>', methods=['GET', 'POST'])
     @login_required
@@ -160,13 +160,30 @@ def create_app():
             db.session.commit()
             flash('Product updated successfully!', 'success')
             return redirect(url_for('product_list'))
-        return render_template('edit_product.html', product=product)
+        categories = ['Eco-Finds', 'Eco-Friendly', 'Recycled', 'Water Saving']
+        return render_template('edit_product.html', product=product, categories=categories)
 
     @app.route('/cart')
     @login_required
     def cart():
         cart_items = CartItem.query.filter_by(user_id=current_user.id).all()
         return render_template('cart.html', cart_items=cart_items)
+
+    @app.route('/add_to_cart/<int:product_id>', methods=['POST'])
+    @login_required
+    def add_to_cart(product_id):
+        product = Product.query.get_or_404(product_id)
+        cart_item = CartItem.query.filter_by(user_id=current_user.id, product_id=product_id).first()
+        
+        if cart_item:
+            cart_item.quantity += 1
+        else:
+            cart_item = CartItem(user_id=current_user.id, product_id=product_id, quantity=1)
+            db.session.add(cart_item)
+        
+        db.session.commit()
+        flash('Product added to cart!', 'success')
+        return redirect(url_for('product_list'))
 
     @app.route('/purchases')
     @login_required

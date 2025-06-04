@@ -24,39 +24,55 @@ def is_valid_email(email):
 def register():
     if request.method == 'POST':
         try:
-            data = request.get_json()
-            current_app.logger.info(f'Registration attempt with data: {data}')
+            # Get form data
+            username = request.form.get('username')
+            email = request.form.get('email')
+            phone_number = request.form.get('phone_number')
+            password = request.form.get('password')
+            confirm_password = request.form.get('confirm_password')
             
-            # Validate input data
-            if not all(k in data for k in ['email', 'password', 'phone_number', 'username']):
-                current_app.logger.error('Missing required fields in registration data')
-                return jsonify({'error': 'Missing required fields'}), 400
-                
-            if not is_valid_email(data['email']):
-                current_app.logger.error(f'Invalid email format: {data["email"]}')
-                return jsonify({'error': 'Invalid email format'}), 400
-                
-            if not is_valid_phone(data['phone_number']):
-                current_app.logger.error(f'Invalid phone number format: {data["phone_number"]}')
-                return jsonify({'error': 'Invalid phone number format. Please include country code (e.g., +1)'}), 400
-
+            # Validate required fields
+            if not all([username, email, phone_number, password, confirm_password]):
+                flash('All fields are required', 'danger')
+                return redirect(url_for('auth.register'))
+            
+            # Validate password match
+            if password != confirm_password:
+                flash('Passwords do not match', 'danger')
+                return redirect(url_for('auth.register'))
+            
+            # Validate password length
+            if len(password) < 6:
+                flash('Password must be at least 6 characters long', 'danger')
+                return redirect(url_for('auth.register'))
+            
+            # Validate email format
+            if not is_valid_email(email):
+                flash('Invalid email format', 'danger')
+                return redirect(url_for('auth.register'))
+            
+            # Validate phone number format
+            if not is_valid_phone(phone_number):
+                flash('Invalid phone number format. Please include country code (e.g., +1)', 'danger')
+                return redirect(url_for('auth.register'))
+            
             # Check if user already exists
-            if User.query.filter_by(email=data['email']).first():
-                current_app.logger.error(f'Email already registered: {data["email"]}')
-                return jsonify({'error': 'Email already registered'}), 400
-                
-            if User.query.filter_by(phone_number=data['phone_number']).first():
-                current_app.logger.error(f'Phone number already registered: {data["phone_number"]}')
-                return jsonify({'error': 'Phone number already registered'}), 400
-
+            if User.query.filter_by(email=email).first():
+                flash('Email already registered', 'danger')
+                return redirect(url_for('auth.register'))
+            
+            if User.query.filter_by(phone_number=phone_number).first():
+                flash('Phone number already registered', 'danger')
+                return redirect(url_for('auth.register'))
+            
             # Create new user
             try:
                 user = User(
-                    email=data['email'],
-                    username=data['username'],
-                    phone_number=data['phone_number']
+                    email=email,
+                    username=username,
+                    phone_number=phone_number
                 )
-                user.set_password(data['password'])
+                user.set_password(password)
                 
                 # Generate email verification token
                 verification_token = user.generate_email_verification_token()
@@ -67,41 +83,38 @@ def register():
                 db.session.add(user)
                 db.session.add(otp)
                 db.session.commit()
-                current_app.logger.info(f'User created successfully: {user.username}')
-
+                
                 # Send verification email
                 try:
                     send_verification_email(user)
-                    current_app.logger.info(f'Verification email sent to: {user.email}')
                 except Exception as e:
                     current_app.logger.error(f'Failed to send verification email: {str(e)}')
                     # Continue with registration even if email fails
                     pass
-
+                
                 # Send OTP via SMS
                 try:
                     send_otp_sms(user.phone_number, otp.otp_code)
-                    current_app.logger.info(f'OTP sent to: {user.phone_number}')
                 except Exception as e:
                     current_app.logger.error(f'Failed to send OTP SMS: {str(e)}')
                     # Continue with registration even if SMS fails
                     pass
                 
-                return jsonify({
-                    'message': 'Registration successful. Please verify your email and phone number.',
-                    'otp': otp.otp_code  # Remove this in production, only for testing
-                }), 201
-
+                flash('Registration successful! Please check your email and phone for verification.', 'success')
+                return redirect(url_for('auth.login'))
+                
             except Exception as e:
                 current_app.logger.error(f'Error creating user: {str(e)}')
                 db.session.rollback()
-                return jsonify({'error': 'Error creating user account'}), 500
-
+                flash('Error creating user account. Please try again.', 'danger')
+                return redirect(url_for('auth.register'))
+                
         except Exception as e:
             current_app.logger.error(f'Registration error: {str(e)}')
             db.session.rollback()
-            return jsonify({'error': 'An error occurred during registration. Please try again.'}), 500
-
+            flash('An error occurred during registration. Please try again.', 'danger')
+            return redirect(url_for('auth.register'))
+    
     return render_template('auth/register.html')
 
 @auth.route('/verify-email/<token>')
