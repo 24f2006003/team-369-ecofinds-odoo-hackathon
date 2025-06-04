@@ -18,6 +18,10 @@
 
 EcoFinds aims to promote sustainability by facilitating the resale of pre-owned goods. It offers a convenient, secure alternative to buying new items, fostering a community of responsible consumers.
 
+## Project Demo
+
+[Click to watch the video](https://drive.google.com/file/d/1Rk_a-DUAlrv5IgKGhjNXrc6J3tLOwt_w/view)
+
 ## Project Structure
 
 ```
