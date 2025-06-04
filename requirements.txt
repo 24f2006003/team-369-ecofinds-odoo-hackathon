@@ -3,6 +3,7 @@ Flask-SQLAlchemy==2.5.1
 Flask-Login==0.5.0
 Flask-Mail==0.9.1
 Flask-Migrate==3.1.0
+Flask-Babel==2.0.0
 SQLAlchemy==1.4.23
 psycopg2-binary==2.9.9
 python-dotenv==0.19.0

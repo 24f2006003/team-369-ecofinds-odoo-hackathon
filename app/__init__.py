@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, g
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
+from flask_babel import Babel, _
 import os
 from werkzeug.utils import secure_filename
 from app.config import Config
@@ -9,6 +10,7 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 db = SQLAlchemy()
 login_manager = LoginManager()
 mail = Mail()
+babel = Babel()
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -23,11 +25,15 @@ def create_app():
     db.init_app(app)
     login_manager.init_app(app)
     mail.init_app(app)
+    babel.init_app(app)
     login_manager.login_view = 'auth.login'
 
     # Register blueprints
     from app.auth.routes import auth as auth_blueprint
     app.register_blueprint(auth_blueprint)
+    # Register chat blueprint
+    from app.chat_routes import chat as chat_blueprint
+    app.register_blueprint(chat_blueprint)
 
     # Import models here to avoid circular imports
     from app.models import User, Product, CartItem, Purchase
@@ -249,5 +255,14 @@ def create_app():
         if not current_user.is_admin:
             return redirect(url_for('dashboard'))
         return render_template('admin_landing.html')
+
+    @babel.localeselector
+    def get_locale():
+        return session.get('lang', 'en')
+
+    @app.route('/set_language/<lang_code>')
+    def set_language(lang_code):
+        session['lang'] = lang_code
+        return redirect(request.referrer or url_for('home'))
 
     return app

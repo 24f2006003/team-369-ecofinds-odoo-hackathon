@@ -57,6 +57,17 @@
                         </li>
                     {% endif %}
                 </ul>
+                <div class="dropdown ms-2">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="langDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        🌐 Language
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="langDropdown">
+                        <li><a class="dropdown-item" href="{{ url_for('set_language', lang_code='en') }}">English</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('set_language', lang_code='hi') }}">हिन्दी</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('set_language', lang_code='es') }}">Español</a></li>
+                        <!-- Add more languages as needed -->
+                    </ul>
+                </div>
             </div>
         </div>
     </nav>

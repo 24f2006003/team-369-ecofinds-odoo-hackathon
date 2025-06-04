@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Chat with {{ seller.username }} - {{ product.title }}{% endblock %}
+{% block content %}
+<div class="container" style="max-width:600px;">
+    <a href="{{ url_for('product_detail', product_id=product.id) }}" class="btn btn-secondary mb-3">&larr; Back to Product</a>
+    <div class="card mb-3">
+        <div class="card-header bg-success text-white">
+            Chat with {{ seller.username }} about "{{ product.title }}"
+        </div>
+        <div class="card-body" style="min-height:200px;">
+            <div class="mb-3" style="max-height:300px; overflow-y:auto;">
+                {% for msg in messages %}
+                    <div class="mb-2 {% if msg.sender_id == g.user.id %}text-end{% endif %}">
+                        <span class="badge bg-{% if msg.sender_id == g.user.id %}primary{% else %}secondary{% endif %}">
+                            {% if msg.sender_id == g.user.id %}You{% else %}{{ seller.username }}{% endif %}
+                        </span>
+                        <span class="ms-2">{{ msg.content }}</span>
+                        <div class="small text-muted">{{ msg.timestamp.strftime('%Y-%m-%d %H:%M') }}</div>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted">No messages yet.</div>
+                {% endfor %}
+            </div>
+            <form method="POST">
+                <div class="mb-3">
+                    <textarea class="form-control" name="message" rows="2" placeholder="Type your message..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-success">Send</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
