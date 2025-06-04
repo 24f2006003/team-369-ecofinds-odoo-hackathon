@@ -16,6 +16,7 @@ class User(UserMixin, db.Model):
     profile_img = db.Column(db.String(200))
     eco_points = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_admin = db.Column(db.Boolean, default=False)
     
     # Relationships
     products = db.relationship('Product', backref='owner', lazy=True)

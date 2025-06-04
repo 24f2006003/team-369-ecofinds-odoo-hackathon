@@ -34,10 +34,8 @@
 <script>
 async function handleLogin(event) {
     event.preventDefault();
-    
     const form = event.target;
     const formData = new FormData(form);
-    
     try {
         const response = await fetch('/login', {
             method: 'POST',
@@ -49,11 +47,14 @@ async function handleLogin(event) {
                 password: formData.get('password')
             })
         });
-        
         const data = await response.json();
-        
         if (response.ok) {
-            window.location.href = '/';
+            // If admin, redirect to /admin-landing
+            if (formData.get('email') === 'admin@ecofinds.com') {
+                window.location.href = '/admin-landing';
+            } else {
+                window.location.href = '/';
+            }
         } else {
             alert(data.error || 'Login failed. Please try again.');
         }

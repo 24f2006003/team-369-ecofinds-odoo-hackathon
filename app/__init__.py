@@ -40,13 +40,63 @@ def create_app():
             if not User.query.filter_by(email='demo@ecofinds.com').first():
                 user = User(
                     email='demo@ecofinds.com',
-                    username='DemoUser',
+                    username='John Smith',
                     phone_number='+1234567890',
                     is_email_verified=True,
-                    is_phone_verified=True
+                    is_phone_verified=True,
+                    eco_points=150,  # Give some initial eco points
+                    profile_img='default_profile.png'  # Default profile image
                 )
                 user.set_password('demo123')
                 db.session.add(user)
+                db.session.commit()
+
+                # Add some initial purchases for the demo user
+                demo_purchases = [
+                    Purchase(
+                        user_id=user.id,
+                        product_id=1,  # First product
+                        purchase_price=129.99
+                    ),
+                    Purchase(
+                        user_id=user.id,
+                        product_id=2,  # Second product
+                        purchase_price=39.49
+                    )
+                ]
+                for purchase in demo_purchases:
+                    db.session.add(purchase)
+
+                # Add some items to demo user's cart
+                demo_cart_items = [
+                    CartItem(
+                        user_id=user.id,
+                        product_id=3,  # Third product
+                        quantity=1
+                    ),
+                    CartItem(
+                        user_id=user.id,
+                        product_id=4,  # Fourth product
+                        quantity=2
+                    )
+                ]
+                for cart_item in demo_cart_items:
+                    db.session.add(cart_item)
+                
+                db.session.commit()
+
+            # Create admin user if it doesn't exist
+            if not User.query.filter_by(email='admin@ecofinds.com').first():
+                admin_user = User(
+                    email='admin@ecofinds.com',
+                    username='Admin',
+                    phone_number='+10000000000',
+                    is_email_verified=True,
+                    is_phone_verified=True,
+                    is_admin=True
+                )
+                admin_user.set_password('admin@ecofinds')
+                db.session.add(admin_user)
                 db.session.commit()
 
             # Add default products if none exist
@@ -86,6 +136,8 @@ def create_app():
             if user.check_password(password):
                 login_user(user)
                 flash('Login successful!', 'success')
+                if user.is_admin:
+                    return redirect(url_for('admin_landing'))
                 return redirect(url_for('dashboard'))
             else:
                 flash('Invalid password. Please try again.', 'danger')
@@ -190,5 +242,12 @@ def create_app():
     def purchases():
         purchases = Purchase.query.filter_by(user_id=current_user.id).all()
         return render_template('purchases.html', purchases=purchases)
+
+    @app.route('/admin-landing')
+    @login_required
+    def admin_landing():
+        if not current_user.is_admin:
+            return redirect(url_for('dashboard'))
+        return render_template('admin_landing.html')
 
     return app
