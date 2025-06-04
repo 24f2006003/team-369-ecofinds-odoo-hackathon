@@ -7,6 +7,7 @@ import secrets
 from datetime import datetime, timedelta
 import re
 from app.utils import send_verification_email, send_otp_sms
+from flask_babel import _
 
 auth = Blueprint('auth', __name__)
 
@@ -141,22 +142,34 @@ def verify_phone():
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        if current_user.is_admin:
+            return redirect(url_for('admin_landing'))
+        return redirect(url_for('dashboard'))
+
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
         
         if not email or not password:
-            flash('Please provide both email and password', 'danger')
+            flash(_('Please provide both email and password'), 'danger')
             return redirect(url_for('auth.login'))
         
         user = User.query.filter_by(email=email).first()
         
-        if not user or not user.check_password(password):
-            flash('Invalid email or password', 'danger')
+        if not user:
+            flash(_('No account found with this email. Please register first.'), 'warning')
+            return redirect(url_for('auth.register'))
+        
+        if not user.check_password(password):
+            flash(_('Invalid password. Please try again.'), 'danger')
             return redirect(url_for('auth.login'))
         
         login_user(user)
-        flash('Login successful!', 'success')
+        flash(_('Login successful!'), 'success')
+        
+        if user.is_admin:
+            return redirect(url_for('admin_landing'))
         return redirect(url_for('dashboard'))
     
     return render_template('auth/login.html')

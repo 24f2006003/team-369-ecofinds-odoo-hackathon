@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h1>{{ _('Products') }}</h1>
+        </div>
+        <div class="col-md-6">
+            <form class="d-flex" method="GET" action="{{ url_for('main.products') }}">
+                <input class="form-control me-2" type="search" name="search" placeholder="{{ _('Search products...') }}" value="{{ request.args.get('search', '') }}">
+                <input class="form-control me-2" type="search" name="city" placeholder="{{ _('City') }}" value="{{ request.args.get('city', '') }}">
+                <input class="form-control me-2" type="search" name="state" placeholder="{{ _('State') }}" value="{{ request.args.get('state', '') }}">
+                <button class="btn btn-outline-success" type="submit">{{ _('Search') }}</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for product in products %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.title }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.title }}</h5>
+                    <p class="card-text">{{ product.description }}</p>
+                    <p class="card-text">
+                        <small class="text-muted">
+                            {{ _('Seller') }}: {{ product.owner.username }}<br>
+                            {{ _('Location') }}: {{ product.city }}, {{ product.state }}
+                        </small>
+                    </p>
+                    <p class="card-text"><strong>{{ _('Price') }}: ${{ "%.2f"|format(product.price) }}</strong></p>
+                    <p class="card-text"><small class="text-muted">{{ _('Category') }}: {{ product.category }}</small></p>
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('main.add_to_cart', product_id=product.id) }}" class="btn btn-primary">{{ _('Add to Cart') }}</a>
+                        <a href="{{ url_for('main.chat', seller_id=product.owner_id) }}" class="btn btn-outline-primary">{{ _('Chat with Seller') }}</a>
+                    {% else %}
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary">{{ _('Login to Chat or Purchase') }}</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 
