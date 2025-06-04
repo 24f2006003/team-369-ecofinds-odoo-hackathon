@@ -5,6 +5,7 @@ import os
 from werkzeug.utils import secure_filename
 from app.config import Config
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from app.models import User, Product, CartItem, Purchase
 
 db = SQLAlchemy()
 login_manager = LoginManager()
@@ -45,6 +46,19 @@ def create_app():
                 )
                 user.set_password('demo123')
                 db.session.add(user)
+                db.session.commit()
+
+            # Add default products if none exist
+            from app.models import Product
+            if Product.query.count() == 0:
+                demo_products = [
+                    Product(title='Eco Water Bottle', description='Reusable water bottle made from recycled materials.', price=129.99, category='Eco Finds', image_url='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQRZ1rOtZUOy4m3hbbgp27D_IKXBkaO2_mwXQ&s', owner_id=1),
+                    Product(title='Bamboo Toothbrush', description='Biodegradable toothbrush with bamboo handle.', price=39.49, category='Eco Finds', image_url='https://m.media-amazon.com/images/I/71edeKpYPpL.jpg', owner_id=1),
+                    Product(title='Recycled Notebook', description='Notebook made from 100% recycled paper.', price=59.99, category='Eco Finds', image_url='https://images2.habeco.si/Upload/Product/sonora-plus---recycled-paper-notebook-pen_8494_productmain.webp', owner_id=1),
+                    Product(title='Water Saver Showerhead', description='Showerhead that reduces water usage by 40%.', price=1999.99, category='Eco Finds', image_url='https://m.media-amazon.com/images/I/81eF1mDe5gL.jpg', owner_id=1),
+                ]
+                for product in demo_products:
+                    db.session.add(product)
                 db.session.commit()
 
     # Register routes
