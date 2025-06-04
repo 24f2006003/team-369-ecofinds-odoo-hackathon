@@ -3,28 +3,34 @@ from app.models import User, Product, CartItem, Purchase
 import os
 from compile_translations import compile_translations
 
-# Compile translations before starting the app
-compile_translations()
+# Try to compile translations, but don't fail if it doesn't work
+try:
+    compile_translations()
+except Exception as e:
+    print(f"Warning: Translation compilation failed: {str(e)}")
 
 app = create_app()
 
 # Create database tables in production
 with app.app_context():
-    db.create_all()
-    # Create demo user if it doesn't exist
-    if not User.query.filter_by(email='demo@ecofinds.com').first():
-        user = User(
-            email='demo@ecofinds.com',
-            username='John Smith',
-            phone_number='+1234567890',
-            is_email_verified=True,
-            is_phone_verified=True,
-            eco_points=150,
-            profile_img='default_profile.png'
-        )
-        user.set_password('demo123')
-        db.session.add(user)
-        db.session.commit()
+    try:
+        db.create_all()
+        # Create demo user if it doesn't exist
+        if not User.query.filter_by(email='demo@ecofinds.com').first():
+            user = User(
+                email='demo@ecofinds.com',
+                username='John Smith',
+                phone_number='+1234567890',
+                is_email_verified=True,
+                is_phone_verified=True,
+                eco_points=150,
+                profile_img='default_profile.png'
+            )
+            user.set_password('demo123')
+            db.session.add(user)
+            db.session.commit()
+    except Exception as e:
+        print(f"Warning: Database initialization failed: {str(e)}")
 
 # Configure for Vercel
 app.config['SERVER_NAME'] = None

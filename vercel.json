@@ -3,7 +3,11 @@
     "builds": [
         {
             "src": "run.py",
-            "use": "@vercel/python"
+            "use": "@vercel/python",
+            "config": {
+                "maxLambdaSize": "15mb",
+                "runtime": "python3.9"
+            }
         },
         {
             "src": "app/static/**",
@@ -33,6 +37,7 @@
         "FLASK_APP": "run.py",
         "PYTHONPATH": ".",
         "DATABASE_URL": "@database_url",
-        "BABEL_DEFAULT_LOCALE": "en"
+        "BABEL_DEFAULT_LOCALE": "en",
+        "PYTHONUNBUFFERED": "1"
     }
 } 
