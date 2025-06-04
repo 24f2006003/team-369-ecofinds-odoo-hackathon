@@ -31,12 +31,15 @@ def create_app():
     # Register blueprints
     from app.auth.routes import auth as auth_blueprint
     app.register_blueprint(auth_blueprint)
-    # Register chat blueprint
+    
     from app.chat_routes import chat as chat_blueprint
     app.register_blueprint(chat_blueprint)
+    
+    from app.rating_routes import rating as rating_blueprint
+    app.register_blueprint(rating_blueprint)
 
     # Import models here to avoid circular imports
-    from app.models import User, Product, CartItem, Purchase
+    from app.models import User, Product, CartItem, Purchase, ChatMessage, Rating
 
     # Create database tables only in development
     if os.environ.get('FLASK_ENV') != 'production':
@@ -169,21 +172,31 @@ def create_app():
 
     @app.route('/products')
     def product_list():
-        search = request.args.get('search', '')
-        category = request.args.get('category', '')
-        query = Product.query
-        if search:
-            query = query.filter(Product.title.ilike(f'%{search}%'))
-        if category:
-            query = query.filter_by(category=category)
-        products = query.all()
-        categories = ['Eco-Finds', 'Eco-Friendly', 'Recycled', 'Water Saving']
-        return render_template('product_list.html', products=products, categories=categories, selected_category=category, search=search)
+        try:
+            search = request.args.get('search', '')
+            category = request.args.get('category', '')
+            query = Product.query
+            if search:
+                query = query.filter(Product.title.ilike(f'%{search}%'))
+            if category:
+                query = query.filter_by(category=category)
+            products = query.all()
+            categories = ['Eco-Finds', 'Eco-Friendly', 'Recycled', 'Water Saving']
+            return render_template('product_list.html', products=products, categories=categories, selected_category=category, search=search)
+        except Exception as e:
+            current_app.logger.error(f'Error in product_list route: {str(e)}')
+            flash('An error occurred while loading products. Please try again.', 'danger')
+            return redirect(url_for('home'))
 
     @app.route('/products/<int:product_id>')
     def product_detail(product_id):
-        product = Product.query.get_or_404(product_id)
-        return render_template('product_detail.html', product=product)
+        try:
+            product = Product.query.get_or_404(product_id)
+            return render_template('product_detail.html', product=product)
+        except Exception as e:
+            current_app.logger.error(f'Error in product_detail route: {str(e)}')
+            flash('An error occurred while loading the product. Please try again.', 'danger')
+            return redirect(url_for('product_list'))
 
     @app.route('/products/new', methods=['GET', 'POST'])
     @login_required

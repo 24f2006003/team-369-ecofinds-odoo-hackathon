@@ -1,7 +1,26 @@
-from app import create_app
+from app import create_app, db
+from app.models import User, Product, CartItem, Purchase
 import os
 
 app = create_app()
+
+# Create database tables in production
+with app.app_context():
+    db.create_all()
+    # Create demo user if it doesn't exist
+    if not User.query.filter_by(email='demo@ecofinds.com').first():
+        user = User(
+            email='demo@ecofinds.com',
+            username='John Smith',
+            phone_number='+1234567890',
+            is_email_verified=True,
+            is_phone_verified=True,
+            eco_points=150,
+            profile_img='default_profile.png'
+        )
+        user.set_password('demo123')
+        db.session.add(user)
+        db.session.commit()
 
 # Configure for Vercel
 app.config['SERVER_NAME'] = None

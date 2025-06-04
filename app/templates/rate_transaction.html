@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Rate Transaction</h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h5>Transaction Details</h5>
+                        <p><strong>Product:</strong> {{ purchase.product.title }}</p>
+                        <p><strong>Price:</strong> ${{ "%.2f"|format(purchase.purchase_price) }}</p>
+                        <p><strong>Date:</strong> {{ purchase.created_at.strftime('%Y-%m-%d') }}</p>
+                    </div>
+                    
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">Rating</label>
+                            <div class="rating">
+                                {% for i in range(5, 0, -1) %}
+                                    <input type="radio" name="rating" value="{{ i }}" id="star{{ i }}" required>
+                                    <label for="star{{ i }}">☆</label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="comment" class="form-label">Comment (optional)</label>
+                            <textarea class="form-control" id="comment" name="comment" rows="3" placeholder="Share your experience..."></textarea>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Submit Rating</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+
+.rating input {
+    display: none;
+}
+
+.rating label {
+    cursor: pointer;
+    font-size: 2rem;
+    color: #ddd;
+    padding: 0 0.1em;
+}
+
+.rating input:checked ~ label,
+.rating label:hover,
+.rating label:hover ~ label {
+    color: #ffd700;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const labels = document.querySelectorAll('.rating label');
+    
+    labels.forEach(label => {
+        label.addEventListener('mouseover', function() {
+            this.style.color = '#ffd700';
+            let prev = this.nextElementSibling;
+            while (prev) {
+                prev.style.color = '#ffd700';
+                prev = prev.nextElementSibling;
+            }
+        });
+        
+        label.addEventListener('mouseout', function() {
+            this.style.color = '#ddd';
+            let prev = this.nextElementSibling;
+            while (prev) {
+                prev.style.color = '#ddd';
+                prev = prev.nextElementSibling;
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 
