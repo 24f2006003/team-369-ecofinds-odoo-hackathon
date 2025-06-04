@@ -15,7 +15,7 @@
                                 {% if user.profile_img %}
                                     <img src="{{ url_for('static', filename='img/' + user.profile_img) }}" alt="Profile" style="width:90px; height:90px; border-radius:50%; object-fit:cover;">
                                 {% else %}
-                                    👤
+                                    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Default Profile" style="width:90px; height:90px; border-radius:50%; object-fit:cover;">
                                 {% endif %}
                             </div>
                         </label>
@@ -35,7 +35,23 @@
                         <button type="submit" class="btn btn-success w-100 mb-2">Update Profile</button>
                     </form>
                 </div>
-                <a href="{{ url_for('purchases') }}" class="btn btn-outline-primary w-100">View Previous Purchases</a>
+                <div class="mt-3">
+                    <h4 class="mb-3">Recent Activity</h4>
+                    <div class="list-group">
+                        {% for purchase in user.purchases[-5:] %}
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ purchase.product.title }}</h6>
+                                    <small>₹{{ '%.2f'|format(purchase.purchase_price) }}</small>
+                                </div>
+                                <small class="text-muted">Purchased on {{ purchase.created_at.strftime('%Y-%m-%d') }}</small>
+                            </div>
+                        {% else %}
+                            <div class="list-group-item">No recent purchases</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <a href="{{ url_for('purchases') }}" class="btn btn-outline-primary w-100 mt-3">View All Purchases</a>
             </div>
             <div class="card shadow p-4 mb-4">
                 <h4 class="mb-3">Previous Purchases</h4>
