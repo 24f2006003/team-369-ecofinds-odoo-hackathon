@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-center">Register for EcoFinds</h3>
+                </div>
+                <div class="card-body">
+                    <div id="error-message" class="alert alert-danger d-none"></div>
+                    <form id="registerForm" onsubmit="handleRegister(event)">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email address</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="phone_number" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="phone_number" name="phone_number" required placeholder="+1234567890">
+                            <small class="form-text text-muted">Please include country code (e.g., +1 for US)</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="password" name="password" required minlength="6">
+                            <small class="form-text text-muted">Password must be at least 6 characters long</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirm_password" class="form-label">Confirm Password</label>
+                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Register</button>
+                        </div>
+                    </form>
+                    <div class="mt-3 text-center">
+                        <p>Already have an account? <a href="{{ url_for('auth.login') }}">Login here</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showError(message) {
+    const errorDiv = document.getElementById('error-message');
+    errorDiv.textContent = message;
+    errorDiv.classList.remove('d-none');
+}
+
+async function handleRegister(event) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const formData = new FormData(form);
+    
+    // Clear any previous error messages
+    document.getElementById('error-message').classList.add('d-none');
+    
+    // Validate passwords match
+    if (formData.get('password') !== formData.get('confirm_password')) {
+        showError('Passwords do not match!');
+        return;
+    }
+    
+    // Validate password length
+    if (formData.get('password').length < 6) {
+        showError('Password must be at least 6 characters long');
+        return;
+    }
+    
+    // Validate phone number format
+    const phoneNumber = formData.get('phone_number');
+    if (!phoneNumber.startsWith('+')) {
+        showError('Phone number must start with country code (e.g., +1)');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: formData.get('username'),
+                email: formData.get('email'),
+                phone_number: formData.get('phone_number'),
+                password: formData.get('password')
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            alert('Registration successful! Please check your email and phone for verification.');
+            window.location.href = '/login';
+        } else {
+            showError(data.error || 'Registration failed. Please try again.');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showError('An error occurred. Please try again.');
+    }
+}
+</script>
+{% endblock %} 

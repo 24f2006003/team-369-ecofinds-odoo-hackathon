@@ -1,0 +1,24 @@
+{
+    "version": 2,
+    "builds": [
+        {
+            "src": "run.py",
+            "use": "@vercel/python"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/static/(.*)",
+            "dest": "/static/$1"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "run.py"
+        }
+    ],
+    "env": {
+        "FLASK_ENV": "production",
+        "FLASK_APP": "run.py",
+        "PYTHONPATH": "."
+    }
+} 
