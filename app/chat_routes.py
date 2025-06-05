@@ -15,7 +15,7 @@ def chat_room(product_id):
         # Prevent users from chatting with themselves
         if product.owner_id == current_user.id:
             flash('You cannot chat with yourself', 'warning')
-            return redirect(url_for('product_detail', product_id=product_id))
+            return redirect(url_for('main.product_detail', product_id=product_id))
         
         # Get chat history
         messages = ChatMessage.query.filter_by(
@@ -35,7 +35,7 @@ def chat_room(product_id):
     except Exception as e:
         current_app.logger.error(f'Error in chat_room: {str(e)}')
         flash('An error occurred while loading the chat room', 'danger')
-        return redirect(url_for('product_detail', product_id=product_id))
+        return redirect(url_for('main.product_detail', product_id=product_id))
 
 @chat.route('/chat/send/<int:product_id>', methods=['POST'])
 @login_required
@@ -124,4 +124,4 @@ def conversations():
     except Exception as e:
         current_app.logger.error(f'Error in conversations: {str(e)}')
         flash('An error occurred while loading conversations', 'danger')
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('main.dashboard'))

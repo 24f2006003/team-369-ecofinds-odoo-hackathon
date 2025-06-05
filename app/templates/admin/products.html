@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-2 d-none d-md-block bg-light sidebar py-4">
+            <div class="sidebar-sticky">
+                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                    <span>Admin Panel</span>
+                </h6>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin.admin_complaints') }}">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            Complaints
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin.admin_users') }}">
+                            <i class="bi bi-people"></i>
+                            Users
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('admin.admin_products') }}">
+                            <i class="bi bi-box"></i>
+                            Products
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main content -->
+        <main role="main" class="col-md-10 ml-sm-auto px-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1>Product Management</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="input-group me-2">
+                        <input type="text" class="form-control" placeholder="Search products..." id="productSearch">
+                        <button class="btn btn-outline-secondary" type="button">Search</button>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown">
+                            Filter by Category
+                        </button>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="{{ url_for('admin.admin_products', category='all') }}">All Categories</a>
+                            <a class="dropdown-item" href="{{ url_for('admin.admin_products', category='Eco-Finds') }}">Eco-Finds</a>
+                            <a class="dropdown-item" href="{{ url_for('admin.admin_products', category='Eco-Friendly') }}">Eco-Friendly</a>
+                            <a class="dropdown-item" href="{{ url_for('admin.admin_products', category='Recycled') }}">Recycled</a>
+                            <a class="dropdown-item" href="{{ url_for('admin.admin_products', category='Water Saving') }}">Water Saving</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Table -->
+            <div class="table-responsive">
+                <table class="table table-striped table-sm">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Location</th>
+                            <th>Seller</th>
+                            <th>Listed Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in products %}
+                        <tr>
+                            <td>{{ product.id }}</td>
+                            <td>{{ product.title }}</td>
+                            <td>
+                                <span class="badge {% if product.category == 'Eco-Finds' %}bg-success{% elif product.category == 'Eco-Friendly' %}bg-info{% elif product.category == 'Recycled' %}bg-warning{% else %}bg-primary{% endif %}">
+                                    {{ product.category }}
+                                </span>
+                            </td>
+                            <td>₹{{ "%.2f"|format(product.price) }}</td>
+                            <td>{{ product.city }}, {{ product.state }}</td>
+                            <td>{{ product.owner.username }}</td>
+                            <td>{{ product.created_at.strftime('%Y-%m-%d') }}</td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#productModal{{ product.id }}">
+                                    View Details
+                                </button>
+                                <form action="{{ url_for('admin.delete_product', product_id=product.id) }}" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this product?')">
+                                        Delete
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+
+                        <!-- Product Details Modal -->
+                        <div class="modal fade" id="productModal{{ product.id }}" tabindex="-1">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Product Details: {{ product.title }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <img src="{{ product.image_url }}" class="img-fluid rounded" alt="{{ product.title }}">
+                                            </div>
+                                            <div class="col-md-8">
+                                                <h6>Description</h6>
+                                                <p>{{ product.description }}</p>
+                                                <hr>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <p><strong>Category:</strong> {{ product.category }}</p>
+                                                        <p><strong>Price:</strong> ₹{{ "%.2f"|format(product.price) }}</p>
+                                                        <p><strong>Location:</strong> {{ product.city }}, {{ product.state }}</p>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <p><strong>Seller:</strong> {{ product.owner.username }}</p>
+                                                        <p><strong>Listed Date:</strong> {{ product.created_at.strftime('%Y-%m-%d') }}</p>
+                                                        <p><strong>Complaints:</strong> {{ product.complaints|length }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %} 

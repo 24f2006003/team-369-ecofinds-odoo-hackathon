@@ -7,7 +7,7 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Chat about: {{ product.title }}</h5>
-                    <a href="{{ url_for('product_detail', product_id=product.id) }}" class="btn btn-outline-primary btn-sm">View Product</a>
+                    <a href="{{ url_for('main.product_detail', product_id=product.id) }}" class="btn btn-outline-primary btn-sm">View Product</a>
                 </div>
                 <div class="card-body">
                     <div id="chat-messages" class="mb-3" style="height: 400px; overflow-y: auto;">

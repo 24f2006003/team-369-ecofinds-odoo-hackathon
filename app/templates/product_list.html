@@ -20,7 +20,7 @@
             <button type="submit" class="btn btn-success w-100">Filter</button>
         </div>
         <div class="col-12 col-md-2">
-            <a href="{{ url_for('new_product') }}" class="btn btn-primary w-100">Add New Product</a>
+            <a href="{{ url_for('main.new_product') }}" class="btn btn-primary w-100">Add New Product</a>
         </div>
     </form>
     <div class="product-list">
@@ -31,9 +31,9 @@
                 <p style="color:#388e3c; font-weight:bold;">₹{{ '%.2f'|format(product.price) }}</p>
                 <p style="font-size:0.95rem; color:#666;">{{ product.category }}</p>
                 <div style="margin-top:auto; width:100%; display:flex; gap:0.5rem;">
-                    <a href="{{ url_for('product_detail', product_id=product.id) }}" class="btn btn-success" style="flex:1;">View</a>
+                    <a href="{{ url_for('main.product_detail', product_id=product.id) }}" class="btn btn-success" style="flex:1;">View</a>
                 </div>
-                <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="POST" style="margin-top:0.5rem; width:100%;">
+                <form action="{{ url_for('main.add_to_cart', product_id=product.id) }}" method="POST" style="margin-top:0.5rem; width:100%;">
                     <button type="submit" class="btn btn-warning w-100">Add to Cart</button>
                 </form>
             </div>

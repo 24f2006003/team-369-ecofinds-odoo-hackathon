@@ -2,6 +2,7 @@
 {% block title %}{{ _('Welcome') }} - EcoFinds{% endblock %}
 {% block content %}
 <div class="container">
+<<<<<<< HEAD
     <!-- Hero Section -->
     <div class="row mb-5">
         <div class="col-md-6">
@@ -32,12 +33,55 @@
                     <a href="{{ url_for('products', category=category) }}" class="btn btn-outline-primary">
                         {{ _('View Products') }}
                     </a>
+=======
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <h1 class="display-4 mb-4">{{ _('Welcome to EcoFinds') }}</h1>
+            <p class="lead mb-4">{{ _('Your marketplace for sustainable and eco-friendly products') }}</p>
+            
+            <div class="row mb-5">
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ _('Buy') }}</h5>
+                            <p class="card-text">{{ _('Discover eco-friendly products from local sellers') }}</p>
+                            <a href="{{ url_for('main.products') }}" class="btn btn-success">{{ _('Browse Products') }}</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ _('Sell') }}</h5>
+                            <p class="card-text">{{ _('List your sustainable products for sale') }}</p>
+                            {% if current_user.is_authenticated %}
+                                <a href="{{ url_for('main.new_product') }}" class="btn btn-success">{{ _('Create Listing') }}</a>
+                            {% else %}
+                                <a href="{{ url_for('auth.login') }}" class="btn btn-success">{{ _('Login to Sell') }}</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ _('Earn') }}</h5>
+                            <p class="card-text">{{ _('Get ECO points for your sustainable actions') }}</p>
+                            {% if current_user.is_authenticated %}
+                                <a href="{{ url_for('main.profile') }}" class="btn btn-success">{{ _('View Points') }}</a>
+                            {% else %}
+                                <a href="{{ url_for('auth.login') }}" class="btn btn-success">{{ _('Login to Earn') }}</a>
+                            {% endif %}
+                        </div>
+                    </div>
+>>>>>>> f8154d4e29dfa251bcf1717aff9384e9fea610dc
                 </div>
             </div>
         </div>
         {% endfor %}
     </div>
 
+<<<<<<< HEAD
     <!-- About Section -->
     <div class="row my-5">
         <div class="col-md-6">
@@ -55,6 +99,21 @@
                         <div>
                             <h5 class="mb-0">{{ _('Free Shipping') }}</h5>
                             <small class="text-muted">{{ _('On orders over ₹500') }}</small>
+=======
+            <div class="row mb-5">
+                <div class="col-12">
+                    <h2 class="mb-4">{{ _('Featured Categories') }}</h2>
+                    <div class="row">
+                        {% for category in categories %}
+                        <div class="col-md-3 mb-3">
+                            <a href="{{ url_for('main.products', category=category) }}" class="text-decoration-none">
+                                <div class="card h-100">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">{{ _(category) }}</h5>
+                                    </div>
+                                </div>
+                            </a>
+>>>>>>> f8154d4e29dfa251bcf1717aff9384e9fea610dc
                         </div>
                     </div>
                 </div>

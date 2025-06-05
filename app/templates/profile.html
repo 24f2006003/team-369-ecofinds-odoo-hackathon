@@ -1,94 +1,75 @@
 {% extends 'base.html' %}
 {% block title %}{{ _('My Profile') }} - EcoFinds{% endblock %}
 {% block content %}
-<div class="container py-4">
+<div class="container py-5">
     <div class="row">
-        <div class="col-md-4">
-            <div class="card mb-4">
+        <!-- Profile Info Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow h-100">
                 <div class="card-body text-center">
-                    <img src="{{ url_for('static', filename='images/' + user.profile_img) if user.profile_img else url_for('static', filename='images/default_profile.png') }}" 
-                         alt="Profile Picture" 
-                         class="rounded-circle mb-3"
-                         style="width: 150px; height: 150px; object-fit: cover;">
+                    <img src="{{ url_for('static', filename='images/' + user.profile_img) if user.profile_img else url_for('static', filename='images/default_profile.png') }}"
+                         alt="Profile Picture" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
                     <h3 class="card-title">{{ user.username }}</h3>
                     <p class="text-muted">{{ user.email }}</p>
-                    <div class="eco-points-badge mb-3">
-                        <span class="badge bg-success fs-4">{{ user.eco_points }} ECO</span>
+                    <div class="d-flex justify-content-center align-items-center mb-3">
+                        <span class="badge bg-success me-2">ECO Points</span>
+                        <h4 class="mb-0">{{ user.eco_points }}</h4>
                     </div>
+                    <a href="{{ url_for('main.submit_complaint') }}" class="btn btn-danger w-100">
+                        <i class="bi bi-exclamation-triangle"></i> Submit Complaint
+                    </a>
                 </div>
             </div>
         </div>
+
+        <!-- Activity Stats Card -->
         <div class="col-md-8">
-            <div class="card mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Activity Statistics</h5>
+                </div>
                 <div class="card-body">
-                    <h4 class="card-title mb-4">{{ _('Account Information') }}</h4>
-                    <div class="row mb-3">
-                        <div class="col-sm-4">
-                            <strong>{{ _('Username') }}:</strong>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="text-center">
+                                <h3 class="mb-1">{{ purchases|length }}</h3>
+                                <p class="text-muted mb-0">Purchases</p>
+                            </div>
                         </div>
-                        <div class="col-sm-8">
-                            {{ user.username }}
+                        <div class="col-md-4 mb-3">
+                            <div class="text-center">
+                                <h3 class="mb-1">{{ products|length }}</h3>
+                                <p class="text-muted mb-0">Listings</p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-sm-4">
-                            <strong>{{ _('Email') }}:</strong>
-                        </div>
-                        <div class="col-sm-8">
-                            {{ user.email }}
-                            {% if user.is_email_verified %}
-                                <span class="badge bg-success">{{ _('Verified') }}</span>
-                            {% else %}
-                                <span class="badge bg-warning">{{ _('Not Verified') }}</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-sm-4">
-                            <strong>{{ _('Phone') }}:</strong>
-                        </div>
-                        <div class="col-sm-8">
-                            {{ user.phone_number or _('Not provided') }}
-                            {% if user.phone_number and user.is_phone_verified %}
-                                <span class="badge bg-success">{{ _('Verified') }}</span>
-                            {% elif user.phone_number %}
-                                <span class="badge bg-warning">{{ _('Not Verified') }}</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-sm-4">
-                            <strong>{{ _('Member Since') }}:</strong>
-                        </div>
-                        <div class="col-sm-8">
-                            {{ user.created_at.strftime('%Y-%m-%d') }}
+                        <div class="col-md-4 mb-3">
+                            <div class="text-center">
+                                <h3 class="mb-1">{{ reviews|length }}</h3>
+                                <p class="text-muted mb-0">Reviews</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            
-            <div class="card">
+
+            <!-- Recent Activity Card -->
+            <div class="card shadow">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Activity</h5>
+                </div>
                 <div class="card-body">
-                    <h4 class="card-title mb-4">{{ _('ECO Points History') }}</h4>
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>{{ _('Date') }}</th>
-                                    <th>{{ _('Description') }}</th>
-                                    <th>{{ _('Points') }}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for purchase in user.purchases %}
-                                <tr>
-                                    <td>{{ purchase.purchased_at.strftime('%Y-%m-%d') }}</td>
-                                    <td>{{ _('Purchase') }}: {{ purchase.product.title }}</td>
-                                    <td class="text-success">+{{ (purchase.purchase_price * 0.1)|int }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                    <div class="list-group">
+                        {% for purchase in purchases[:5] %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">Purchased {{ purchase.product.title }}</h6>
+                                    <small class="text-muted">{{ purchase.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                                </div>
+                                <span class="badge bg-success">${{ "%.2f"|format(purchase.amount) }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
                     </div>
                 </div>
             </div>

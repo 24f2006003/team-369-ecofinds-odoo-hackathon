@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Complaint Details -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Complaint #{{ complaint.id }}</h5>
+                    <div>
+                        <span class="badge {% if complaint.priority == 'urgent' %}bg-danger
+                                         {% elif complaint.priority == 'high' %}bg-warning
+                                         {% elif complaint.priority == 'medium' %}bg-info
+                                         {% else %}bg-secondary{% endif %} me-2">
+                            {{ complaint.priority|title }}
+                        </span>
+                        <span class="badge {% if complaint.status == 'pending' %}bg-warning
+                                         {% elif complaint.status == 'in_progress' %}bg-info
+                                         {% elif complaint.status == 'resolved' %}bg-success
+                                         {% else %}bg-danger{% endif %}">
+                            {{ complaint.status|replace('_', ' ')|title }}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">From:</h6>
+                            <p>{{ complaint.user.username }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Assigned To:</h6>
+                            <p>{{ complaint.assigned_to.username if complaint.assigned_to else 'Unassigned' }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Submitted:</h6>
+                            <p>{{ complaint.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Due Date:</h6>
+                            <p>
+                                {% if complaint.due_date %}
+                                    {{ complaint.due_date.strftime('%Y-%m-%d %H:%M') }}
+                                    {% if complaint.is_overdue %}
+                                        <span class="badge bg-danger">Overdue</span>
+                                    {% else %}
+                                        <span class="badge bg-info">{{ complaint.days_until_due }} days left</span>
+                                    {% endif %}
+                                {% else %}
+                                    Not set
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <h5 class="card-title">{{ complaint.subject }}</h5>
+                    <p class="card-text">{{ complaint.description }}</p>
+                    
+                    {% if complaint.evidence_url %}
+                    <div class="mt-3">
+                        <h6>Evidence:</h6>
+                        <a href="{{ complaint.evidence_url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                            View Evidence
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Admin Reply -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Admin Reply</h5>
+                </div>
+                <div class="card-body">
+                    {% if complaint.admin_reply %}
+                    <p class="card-text">{{ complaint.admin_reply }}</p>
+                    <small class="text-muted">Last updated: {{ complaint.updated_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                    {% else %}
+                    <p class="text-muted">No reply yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Complaint History -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Complaint History</h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        {% for entry in complaint.history|sort(attribute='created_at', reverse=true) %}
+                        <div class="timeline-item">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <h6 class="mb-1">
+                                    {% if entry.action == 'status_change' %}
+                                        Status changed from 
+                                        <span class="badge {% if entry.old_value == 'pending' %}bg-warning
+                                                         {% elif entry.old_value == 'in_progress' %}bg-info
+                                                         {% elif entry.old_value == 'resolved' %}bg-success
+                                                         {% else %}bg-danger{% endif %}">
+                                            {{ entry.old_value|replace('_', ' ')|title }}
+                                        </span>
+                                        to
+                                        <span class="badge {% if entry.new_value == 'pending' %}bg-warning
+                                                         {% elif entry.new_value == 'in_progress' %}bg-info
+                                                         {% elif entry.new_value == 'resolved' %}bg-success
+                                                         {% else %}bg-danger{% endif %}">
+                                            {{ entry.new_value|replace('_', ' ')|title }}
+                                        </span>
+                                    {% elif entry.action == 'reply_added' %}
+                                        Reply added
+                                    {% elif entry.action == 'reply_updated' %}
+                                        Reply updated
+                                    {% endif %}
+                                </h6>
+                                <p class="text-muted mb-0">
+                                    By {{ entry.admin.username if entry.admin else 'System' }} on 
+                                    {{ entry.created_at.strftime('%Y-%m-%d %H:%M') }}
+                                </p>
+                            </div>
+                        </div>
+                        {% else %}
+                        <p class="text-muted text-center">No history available.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <!-- Assignment and Priority -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Assignment & Priority</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('admin.update_complaint_assignment', complaint_id=complaint.id) }}" method="POST">
+                        <div class="mb-3">
+                            <label for="assigned_to" class="form-label">Assign To</label>
+                            <select class="form-select" name="assigned_to" id="assigned_to">
+                                <option value="">Unassigned</option>
+                                {% for admin in admins %}
+                                <option value="{{ admin.id }}" {% if complaint.assigned_to_id == admin.id %}selected{% endif %}>
+                                    {{ admin.username }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="priority" class="form-label">Priority</label>
+                            <select class="form-select" name="priority" id="priority">
+                                <option value="low" {% if complaint.priority == 'low' %}selected{% endif %}>Low</option>
+                                <option value="medium" {% if complaint.priority == 'medium' %}selected{% endif %}>Medium</option>
+                                <option value="high" {% if complaint.priority == 'high' %}selected{% endif %}>High</option>
+                                <option value="urgent" {% if complaint.priority == 'urgent' %}selected{% endif %}>Urgent</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="due_date" class="form-label">Due Date</label>
+                            <input type="datetime-local" class="form-control" name="due_date" id="due_date"
+                                   value="{{ complaint.due_date.strftime('%Y-%m-%dT%H:%M') if complaint.due_date else '' }}">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update Assignment</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Status Update -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Update Status</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('admin.update_complaint_status', complaint_id=complaint.id) }}" method="POST">
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" name="status" id="status">
+                                <option value="pending" {% if complaint.status == 'pending' %}selected{% endif %}>Pending</option>
+                                <option value="in_progress" {% if complaint.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                                <option value="resolved" {% if complaint.status == 'resolved' %}selected{% endif %}>Resolved</option>
+                                <option value="rejected" {% if complaint.status == 'rejected' %}selected{% endif %}>Rejected</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update Status</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Reply Form -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Send Reply</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('admin.reply_to_complaint', complaint_id=complaint.id) }}" method="POST">
+                        <div class="mb-3">
+                            <label for="reply" class="form-label">Reply Message</label>
+                            <textarea class="form-control" name="reply" id="reply" rows="4" required>{{ complaint.admin_reply or '' }}</textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Send Reply</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back Button -->
+    <div class="mt-4">
+        <a href="{{ url_for('admin.admin_complaints') }}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Complaints
+        </a>
+    </div>
+</div>
+
+<style>
+.timeline {
+    position: relative;
+    padding: 20px 0;
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 40px;
+    margin-bottom: 20px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: #388e3c;
+    border: 3px solid #fff;
+    box-shadow: 0 0 0 2px #388e3c;
+}
+
+.timeline-item:not(:last-child):before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 15px;
+    height: calc(100% + 5px);
+    width: 2px;
+    background: #e9ecef;
+}
+
+.timeline-content {
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 5px;
+}
+</style>
+{% endblock %} 

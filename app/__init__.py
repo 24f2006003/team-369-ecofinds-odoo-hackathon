@@ -54,8 +54,14 @@ def create_app():
     from app.rating_routes import rating as rating_blueprint
     app.register_blueprint(rating_blueprint)
 
+    from app.admin_routes import admin as admin_blueprint
+    app.register_blueprint(admin_blueprint)
+
+    from app.routes import main as main_blueprint
+    app.register_blueprint(main_blueprint)
+
     # Import models here to avoid circular imports
-    from app.models import User, Product, CartItem, Purchase, ChatMessage, Rating
+    from app.models import User, Product, CartItem, Purchase, ChatMessage, Rating, Complaint
 
     # Create database tables
     with app.app_context():
@@ -127,6 +133,7 @@ def create_app():
         except Exception as e:
             app.logger.error(f"Error initializing database: {str(e)}")
 
+<<<<<<< HEAD
     # Register routes
     @app.route('/')
     def home():
@@ -445,20 +452,17 @@ def create_app():
             return redirect(url_for('dashboard'))
         return render_template('admin_landing.html')
 
+=======
+>>>>>>> f8154d4e29dfa251bcf1717aff9384e9fea610dc
     @babel.localeselector
     def get_locale():
         # Try to get the language from the session
-        if 'lang' in session:
-            return session['lang']
-        # Try to get the language from the user's browser
-        return request.accept_languages.best_match(app.config['LANGUAGES'].keys())
+        return session.get('language', 'en')
 
     @app.route('/set_language/<lang_code>')
     def set_language(lang_code):
-        if lang_code not in app.config['LANGUAGES']:
-            lang_code = 'en'
-        session['lang'] = lang_code
-        g.lang_code = lang_code
-        return redirect(request.referrer or url_for('home'))
+        if lang_code in app.config['LANGUAGES']:
+            session['language'] = lang_code
+        return redirect(request.referrer or url_for('main.home'))
 
     return app

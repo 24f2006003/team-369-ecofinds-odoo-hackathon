@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Complaints Management</h2>
+    
+    <!-- Search and Filter Section -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('admin.admin_complaints') }}" class="row g-3">
+                <div class="col-md-4">
+                    <input type="text" class="form-control" name="search" placeholder="Search by subject or description" value="{{ request.args.get('search', '') }}">
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" name="status">
+                        <option value="all" {% if status == 'all' %}selected{% endif %}>All Statuses</option>
+                        <option value="pending" {% if status == 'pending' %}selected{% endif %}>Pending</option>
+                        <option value="in_progress" {% if status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                        <option value="resolved" {% if status == 'resolved' %}selected{% endif %}>Resolved</option>
+                        <option value="rejected" {% if status == 'rejected' %}selected{% endif %}>Rejected</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" name="timeframe">
+                        <option value="all" {% if timeframe == 'all' %}selected{% endif %}>All Time</option>
+                        <option value="today" {% if timeframe == 'today' %}selected{% endif %}>Today</option>
+                        <option value="week" {% if timeframe == 'week' %}selected{% endif %}>This Week</option>
+                        <option value="month" {% if timeframe == 'month' %}selected{% endif %}>This Month</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Status Filter Buttons -->
+    <div class="mb-4">
+        <div class="btn-group" role="group">
+            <a href="{{ url_for('admin.admin_complaints', status='all', search=request.args.get('search', ''), timeframe=request.args.get('timeframe', 'all')) }}" 
+               class="btn btn-outline-primary {% if status == 'all' %}active{% endif %}">
+                All
+            </a>
+            <a href="{{ url_for('admin.admin_complaints', status='pending', search=request.args.get('search', ''), timeframe=request.args.get('timeframe', 'all')) }}" 
+               class="btn btn-outline-warning {% if status == 'pending' %}active{% endif %}">
+                Pending
+            </a>
+            <a href="{{ url_for('admin.admin_complaints', status='in_progress', search=request.args.get('search', ''), timeframe=request.args.get('timeframe', 'all')) }}" 
+               class="btn btn-outline-info {% if status == 'in_progress' %}active{% endif %}">
+                In Progress
+            </a>
+            <a href="{{ url_for('admin.admin_complaints', status='resolved', search=request.args.get('search', ''), timeframe=request.args.get('timeframe', 'all')) }}" 
+               class="btn btn-outline-success {% if status == 'resolved' %}active{% endif %}">
+                Resolved
+            </a>
+            <a href="{{ url_for('admin.admin_complaints', status='rejected', search=request.args.get('search', ''), timeframe=request.args.get('timeframe', 'all')) }}" 
+               class="btn btn-outline-danger {% if status == 'rejected' %}active{% endif %}">
+                Rejected
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Complaints</h5>
+                    <h2 class="card-text">{{ total_complaints }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Pending</h5>
+                    <h2 class="card-text">{{ pending_count }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">In Progress</h5>
+                    <h2 class="card-text">{{ in_progress_count }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Resolved</h5>
+                    <h2 class="card-text">{{ resolved_count }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Complaints Table -->
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>User</th>
+                    <th>Subject</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th>Last Updated</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for complaint in complaints %}
+                <tr>
+                    <td>{{ complaint.id }}</td>
+                    <td>{{ complaint.user.username }}</td>
+                    <td>{{ complaint.subject }}</td>
+                    <td>
+                        <span class="badge {% if complaint.status == 'pending' %}bg-warning
+                                         {% elif complaint.status == 'in_progress' %}bg-info
+                                         {% elif complaint.status == 'resolved' %}bg-success
+                                         {% else %}bg-danger{% endif %}">
+                            {{ complaint.status|replace('_', ' ')|title }}
+                        </span>
+                    </td>
+                    <td>{{ complaint.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>{{ complaint.updated_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>
+                        <a href="{{ url_for('admin.view_complaint', complaint_id=complaint.id) }}" 
+                           class="btn btn-sm btn-primary">
+                            View
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="text-center">No complaints found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if pagination.pages > 1 %}
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% for page in pagination.iter_pages() %}
+                {% if page %}
+                    <li class="page-item {% if page == pagination.page %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('admin.admin_complaints', page=page, status=status, search=request.args.get('search', ''), timeframe=request.args.get('timeframe', 'all')) }}">
+                            {{ page }}
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %} 

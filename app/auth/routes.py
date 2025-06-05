@@ -144,8 +144,8 @@ def verify_phone():
 def login():
     if current_user.is_authenticated:
         if current_user.is_admin:
-            return redirect(url_for('admin_landing'))
-        return redirect(url_for('dashboard'))
+            return redirect(url_for('admin.admin_dashboard'))
+        return redirect(url_for('main.dashboard'))
 
     if request.method == 'POST':
         email = request.form.get('email')
@@ -169,8 +169,8 @@ def login():
         flash(_('Login successful!'), 'success')
         
         if user.is_admin:
-            return redirect(url_for('admin_landing'))
-        return redirect(url_for('dashboard'))
+            return redirect(url_for('admin.admin_dashboard'))
+        return redirect(url_for('main.dashboard'))
     
     return render_template('auth/login.html')
 

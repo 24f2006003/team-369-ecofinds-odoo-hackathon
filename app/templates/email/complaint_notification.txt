@@ -1,0 +1,29 @@
+{{ title }}
+
+{% if is_admin %}
+A new complaint has been submitted by {{ complaint.user.username }}.
+{% else %}
+Your complaint has been {{ 'updated' if complaint.status != 'pending' else 'submitted' }}.
+{% endif %}
+
+Complaint Details:
+Subject: {{ complaint.subject }}
+Status: {{ complaint.status|replace('_', ' ')|title }}
+Submitted: {{ complaint.created_at.strftime('%Y-%m-%d %H:%M') }}
+{% if complaint.updated_at != complaint.created_at %}
+Last Updated: {{ complaint.updated_at.strftime('%Y-%m-%d %H:%M') }}
+{% endif %}
+
+{% if complaint.admin_reply %}
+Admin Reply:
+{{ complaint.admin_reply }}
+{% endif %}
+
+{% if is_admin %}
+View the complaint at: {{ url_for('admin.view_complaint', complaint_id=complaint.id, _external=True) }}
+{% else %}
+View in your dashboard at: {{ url_for('main.dashboard', _external=True) }}
+{% endif %}
+
+This is an automated message from EcoFinds. Please do not reply to this email.
+© {{ now.year }} EcoFinds. All rights reserved. 
