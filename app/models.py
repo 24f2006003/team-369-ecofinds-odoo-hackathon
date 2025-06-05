@@ -21,13 +21,12 @@ class User(UserMixin, db.Model):
     email_verification_token = db.Column(db.String(100), unique=True)
     
     # Relationships
-    products = db.relationship('Product', back_populates='seller')
-    purchases = db.relationship('Purchase', back_populates='user')
-    ratings = db.relationship('ProductRating', back_populates='user')
-    complaints = db.relationship('Complaint', back_populates='user')
-    assigned_complaints = db.relationship('Complaint', back_populates='assigned_to', foreign_keys='Complaint.assigned_to_id')
-    complaint_actions = db.relationship('ComplaintHistory', back_populates='created_by')
-    cart_items = db.relationship('CartItem', backref='user', lazy=True)
+    products = db.relationship('Product', back_populates='seller', lazy=True)
+    purchases = db.relationship('Purchase', back_populates='user', lazy=True)
+    cart_items = db.relationship('CartItem', back_populates='user', lazy=True)
+    ratings = db.relationship('ProductRating', back_populates='user', lazy=True)
+    complaints = db.relationship('Complaint', foreign_keys='Complaint.user_id', back_populates='user', lazy=True)
+    assigned_complaints = db.relationship('Complaint', foreign_keys='Complaint.assigned_to_id', back_populates='assigned_to', lazy=True)
     sent_messages = db.relationship('ChatMessage', foreign_keys='ChatMessage.sender_id', backref='sender', lazy=True)
     received_messages = db.relationship('ChatMessage', foreign_keys='ChatMessage.receiver_id', backref='receiver', lazy=True)
     given_ratings = db.relationship('Rating', foreign_keys='Rating.rater_id', backref='rater', lazy=True)
@@ -67,23 +66,26 @@ class OTP(db.Model):
         return f'<OTP {self.id}>'
 
 class Product(db.Model):
+    __tablename__ = 'product'
+    
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.Text)
+    description = db.Column(db.Text, nullable=False)
     price = db.Column(db.Float, nullable=False)
-    category = db.Column(db.String(50))
-    image_url = db.Column(db.String(200))
-    city = db.Column(db.String(100), nullable=False)
-    state = db.Column(db.String(100), nullable=False)
+    category = db.Column(db.String(50), nullable=False)
+    condition = db.Column(db.String(20), nullable=False)  # new, like_new, good, fair
+    image_url = db.Column(db.String(500))
+    seller_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    is_sold = db.Column(db.Boolean, default=False)
     
     # Relationships
-    cart_items = db.relationship('CartItem', backref='product', lazy=True)
-    purchases = db.relationship('Purchase', backref='product', lazy=True)
-    product_ratings = db.relationship('ProductRating', backref='rated_product', lazy=True)
     seller = db.relationship('User', back_populates='products')
-
+    purchases = db.relationship('Purchase', back_populates='product')
+    product_ratings = db.relationship('ProductRating', back_populates='rated_product')
+    complaints = db.relationship('Complaint', back_populates='product')
+    cart_items = db.relationship('CartItem', back_populates='product', lazy=True)
+    
     def __repr__(self):
         return f'<Product {self.title}>'
 
@@ -185,11 +187,16 @@ class Product(db.Model):
         }
 
 class CartItem(db.Model):
+    __tablename__ = 'cart_item'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
-    quantity = db.Column(db.Integer, default=1)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    quantity = db.Column(db.Integer, nullable=False, default=1)
+    added_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Relationships
+    user = db.relationship('User', back_populates='cart_items')
+    product = db.relationship('Product', back_populates='cart_items')
 
     def __repr__(self):
         return f'<CartItem {self.id}>'
@@ -259,7 +266,7 @@ class Complaint(db.Model):
     user = db.relationship('User', foreign_keys=[user_id], back_populates='complaints')
     product = db.relationship('Product', back_populates='complaints')
     assigned_to = db.relationship('User', foreign_keys=[assigned_to_id], back_populates='assigned_complaints')
-    history = db.relationship('ComplaintHistory', back_populates='complaint_record', lazy=True, cascade='all, delete-orphan')
+    history = db.relationship('ComplaintHistory', back_populates='complaint', lazy=True, cascade='all, delete-orphan')
     
     @property
     def status_color(self):
@@ -289,22 +296,23 @@ class ComplaintHistory(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     complaint_id = db.Column(db.Integer, db.ForeignKey('complaint.id'), nullable=False)
-    action = db.Column(db.String(50), nullable=False)  # status_change, reply, assignment
-    description = db.Column(db.Text, nullable=False)
+    action = db.Column(db.String(50), nullable=False)  # e.g., 'status_change', 'reply', 'assignment'
+    details = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    created_by_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     
     # Relationships
-    created_by = db.relationship('User', backref=db.backref('complaint_actions', lazy=True))
-
+    complaint = db.relationship('Complaint', back_populates='history')
+    
     def __repr__(self):
         return f'<ComplaintHistory {self.id}>'
 
 class ProductRating(db.Model):
+    __tablename__ = 'product_rating'
+    
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
-    rating = db.Column(db.Integer, nullable=False)  # 1-5 stars
+    rating = db.Column(db.Integer, nullable=False)
     review = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -316,12 +324,15 @@ class ProductRating(db.Model):
     sentiment_magnitude = db.Column(db.Float)  # 0 to 1, indicating the strength of the sentiment
     
     # Relationships
-    user = db.relationship('User', backref=db.backref('product_ratings', lazy=True))
-    product = db.relationship('Product', backref=db.backref('ratings', lazy=True))
+    user = db.relationship('User', back_populates='ratings')
+    rated_product = db.relationship('Product', back_populates='product_ratings')
     helpful_voters = db.relationship('User', 
                                    secondary='rating_helpful_votes',
                                    backref=db.backref('helpful_votes_given', lazy=True))
     
+    def __repr__(self):
+        return f'<ProductRating {self.id}>'
+
     def __init__(self, user_id, product_id, rating, review=None, photos=None, categories=None):
         self.user_id = user_id
         self.product_id = product_id
