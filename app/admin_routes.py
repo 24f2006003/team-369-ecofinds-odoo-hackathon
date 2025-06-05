@@ -56,6 +56,7 @@ def admin_complaints():
     per_page = 10
     status_filter = request.args.get('status', 'all')
     search_query = request.args.get('search', '')
+    timeframe = request.args.get('timeframe', 'all')
     
     query = Complaint.query
     
@@ -70,12 +71,24 @@ def admin_complaints():
             )
         )
     
-    complaints = query.order_by(Complaint.created_at.desc()).paginate(page=page, per_page=per_page)
+    # Apply timeframe filter
+    if timeframe != 'all':
+        now = datetime.utcnow()
+        if timeframe == 'today':
+            query = query.filter(Complaint.created_at >= now.date())
+        elif timeframe == 'week':
+            query = query.filter(Complaint.created_at >= now - timedelta(days=7))
+        elif timeframe == 'month':
+            query = query.filter(Complaint.created_at >= now - timedelta(days=30))
+    
+    pagination = query.order_by(Complaint.created_at.desc()).paginate(page=page, per_page=per_page)
     
     return render_template('admin/complaints.html',
-                         complaints=complaints,
-                         status_filter=status_filter,
-                         search_query=search_query)
+                         complaints=pagination.items,
+                         pagination=pagination,
+                         status=status_filter,
+                         search_query=search_query,
+                         timeframe=timeframe)
 
 @admin.route('/admin/complaints/<int:complaint_id>')
 @login_required

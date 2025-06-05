@@ -140,7 +140,7 @@
                     <h5 class="mb-0">Assignment & Priority</h5>
                 </div>
                 <div class="card-body">
-                    <form action="{{ url_for('admin.update_complaint_assignment', complaint_id=complaint.id) }}" method="POST">
+                    <form action="{{ url_for('admin.update_complaint', complaint_id=complaint.id) }}" method="POST">
                         <div class="mb-3">
                             <label for="assigned_to" class="form-label">Assign To</label>
                             <select class="form-select" name="assigned_to" id="assigned_to">
@@ -177,7 +177,7 @@
                     <h5 class="mb-0">Update Status</h5>
                 </div>
                 <div class="card-body">
-                    <form action="{{ url_for('admin.update_complaint_status', complaint_id=complaint.id) }}" method="POST">
+                    <form action="{{ url_for('admin.update_complaint', complaint_id=complaint.id) }}" method="POST">
                         <div class="mb-3">
                             <label for="status" class="form-label">Status</label>
                             <select class="form-select" name="status" id="status">

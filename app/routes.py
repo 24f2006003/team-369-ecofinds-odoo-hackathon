@@ -22,28 +22,40 @@ def index():
 
 @main.route('/products')
 def products():
-    search_query = request.args.get('search', '')
-    city_query = request.args.get('city', '')
-    state_query = request.args.get('state', '')
+    page = request.args.get('page', 1, type=int)
+    per_page = 12
+    search = request.args.get('search', '')
+    category = request.args.get('category', '')
+    city = request.args.get('city', '')
+    state = request.args.get('state', '')
     
-    query = Product.query
+    query = Product.query.filter_by(is_sold=False)
     
-    if search_query:
+    if search:
         query = query.filter(
             or_(
-                Product.title.ilike(f'%{search_query}%'),
-                Product.description.ilike(f'%{search_query}%')
+                Product.title.ilike(f'%{search}%'),
+                Product.description.ilike(f'%{search}%')
             )
         )
     
-    if city_query:
-        query = query.filter(Product.city.ilike(f'%{city_query}%'))
+    if category:
+        query = query.filter_by(category=category)
     
-    if state_query:
-        query = query.filter(Product.state.ilike(f'%{state_query}%'))
+    if city:
+        query = query.filter_by(city=city)
     
-    products = query.all()
-    return render_template('products.html', products=products)
+    if state:
+        query = query.filter_by(state=state)
+    
+    products = query.order_by(Product.created_at.desc()).paginate(page=page, per_page=per_page)
+    
+    return render_template('products.html', 
+                         products=products,
+                         search=search,
+                         category=category,
+                         city=city,
+                         state=state)
 
 @main.route('/cart')
 @login_required
@@ -59,7 +71,8 @@ def submit_complaint():
         complaint = Complaint(
             user_id=current_user.id,
             subject=form.subject.data,
-            description=form.description.data
+            description=form.description.data,
+            category=form.category.data  # Use category from form
         )
         
         if form.evidence.data:
@@ -79,7 +92,7 @@ def submit_complaint():
         db.session.commit()
         
         flash('Your complaint has been submitted successfully.', 'success')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.home'))
     
     return render_template('submit_complaint.html', form=form)
 
@@ -288,46 +301,52 @@ def rating_analytics(product_id):
     analytics['category_labels'] = category_labels
     return jsonify(analytics)
 
-@main.route('/new_product', methods=['GET', 'POST'])
+@main.route('/products/new', methods=['GET', 'POST'])
 @login_required
 def new_product():
     if request.method == 'POST':
         title = request.form.get('title')
         description = request.form.get('description')
-        price = request.form.get('price')
+        price = request.form.get('price', type=float)
         category = request.form.get('category')
+        condition = request.form.get('condition')
+        image = request.files.get('image')
         
-        if not all([title, description, price, category]):
+        if not all([title, description, price, category, condition]):
             flash('All fields are required', 'danger')
             return redirect(url_for('main.new_product'))
         
         product = Product(
             title=title,
             description=description,
-            price=float(price),
+            price=price,
             category=category,
-            owner_id=current_user.id
+            condition=condition,
+            seller_id=current_user.id
         )
         
-        if 'image' in request.files:
-            image = request.files['image']
-            if image and allowed_file(image.filename):
-                filename = secure_filename(image.filename)
-                unique_filename = f"{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}_{filename}"
-                image_path = os.path.join(current_app.config['UPLOAD_FOLDER'], 'products', unique_filename)
-                os.makedirs(os.path.dirname(image_path), exist_ok=True)
-                image.save(image_path)
-                product.image_url = f"/uploads/products/{unique_filename}"
+        if image:
+            filename = secure_filename(image.filename)
+            # Create uploads directory if it doesn't exist
+            upload_dir = os.path.join(current_app.static_folder, 'uploads', 'products')
+            os.makedirs(upload_dir, exist_ok=True)
+            
+            # Save the file
+            file_path = os.path.join(upload_dir, filename)
+            image.save(file_path)
+            
+            # Store the relative URL
+            product.image_url = f'/static/uploads/products/{filename}'
         
         db.session.add(product)
         db.session.commit()
         
-        flash('Product created successfully!', 'success')
+        flash('Product listed successfully!', 'success')
         return redirect(url_for('main.products'))
     
     return render_template('new_product.html')
 
-@main.route('/product/<int:product_id>')
+@main.route('/products/<int:product_id>')
 def product_detail(product_id):
     product = Product.query.get_or_404(product_id)
     return render_template('product_detail.html', product=product)
@@ -459,12 +478,9 @@ def purchase_cart():
     # Create purchase records
     for item in cart_items:
         purchase = Purchase(
-            buyer_id=current_user.id,
-            seller_id=item.product.owner_id,
+            user_id=current_user.id,
             product_id=item.product.id,
-            quantity=item.quantity,
-            amount=item.product.price * item.quantity,
-            status='completed'
+            purchase_price=item.product.price * item.quantity
         )
         db.session.add(purchase)
     
@@ -483,10 +499,19 @@ def purchase_cart():
 @main.route('/purchases')
 @login_required
 def purchases():
-    purchases = Purchase.query.filter_by(buyer_id=current_user.id).order_by(Purchase.created_at.desc()).all()
-    return render_template('purchases.html', purchases=purchases)
+    user_purchases = Purchase.query.filter_by(user_id=current_user.id).order_by(Purchase.created_at.desc()).all()
+    return render_template('purchases.html', purchases=user_purchases)
 
 @main.route('/profile')
 @login_required
 def profile():
-    return render_template('profile.html', user=current_user) 
+    user = current_user
+    user_purchases = Purchase.query.filter_by(user_id=user.id).order_by(Purchase.created_at.desc()).all()
+    user_products = Product.query.filter_by(seller_id=user.id).all()
+    user_reviews = ProductRating.query.filter_by(user_id=user.id).all()
+    
+    return render_template('profile.html', 
+                         user=user,
+                         purchases=user_purchases,
+                         products=user_products,
+                         reviews=user_reviews) 
