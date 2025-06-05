@@ -37,7 +37,7 @@
         "FLASK_ENV": "production",
         "FLASK_APP": "run.py",
         "PYTHONPATH": ".",
-        "DATABASE_URL": "@database_url",
+        "DATABASE_URL": "postgresql://neondb_owner:npg_bGkicNV37wFZ@ep-divine-silence-a1ps86k5-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require",
         "BABEL_DEFAULT_LOCALE": "en",
         "PYTHONUNBUFFERED": "1"
     }
