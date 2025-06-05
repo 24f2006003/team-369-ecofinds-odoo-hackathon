@@ -11,7 +11,7 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm mb-3">
         <div class="container-fluid">
-            <a class="navbar-brand d-flex align-items-center" href="/">
+            <a class="navbar-brand d-flex align-items-center" href="{{ url_for('main.index') }}">
                 <img src="{{ url_for('static', filename='img/logo.png') }}" alt="EcoFinds Logo" style="height:75px; width:auto; margin-right:0.5rem; margin-left:100px; padding-top: 0%; padding-bottom: 0%;">
             </a>
             <button class="navbar-toggler ms-auto me-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -20,18 +20,18 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav mb-2 mb-lg-0 align-items-lg-center">
                     <li class="nav-item">
-                        <a class="nav-link" href="/">{{ _('Home') }}</a>
+                        <a class="nav-link" href="{{ url_for('main.index') }}">{{ _('Home') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/products">{{ _('Products') }}</a>
+                        <a class="nav-link" href="{{ url_for('main.products') }}">{{ _('Products') }}</a>
                     </li>
                     {% if current_user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="nav-link" href="/products/new">{{ _('Add Product') }}</a>
+                        <a class="nav-link" href="{{ url_for('main.new_product') }}">{{ _('Add Product') }}</a>
                     </li>
                     {% endif %}
                 </ul>
-                <form class="d-flex ms-auto me-3" action="/products" method="get">
+                <form class="d-flex ms-auto me-3" action="{{ url_for('main.products') }}" method="get">
                     <input class="form-control me-2" type="search" name="search" placeholder="{{ _('Search products...') }}" aria-label="Search">
                     <button class="btn btn-outline-success" type="submit">{{ _('Search') }}</button>
                 </form>
@@ -47,7 +47,7 @@
                         <a class="nav-link" href="{{ url_for('main.dashboard') }}">{{ _('Dashboard') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link d-flex align-items-center" href="/dashboard" style="font-weight:bold; color:#388e3c;">
+                        <a class="nav-link d-flex align-items-center" href="{{ url_for('main.dashboard') }}" style="font-weight:bold; color:#388e3c;">
                             {{ current_user.username }}
                             {% if current_user.eco_points is not none %}
                                 <span class="badge bg-success ms-2">{{ _('ECO Points') }}: {{ current_user.eco_points }}</span>
@@ -55,14 +55,14 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-danger" href="/logout">{{ _('Logout') }}</a>
+                        <a class="nav-link text-danger" href="{{ url_for('auth.logout') }}">{{ _('Logout') }}</a>
                     </li>
                     {% else %}
                     <li class="nav-item">
-                        <a class="nav-link" href="/login">{{ _('Login') }}</a>
+                        <a class="nav-link" href="{{ url_for('auth.login') }}">{{ _('Login') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/signup">{{ _('Sign Up') }}</a>
+                        <a class="nav-link" href="{{ url_for('auth.register') }}">{{ _('Sign Up') }}</a>
                     </li>
                     {% endif %}
                 </ul>
@@ -104,6 +104,7 @@
     </footer>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    {% block scripts %}{% endblock %}
     <script>
       // Auto-dismiss toast notifications after 5 seconds
       document.addEventListener('DOMContentLoaded', function() {

@@ -9,6 +9,18 @@
                     <h3 class="text-center">{{ _('Login to EcoFinds') }}</h3>
                 </div>
                 <div class="card-body">
+                    <!-- Hidden input for Google Client ID -->
+                    <input type="hidden" id="google-client-id" value="{{ config.GOOGLE_CLIENT_ID }}">
+                    
+                    <!-- Google Sign-In Button -->
+                    <div class="mb-4">
+                        <div id="google-signin-button"></div>
+                    </div>
+                    
+                    <div class="text-center mb-3">
+                        <span class="text-muted">- OR -</span>
+                    </div>
+                    
                     <form method="POST" action="{{ url_for('auth.login') }}">
                         <div class="mb-3">
                             <label for="email" class="form-label">{{ _('Email address') }}</label>
@@ -30,4 +42,11 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Google Sign-In API -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<!-- Custom auth script -->
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
 {% endblock %} 

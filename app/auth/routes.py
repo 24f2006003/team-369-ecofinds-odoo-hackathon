@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 import re
 from app.utils import send_verification_email, send_otp_sms
 from flask_babel import _
+from app.auth.google_auth import verify_google_token
 
 auth = Blueprint('auth', __name__)
 
@@ -201,4 +202,51 @@ def resend_otp():
     return jsonify({
         'message': 'OTP sent successfully',
         'otp': otp.otp_code  # Remove this in production, only for testing
-    }), 200 
+    }), 200
+
+@auth.route('/google-signin', methods=['POST'])
+def google_signin():
+    try:
+        data = request.get_json()
+        if not data or 'credential' not in data:
+            current_app.logger.error("No credential provided in Google sign-in request")
+            return jsonify({'success': False, 'error': 'No credential provided'}), 400
+
+        # Verify the Google token
+        user_info = verify_google_token(data['credential'])
+        if not user_info:
+            current_app.logger.error("Invalid Google token in sign-in request")
+            return jsonify({'success': False, 'error': 'Invalid Google token'}), 401
+
+        # Check if user exists
+        user = User.query.filter_by(email=user_info['email']).first()
+        
+        if not user:
+            try:
+                # Create new user
+                user = User(
+                    email=user_info['email'],
+                    username=user_info.get('name', user_info['email'].split('@')[0]),
+                    is_email_verified=True,  # Google emails are verified
+                    is_phone_verified=False  # Phone verification still required
+                )
+                db.session.add(user)
+                db.session.commit()
+                current_app.logger.info(f"Created new user from Google sign-in: {user.email}")
+            except Exception as e:
+                current_app.logger.error(f"Error creating user from Google sign-in: {str(e)}")
+                db.session.rollback()
+                return jsonify({'success': False, 'error': 'Error creating user account'}), 500
+
+        # Log in the user
+        login_user(user)
+        current_app.logger.info(f"User logged in via Google: {user.email}")
+        
+        return jsonify({
+            'success': True,
+            'redirect_url': url_for('main.dashboard')
+        })
+
+    except Exception as e:
+        current_app.logger.error(f'Google sign-in error: {str(e)}')
+        return jsonify({'success': False, 'error': str(e)}), 500 

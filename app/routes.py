@@ -16,7 +16,7 @@ from sqlalchemy import or_
 main = Blueprint('main', __name__)
 
 @main.route('/')
-def home():
+def index():
     categories = ['Eco-Finds', 'Eco-Friendly', 'Recycled', 'Water Saving']
     return render_template('index.html', categories=categories)
 
