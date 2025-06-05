@@ -30,6 +30,13 @@
                             <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
                         </div>
                         <div class="mb-3">
+                            <label for="price" class="form-label">{{ _('Price') }}</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+                                <input type="number" class="form-control" id="price" name="price" step="0.01" min="0" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
                             <label for="condition" class="form-label">{{ _('Condition') }}</label>
                             <select class="form-select" id="condition" name="condition" required>
                                 <option value="new">{{ _('New') }}</option>
@@ -40,33 +47,23 @@
                         </div>
                         <div class="mb-3">
                             <label for="image" class="form-label">{{ _('Product Image') }}</label>
-                            <input type="file" class="form-control" id="image" name="image" accept="image/*" required>
+                            <input type="file" class="form-control" id="image" name="image" accept="image/*">
                         </div>
                         <div class="mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="is_auction" name="is_auction">
-                                <label class="form-check-label" for="is_auction">
-                                    {{ _('This is an auction item') }}
-                                </label>
-                            </div>
+                            <label for="image_url" class="form-label">{{ _('Or Image URL') }}</label>
+                            <input type="url" class="form-control" id="image_url" name="image_url" placeholder="https://example.com/image.jpg">
                         </div>
-                        <div id="auction-fields" style="display: none;">
-                            <div class="mb-3">
-                                <label for="start_price" class="form-label">{{ _('Starting Price') }}</label>
-                                <input type="number" class="form-control" id="start_price" name="start_price" min="0" step="0.01">
-                            </div>
-                            <div class="mb-3">
-                                <label for="end_time" class="form-label">{{ _('Auction End Time') }}</label>
-                                <input type="datetime-local" class="form-control" id="end_time" name="end_time">
-                            </div>
+                        <div class="mb-3">
+                            <label for="city" class="form-label">{{ _('City') }}</label>
+                            <input type="text" class="form-control" id="city" name="city" required>
                         </div>
-                        <div id="regular-price-field">
-                            <div class="mb-3">
-                                <label for="price" class="form-label">{{ _('Price') }}</label>
-                                <input type="number" class="form-control" id="price" name="price" min="0" step="0.01" required>
-                            </div>
+                        <div class="mb-3">
+                            <label for="state" class="form-label">{{ _('State') }}</label>
+                            <input type="text" class="form-control" id="state" name="state" required>
                         </div>
-                        <button type="submit" class="btn btn-primary">{{ _('Add Product') }}</button>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">{{ _('Add Product') }}</button>
+                        </div>
                     </form>
                 </div>
             </div>

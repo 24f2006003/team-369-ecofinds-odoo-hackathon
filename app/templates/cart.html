@@ -19,7 +19,7 @@
                                 <h5 class="card-title">{{ item.product.title }}</h5>
                                 <p class="card-text">{{ item.product.description[:100] }}...</p>
                                 <p class="card-text">
-                                    <small class="text-muted">{{ _('Price') }}: ${{ "%.2f"|format(item.product.price) }}</small>
+                                    <small class="text-muted">{{ _('Price') }}: ₹{{ "%.2f"|format(item.product.price) }}</small>
                                 </p>
                                 <div class="d-flex align-items-center">
                                     <form action="{{ url_for('main.update_cart_quantity', cart_item_id=item.id) }}" method="POST" class="me-2">
@@ -47,14 +47,9 @@
                     <div class="card-body">
                         <h5 class="card-title">{{ _('Order Summary') }}</h5>
                         
-                        {% set cart_total = namespace(value=0) %}
-                        {% for item in cart_items %}
-                            {% set cart_total.value = cart_total.value + (item.product.price * item.quantity) %}
-                        {% endfor %}
-                        
                         <div class="d-flex justify-content-between mb-2">
                             <span>{{ _('Subtotal') }}</span>
-                            <span>${{ "%.2f"|format(cart_total.value) }}</span>
+                            <span>₹{{ "%.2f"|format(cart_total) }}</span>
                         </div>
                         
                         <div class="mb-3">
@@ -64,7 +59,7 @@
                         
                         <div class="d-flex justify-content-between mb-3">
                             <span>{{ _('Total') }}</span>
-                            <span id="final_total">${{ "%.2f"|format(cart_total.value) }}</span>
+                            <span id="final_total">₹{{ "%.2f"|format(cart_total) }}</span>
                         </div>
                         
                         <form action="{{ url_for('main.purchase_cart') }}" method="POST">
@@ -90,13 +85,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const ecoPointsInput = document.getElementById('eco_points');
     const ecoPointsHidden = document.getElementById('eco_points_input');
     const finalTotal = document.getElementById('final_total');
-    const initialTotal = {{ cart_total.value }};
+    const initialTotal = {{ cart_total }};
     
     ecoPointsInput.addEventListener('input', function() {
         const points = parseInt(this.value) || 0;
-        const pointsValue = points * 0.01; // Each point is worth $0.01
+        const pointsValue = points * 0.01; // Each point is worth ₹0.01
         const newTotal = Math.max(0, initialTotal - pointsValue);
-        finalTotal.textContent = '$' + newTotal.toFixed(2);
+        finalTotal.textContent = '₹' + newTotal.toFixed(2);
         ecoPointsHidden.value = points;
     });
 });

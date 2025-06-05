@@ -50,15 +50,15 @@ def product(id):
 @login_required
 def new_product():
     """Create a new product"""
-    if not current_user.is_admin:
-        flash('You do not have permission to add products.', 'danger')
-        return redirect(url_for('main.products'))
-        
     if request.method == 'POST':
         title = request.form.get('title')
         description = request.form.get('description')
         category_id = request.form.get('category_id', type=int)
         condition = request.form.get('condition')
+        price = request.form.get('price', type=float)
+        city = request.form.get('city')
+        state = request.form.get('state')
+        image_url = request.form.get('image_url')
         
         # Handle image upload
         image = request.files.get('image')
@@ -67,56 +67,24 @@ def new_product():
             image_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
             image.save(image_path)
             image_url = url_for('static', filename=f'uploads/{filename}')
-        else:
-            image_url = None
         
-        # Check if this is an auction
-        is_auction = request.form.get('is_auction') == 'on'
-        
-        if is_auction:
-            try:
-                start_price = float(request.form.get('auction_start_price'))
-                duration_hours = int(request.form.get('auction_duration', 24))
-                min_increment = float(request.form.get('auction_min_increment', 1.0))
-                auto_extend = request.form.get('auction_auto_extend') == 'on'
-                
-                product = Product(
-                    title=title,
-                    description=description,
-                    category_id=category_id,
-                    condition=condition,
-                    image_url=image_url,
-                    seller=current_user,
-                    is_auction=True,
-                    auction_start_price=start_price,
-                    auction_end_time=datetime.utcnow() + timedelta(hours=duration_hours),
-                    auction_min_bid_increment=min_increment,
-                    auction_auto_extend=auto_extend,
-                    auction_status='active'
-                )
-            except (TypeError, ValueError) as e:
-                flash('Invalid auction parameters', 'danger')
-                return redirect(url_for('main.new_product'))
-        else:
-            try:
-                price = float(request.form.get('price'))
-                product = Product(
-                    title=title,
-                    description=description,
-                    price=price,
-                    category_id=category_id,
-                    condition=condition,
-                    image_url=image_url,
-                    seller=current_user
-                )
-            except (TypeError, ValueError) as e:
-                flash('Invalid price', 'danger')
-                return redirect(url_for('main.new_product'))
+        # Create new product
+        product = Product(
+            title=title,
+            description=description,
+            category_id=category_id,
+            condition=condition,
+            price=price,
+            seller_id=current_user.id,
+            city=city,
+            state=state,
+            image_url=image_url
+        )
         
         db.session.add(product)
         db.session.commit()
         
-        flash('Your product has been listed!', 'success')
+        flash(_('Product added successfully!'), 'success')
         return redirect(url_for('main.product', id=product.id))
     
     categories = Category.query.all()
@@ -772,7 +740,8 @@ def cart():
         flash('Please log in to view your cart.', 'warning')
         return redirect(url_for('auth.login'))
     cart_items = current_user.get_cart_items()
-    return render_template('cart.html', title='My Cart', cart_items=cart_items)
+    cart_total = sum(item.product.price * item.quantity for item in cart_items)
+    return render_template('cart.html', title='My Cart', cart_items=cart_items, cart_total=cart_total)
 
 @bp.route('/add_to_cart/<int:product_id>', methods=['POST'])
 @login_required
