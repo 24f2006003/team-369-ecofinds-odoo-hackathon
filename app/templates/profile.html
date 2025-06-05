@@ -15,9 +15,20 @@
                         <span class="badge bg-success me-2">ECO Points</span>
                         <h4 class="mb-0">{{ user.eco_points }}</h4>
                     </div>
-                    <a href="{{ url_for('main.submit_complaint') }}" class="btn btn-danger w-100">
-                        <i class="bi bi-exclamation-triangle"></i> Submit Complaint
-                    </a>
+                    <div class="mb-3">
+                        <h5 class="mb-2">{{ _('Complaints & Support') }}</h5>
+                        <a href="{{ url_for('main.complaints') }}" class="btn btn-outline-primary w-100 mb-2">
+                            <i class="bi bi-list"></i> {{ _('View My Complaints') }}
+                        </a>
+                        <a href="{{ url_for('main.submit_complaint') }}" class="btn btn-danger w-100 mb-2">
+                            <i class="bi bi-exclamation-triangle"></i> {{ _('Submit Complaint') }}
+                        </a>
+                        {% if current_user.is_admin %}
+                        <a href="{{ url_for('main.admin_complaints') }}" class="btn btn-warning w-100 mt-2">
+                            <i class="bi bi-shield-lock"></i> {{ _('Admin Complaints Dashboard') }}
+                        </a>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
@@ -76,4 +87,4 @@
         </div>
     </div>
 </div>
-{% endblock %} 
+{% endblock %}

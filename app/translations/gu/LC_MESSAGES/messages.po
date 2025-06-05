@@ -211,4 +211,193 @@ msgid "State"
 msgstr "રાજ્ય"
 
 msgid "₹%s"
-msgstr "₹%s" 
+msgstr "₹%s"
+
+msgid "Order"
+msgstr "ઓર્ડર"
+
+msgid "Orders"
+msgstr "ઓર્ડરો"
+
+msgid "Profile"
+msgstr "પ્રોફાઇલ"
+
+msgid "Settings"
+msgstr "સેટિંગ્સ"
+
+msgid "Admin"
+msgstr "એડમિન"
+
+msgid "Dashboard"
+msgstr "ડેશબોર્ડ"
+
+msgid "Complaint"
+msgstr "ફરિયાદ"
+
+msgid "Complaints"
+msgstr "ફરિયાદો"
+
+msgid "Submit"
+msgstr "સબમિટ કરો"
+
+msgid "Cancel"
+msgstr "રદ કરો"
+
+msgid "Save"
+msgstr "સેવ કરો"
+
+msgid "Continue"
+msgstr "ચાલુ રાખો"
+
+msgid "Next"
+msgstr "આગળ"
+
+msgid "Previous"
+msgstr "પાછળ"
+
+msgid "Yes"
+msgstr "હા"
+
+msgid "No"
+msgstr "ના"
+
+msgid "Status"
+msgstr "સ્થિતિ"
+
+msgid "Pending"
+msgstr "બાકી છે"
+
+msgid "Completed"
+msgstr "પૂર્ણ"
+
+msgid "Delivered"
+msgstr "ડિલિવર થયું"
+
+msgid "Purchased"
+msgstr "ખરીદ્યું"
+
+msgid "Cancelled"
+msgstr "રદ થયું"
+
+msgid "Returned"
+msgstr "પરત આવ્યું"
+
+msgid "Dispute"
+msgstr "વિવાદ"
+
+msgid "Resolution"
+msgstr "ઉકેલ"
+
+msgid "Submit Complaint"
+msgstr "ફરિયાદ નોંધાવો"
+
+msgid "View Complaints"
+msgstr "ફરિયાદો જુઓ"
+
+msgid "Admin Dashboard"
+msgstr "એડમિન ડેશબોર્ડ"
+
+msgid "User"
+msgstr "વપરાશકર્તા"
+
+msgid "Seller Dashboard"
+msgstr "વેચનાર ડેશબોર્ડ"
+
+msgid "Buyer"
+msgstr "ખરીદદાર"
+
+msgid "Seller"
+msgstr "વેચનાર"
+
+msgid "Support"
+msgstr "સપોર્ટ"
+
+msgid "Help"
+msgstr "મદદ"
+
+msgid "Feedback"
+msgstr "પ્રતિસાદ"
+
+msgid "Rate"
+msgstr "દર"
+
+msgid "Review"
+msgstr "સમીક્ષા"
+
+msgid "Reviews"
+msgstr "સમીક્ષાઓ"
+
+msgid "Rating"
+msgstr "રેટિંગ"
+
+msgid "Notifications"
+msgstr "સૂચનાઓ"
+
+msgid "Message"
+msgstr "સંદેશ"
+
+msgid "Messages"
+msgstr "સંદેશો"
+
+msgid "Send"
+msgstr "મોકલો"
+
+msgid "Search by category"
+msgstr "શ્રેણી દ્વારા શોધો"
+
+msgid "Search by city"
+msgstr "શહેર દ્વારા શોધો"
+
+msgid "Search by state"
+msgstr "રાજ્ય દ્વારા શોધો"
+
+msgid "No data found"
+msgstr "કોઈ ડેટા મળ્યો નથી"
+
+msgid "Loading..."
+msgstr "લોડ થઈ રહ્યું છે..."
+
+msgid "Something went wrong"
+msgstr "કંઈક ખોટું થયું"
+
+msgid "Try again"
+msgstr "ફરી પ્રયાસ કરો"
+
+msgid "Welcome to EcoFinds"
+msgstr "EcoFinds માં આપનું સ્વાગત છે"
+
+msgid "Your marketplace for sustainable and eco-friendly products"
+msgstr "સતત અને પર્યાવરણ અનુકૂળ ઉત્પાદનો માટેનું તમારું બજાર"
+
+msgid "Buy"
+msgstr "ખરીદો"
+
+msgid "Discover eco-friendly products from local sellers"
+msgstr "સ્થાનિક વેચનારોથી પર્યાવરણ અનુકૂળ ઉત્પાદનો શોધો"
+
+msgid "Browse Products"
+msgstr "ઉત્પાદનો બ્રાઉઝ કરો"
+
+msgid "Sell"
+msgstr "વેચો"
+
+msgid "List your sustainable products for sale"
+msgstr "તમારા સતત ઉત્પાદનો વેચાણ માટે યાદીબદ્ધ કરો"
+
+msgid "Create Listing"
+msgstr "યાદી બનાવો"
+
+msgid "Login to Sell"
+msgstr "વેચવા માટે લોગિન કરો"
+
+msgid "Earn"
+msgstr "કમાવો"
+
+msgid "Get ECO points for your sustainable actions"
+msgstr "તમારા સતત કાર્ય માટે ECO પોઇન્ટ્સ મેળવો"
+
+msgid "View Points"
+msgstr "પોઇન્ટ્સ જુઓ"
+
+msgid "Login to Earn"
+msgstr "કમાવવા માટે લોગિન કરો"

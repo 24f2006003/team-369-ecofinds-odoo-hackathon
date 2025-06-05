@@ -220,11 +220,41 @@ msgstr "स्वागत है"
 msgid "Welcome to EcoFinds"
 msgstr "EcoFinds में आपका स्वागत है"
 
-msgid "Your one-stop shop for eco-friendly products"
-msgstr "पर्यावरण के अनुकूल उत्पादों के लिए आपकी एक-स्टॉप शॉप"
+msgid "Your marketplace for sustainable and eco-friendly products"
+msgstr "सतत और पर्यावरण के अनुकूल उत्पादों के लिए आपका बाज़ार"
 
-msgid "Start Shopping"
-msgstr "खरीदारी शुरू करें"
+msgid "Buy"
+msgstr "खरीदें"
+
+msgid "Discover eco-friendly products from local sellers"
+msgstr "स्थानीय विक्रेताओं से पर्यावरण के अनुकूल उत्पाद खोजें"
+
+msgid "Browse Products"
+msgstr "उत्पाद ब्राउज़ करें"
+
+msgid "Sell"
+msgstr "बेचें"
+
+msgid "List your sustainable products for sale"
+msgstr "अपने सतत उत्पादों को बिक्री के लिए सूचीबद्ध करें"
+
+msgid "Create Listing"
+msgstr "लिस्टिंग बनाएं"
+
+msgid "Login to Sell"
+msgstr "बेचने के लिए लॉगिन करें"
+
+msgid "Earn"
+msgstr "कमाएँ"
+
+msgid "Get ECO points for your sustainable actions"
+msgstr "अपने सतत कार्यों के लिए ईको पॉइंट्स प्राप्त करें"
+
+msgid "View Points"
+msgstr "पॉइंट्स देखें"
+
+msgid "Login to Earn"
+msgstr "कमाने के लिए लॉगिन करें"
 
 msgid "Sustainable Living"
 msgstr "टिकाऊ जीवन"
@@ -425,4 +455,154 @@ msgid "Track Order"
 msgstr "ऑर्डर ट्रैक करें"
 
 msgid "Back to Home"
-msgstr "होम पर वापस जाएं" 
+msgstr "होम पर वापस जाएं"
+
+msgid "Order"
+msgstr "आदेश"
+
+msgid "Orders"
+msgstr "आदेश"
+
+msgid "Profile"
+msgstr "प्रोफ़ाइल"
+
+msgid "Settings"
+msgstr "सेटिंग्स"
+
+msgid "Admin"
+msgstr "प्रशासक"
+
+msgid "Dashboard"
+msgstr "डैशबोर्ड"
+
+msgid "Complaint"
+msgstr "शिकायत"
+
+msgid "Complaints"
+msgstr "शिकायतें"
+
+msgid "Submit"
+msgstr "जमा करें"
+
+msgid "Cancel"
+msgstr "रद्द करें"
+
+msgid "Save"
+msgstr "सहेजें"
+
+msgid "Continue"
+msgstr "जारी रखें"
+
+msgid "Next"
+msgstr "अगला"
+
+msgid "Previous"
+msgstr "पिछला"
+
+msgid "Yes"
+msgstr "हाँ"
+
+msgid "No"
+msgstr "नहीं"
+
+msgid "Status"
+msgstr "स्थिति"
+
+msgid "Pending"
+msgstr "लंबित"
+
+msgid "Completed"
+msgstr "पूर्ण"
+
+msgid "Delivered"
+msgstr "डिलीवर किया गया"
+
+msgid "Purchased"
+msgstr "खरीदा गया"
+
+msgid "Cancelled"
+msgstr "रद्द किया गया"
+
+msgid "Returned"
+msgstr "वापस किया गया"
+
+msgid "Dispute"
+msgstr "विवाद"
+
+msgid "Resolution"
+msgstr "समाधान"
+
+msgid "Submit Complaint"
+msgstr "शिकायत दर्ज करें"
+
+msgid "View Complaints"
+msgstr "शिकायतें देखें"
+
+msgid "Admin Dashboard"
+msgstr "प्रशासक डैशबोर्ड"
+
+msgid "User"
+msgstr "उपयोगकर्ता"
+
+msgid "Seller Dashboard"
+msgstr "विक्रेता डैशबोर्ड"
+
+msgid "Buyer"
+msgstr "खरीदार"
+
+msgid "Seller"
+msgstr "विक्रेता"
+
+msgid "Support"
+msgstr "सहायता"
+
+msgid "Help"
+msgstr "मदद"
+
+msgid "Feedback"
+msgstr "प्रतिक्रिया"
+
+msgid "Rate"
+msgstr "रेट करें"
+
+msgid "Review"
+msgstr "समीक्षा"
+
+msgid "Reviews"
+msgstr "समीक्षाएँ"
+
+msgid "Rating"
+msgstr "रेटिंग"
+
+msgid "Notifications"
+msgstr "सूचनाएँ"
+
+msgid "Message"
+msgstr "संदेश"
+
+msgid "Messages"
+msgstr "संदेश"
+
+msgid "Send"
+msgstr "भेजें"
+
+msgid "Search by category"
+msgstr "श्रेणी से खोजें"
+
+msgid "Search by city"
+msgstr "शहर से खोजें"
+
+msgid "Search by state"
+msgstr "राज्य से खोजें"
+
+msgid "No data found"
+msgstr "कोई डेटा नहीं मिला"
+
+msgid "Loading..."
+msgstr "लोड हो रहा है..."
+
+msgid "Something went wrong"
+msgstr "कुछ गलत हो गया"
+
+msgid "Try again"
+msgstr "पुनः प्रयास करें"
