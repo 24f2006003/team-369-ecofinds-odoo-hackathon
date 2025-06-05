@@ -11,8 +11,8 @@
                 <div class="card-body">
                     <h5 class="card-title">{{ _('Purchase Summary') }}</h5>
                     <p class="card-text">
-                        <strong>{{ _('Total Spent') }}:</strong> ₹{{ "%.2f"|format(purchases|sum(attribute='purchase_price')) }}<br>
-                        <strong>{{ _('Points Earned') }}:</strong> {{ (purchases|sum(attribute='purchase_price') * 0.1)|int }} ECO
+                        <strong>{{ _('Total Spent') }}:</strong> ₹{{ "%.2f"|format(purchases|sum(attribute='purchase_price')) if purchases else 0 }}<br>
+                        <strong>{{ _('Points Earned') }}:</strong> {{ ((purchases|sum(attribute='purchase_price') * 0.1)|int) if purchases else 0 }} ECO
                     </p>
                 </div>
             </div>
@@ -32,8 +32,8 @@
                             <p class="card-text">{{ purchase.product.description }}</p>
                             <p class="card-text">
                                 <strong>{{ _('Price') }}:</strong> ₹{{ "%.2f"|format(purchase.purchase_price) }}<br>
-                                <strong>{{ _('Purchase Date') }}:</strong> {{ purchase.purchased_at.strftime('%Y-%m-%d %H:%M') }}<br>
-                                <strong>{{ _('Seller') }}:</strong> {{ purchase.product.owner.username }}<br>
+                                <strong>{{ _('Purchase Date') }}:</strong> {{ purchase.created_at.strftime('%Y-%m-%d %H:%M') }}<br>
+                                <strong>{{ _('Seller') }}:</strong> {{ purchase.product.seller.username }}<br>
                                 <strong>{{ _('Location') }}:</strong> {{ purchase.product.city }}, {{ purchase.product.state }}
                             </p>
                             <div class="d-flex justify-content-between align-items-center">

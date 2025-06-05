@@ -28,6 +28,13 @@ class ComplaintForm(FlaskForm):
         DataRequired(),
         Length(min=10, message='Description must be at least 10 characters long')
     ])
+    category = SelectField('Category', choices=[
+        ('general', 'General'),
+        ('product_issue', 'Product Issue'),
+        ('seller_issue', 'Seller Issue'),
+        ('technical', 'Technical'),
+        ('other', 'Other')
+    ], default='general')
     evidence = FileField('Evidence', validators=[
         Optional(),
         FileAllowed(['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx'], 

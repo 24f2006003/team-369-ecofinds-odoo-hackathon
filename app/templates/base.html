@@ -40,12 +40,11 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('main.cart') }}">{{ _('Cart') }}</a>
                     </li>
+                    {% if current_user.is_admin %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.purchases') }}">{{ _('Purchases') }}</a>
+                        <a class="nav-link" href="{{ url_for('admin.admin_dashboard') }}">{{ _('Dashboard') }}</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.dashboard') }}">{{ _('Dashboard') }}</a>
-                    </li>
+                    {% endif %}
                     <li class="nav-item">
                         <a class="nav-link d-flex align-items-center" href="/dashboard" style="font-weight:bold; color:#388e3c;">
                             {{ current_user.username }}

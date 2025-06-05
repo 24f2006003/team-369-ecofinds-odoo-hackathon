@@ -251,16 +251,16 @@ class Complaint(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
     subject = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text, nullable=False)
-    status = db.Column(db.String(20), default='pending')  # pending, in_progress, resolved, closed
-    priority = db.Column(db.String(20), default='medium')  # low, medium, high, urgent
-    category = db.Column(db.String(50), nullable=False)  # product_issue, seller_issue, technical, other
+    status = db.Column(db.String(20), nullable=False, default='pending')
+    priority = db.Column(db.String(20), nullable=False, default='medium')
+    category = db.Column(db.String(50), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    due_date = db.Column(db.DateTime, nullable=True)
-    assigned_to_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    due_date = db.Column(db.DateTime)
+    assigned_to_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     
     # Relationships
     user = db.relationship('User', foreign_keys=[user_id], back_populates='complaints')
