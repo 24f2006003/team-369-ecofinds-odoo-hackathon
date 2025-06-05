@@ -72,18 +72,10 @@ class Product(db.Model):
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
     price = db.Column(db.Float, nullable=False)
-<<<<<<< HEAD
-    category = db.Column(db.String(50))
-    condition = db.Column(db.String(50), nullable=False, default='New')
-    image_url = db.Column(db.String(200))
-    city = db.Column(db.String(100), nullable=False)
-    state = db.Column(db.String(100), nullable=False)
-=======
     category = db.Column(db.String(50), nullable=False)
     condition = db.Column(db.String(20), nullable=False)  # new, like_new, good, fair
     image_url = db.Column(db.String(500))
     seller_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
->>>>>>> f8154d4e29dfa251bcf1717aff9384e9fea610dc
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_sold = db.Column(db.Boolean, default=False)
     
@@ -216,11 +208,7 @@ class Purchase(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
     purchase_price = db.Column(db.Float, nullable=False)
-<<<<<<< HEAD
-    purchased_at = db.Column(db.DateTime, default=datetime.utcnow)
-=======
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
->>>>>>> f8154d4e29dfa251bcf1717aff9384e9fea610dc
     is_rated = db.Column(db.Boolean, default=False)
     
     # Relationships
