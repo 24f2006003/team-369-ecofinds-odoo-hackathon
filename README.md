@@ -20,48 +20,9 @@ EcoFinds aims to promote sustainability by facilitating the resale of pre-owned 
 
 ## Project Demo
 
-[Click to watch the video](https://drive.google.com/file/d/1Rk_a-DUAlrv5IgKGhjNXrc6J3tLOwt_w/view)
+[Click to watch the video for Round 1](https://drive.google.com/file/d/1Rk_a-DUAlrv5IgKGhjNXrc6J3tLOwt_w/view)
 
-## Project Structure
-
-```
-EcoFinds
-├── app
-│   ├── __init__.py
-│   ├── models.py
-│   ├── auth/
-│   │   ├── __init__.py
-│   │   └── routes.py
-│   ├── main/
-│   │   ├── __init__.py
-│   │   └── routes.py
-│   ├── products/
-│   │   ├── __init__.py
-│   │   └── routes.py
-│   ├── templates/
-│   │   ├── base.html
-│   │   ├── index.html
-│   │   ├── login.html
-│   │   ├── register.html
-│   │   ├── dashboard.html
-│   │   ├── cart.html
-│   │   ├── purchases.html
-│   │   ├── product_list.html
-│   │   ├── product_detail.html
-│   │   ├── new_product.html
-│   │   └── edit_product.html
-│   └── static/
-│       ├── css/
-│       │   └── styles.css
-│       ├── js/
-│       │   └── main.js
-│       └── img/
-│           └── logo.png
-├── instance/
-├── run.py
-├── requirements.txt
-└── README.md
-```
+[Click to watch the video for Round 2](https://drive.google.com/file/d/1y8GydiquuXbg_7WCr1eGxSq6w8xYLmc7/view)
 
 ## Setup Instructions
 
