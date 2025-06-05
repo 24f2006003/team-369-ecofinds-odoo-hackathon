@@ -1,0 +1,682 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Rating Summary -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h2 class="display-4 mb-0">{{ "%.1f"|format(product.get_average_rating()) }}</h2>
+                    <div class="stars mb-2">
+                        {% for i in range(5) %}
+                            {% if i < product.get_average_rating()|int %}
+                                <i class="fas fa-star text-warning"></i>
+                            {% elif i < product.get_average_rating()|round(0, 'ceil')|int %}
+                                <i class="fas fa-star-half-alt text-warning"></i>
+                            {% else %}
+                                <i class="far fa-star text-warning"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <p class="text-muted">{{ product.get_rating_count() }} ratings</p>
+                    
+                    <!-- Rating Distribution -->
+                    <div class="rating-distribution mt-4">
+                        {% for rating, count in product.get_rating_distribution().items() %}
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="me-2">{{ rating }} <i class="fas fa-star text-warning"></i></div>
+                            <div class="progress flex-grow-1" style="height: 8px;">
+                                <div class="progress-bar bg-warning" role="progressbar" 
+                                     style="width: {{ (count / product.get_rating_count() * 100) if product.get_rating_count() > 0 else 0 }}%">
+                                </div>
+                            </div>
+                            <div class="ms-2">{{ count }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rating Form -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Write a Review</h5>
+                </div>
+                <div class="card-body">
+                    {% if current_user.is_authenticated %}
+                        {% if product.has_user_rated(current_user.id) %}
+                            <div class="alert alert-info">
+                                You have already rated this product. You can update your rating below.
+                            </div>
+                        {% endif %}
+                        
+                        <form method="POST" action="{{ url_for('main.rate_product', product_id=product.id) }}">
+                            <div class="mb-3">
+                                <label class="form-label">Your Rating</label>
+                                <div class="rating-input">
+                                    {% for i in range(5, 0, -1) %}
+                                    <input type="radio" name="rating" value="{{ i }}" id="star{{ i }}"
+                                           {% if product.get_user_rating(current_user.id) and product.get_user_rating(current_user.id).rating == i %}checked{% endif %}>
+                                    <label for="star{{ i }}"><i class="far fa-star"></i></label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="review" class="form-label">Your Review</label>
+                                <textarea class="form-control" id="review" name="review" rows="4"
+                                          placeholder="Share your experience with this product...">{{ product.get_user_rating(current_user.id).review if product.get_user_rating(current_user.id) else '' }}</textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Add Photos (Optional)</label>
+                                <div class="photo-upload-area" id="photoUploadArea">
+                                    <input type="file" id="photoInput" name="photos" multiple accept="image/*" class="d-none">
+                                    <div class="photo-preview-area" id="photoPreviewArea">
+                                        {% if product.get_user_rating(current_user.id) and product.get_user_rating(current_user.id).photos %}
+                                            {% for photo in product.get_user_rating(current_user.id).photos %}
+                                            <div class="photo-preview">
+                                                <img src="{{ photo }}" alt="Review photo">
+                                                <button type="button" class="btn-remove-photo" data-photo-url="{{ photo }}">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </div>
+                                    <button type="button" class="btn btn-outline-secondary" id="addPhotoBtn">
+                                        <i class="fas fa-camera"></i> Add Photos
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Category Ratings</label>
+                                <div class="category-ratings">
+                                    {% for category, label in {
+                                        'quality': 'Product Quality',
+                                        'value': 'Value for Money',
+                                        'durability': 'Durability',
+                                        'design': 'Design & Style',
+                                        'performance': 'Performance'
+                                    }.items() %}
+                                    <div class="category-rating mb-2">
+                                        <label class="form-label">{{ label }}</label>
+                                        <div class="rating-input">
+                                            {% for i in range(5, 0, -1) %}
+                                            <input type="radio" name="category_{{ category }}" value="{{ i }}" id="{{ category }}_star{{ i }}"
+                                                   {% if product.get_user_rating(current_user.id) and product.get_user_rating(current_user.id).categories.get(category) == i %}checked{% endif %}>
+                                            <label for="{{ category }}_star{{ i }}"><i class="far fa-star"></i></label>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">
+                                {% if product.has_user_rated(current_user.id) %}
+                                    Update Review
+                                {% else %}
+                                    Submit Review
+                                {% endif %}
+                            </button>
+                        </form>
+                    {% else %}
+                        <div class="alert alert-info">
+                            Please <a href="{{ url_for('auth.login') }}">log in</a> to rate this product.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Add this before the Recent Reviews section -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">All Reviews</h5>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                            Sort by: {{ sort_by|replace('_', ' ')|title }}
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item {% if sort_by == 'recent' %}active{% endif %}" 
+                                   href="{{ url_for('main.view_product_ratings', product_id=product.id, sort='recent') }}">
+                                Most Recent
+                            </a></li>
+                            <li><a class="dropdown-item {% if sort_by == 'helpful' %}active{% endif %}" 
+                                   href="{{ url_for('main.view_product_ratings', product_id=product.id, sort='helpful') }}">
+                                Most Helpful
+                            </a></li>
+                            <li><a class="dropdown-item {% if sort_by == 'highest' %}active{% endif %}" 
+                                   href="{{ url_for('main.view_product_ratings', product_id=product.id, sort='highest') }}">
+                                Highest Rated
+                            </a></li>
+                            <li><a class="dropdown-item {% if sort_by == 'lowest' %}active{% endif %}" 
+                                   href="{{ url_for('main.view_product_ratings', product_id=product.id, sort='lowest') }}">
+                                Lowest Rated
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% for rating in ratings.items %}
+                    <div class="review-item mb-4">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <h6 class="mb-0">{{ rating.user.username }}</h6>
+                                <small class="text-muted">{{ rating.created_at.strftime('%B %d, %Y') }}</small>
+                                {% if rating.verified_purchase %}
+                                    <span class="badge bg-success ms-2">Verified Purchase</span>
+                                {% endif %}
+                            </div>
+                            <div class="stars">
+                                {% for i in range(5) %}
+                                    {% if i < rating.rating %}
+                                        <i class="fas fa-star text-warning"></i>
+                                    {% else %}
+                                        <i class="far fa-star text-warning"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% if rating.review %}
+                            <p class="mb-2">{{ rating.review }}</p>
+                        {% endif %}
+                        {% if rating.photos %}
+                        <div class="review-photos mb-2">
+                            {% for photo in rating.photos %}
+                            <a href="{{ photo }}" target="_blank" class="review-photo">
+                                <img src="{{ photo }}" alt="Review photo" class="img-thumbnail">
+                            </a>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        <div class="d-flex align-items-center">
+                            <button class="btn btn-sm btn-outline-secondary helpful-btn me-2" 
+                                    data-rating-id="{{ rating.id }}"
+                                    {% if current_user.is_authenticated and current_user in rating.helpful_voters %}data-voted="true"{% endif %}>
+                                <i class="fas fa-thumbs-up"></i>
+                                <span class="helpful-count">{{ rating.helpful_votes }}</span>
+                                <span class="helpful-text">Helpful</span>
+                            </button>
+                            {% if current_user.is_authenticated and current_user.id == rating.user_id %}
+                                <a href="{{ url_for('main.rate_product', product_id=product.id) }}" 
+                                   class="btn btn-sm btn-outline-primary">
+                                    Edit Review
+                                </a>
+                            {% endif %}
+                        </div>
+                        <div class="review-sentiment mb-2">
+                            <span class="badge {% if rating.sentiment.label == 'Positive' %}bg-success
+                                             {% elif rating.sentiment.label == 'Negative' %}bg-danger
+                                             {% else %}bg-warning{% endif %}">
+                                {{ rating.sentiment.label }}
+                            </span>
+                            {% if rating.categories %}
+                            <div class="category-badges mt-1">
+                                {% for category, score in rating.categories.items() %}
+                                <span class="badge bg-info me-1">
+                                    {{ analytics.category_labels[category] }}: {{ score }} <i class="fas fa-star"></i>
+                                </span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    <!-- Pagination -->
+                    {% if ratings.pages > 1 %}
+                    <nav aria-label="Review pagination">
+                        <ul class="pagination justify-content-center">
+                            {% for page in ratings.iter_pages() %}
+                                {% if page %}
+                                    <li class="page-item {% if page == ratings.page %}active{% endif %}">
+                                        <a class="page-link" 
+                                           href="{{ url_for('main.view_product_ratings', product_id=product.id, page=page, sort=sort_by) }}">
+                                            {{ page }}
+                                        </a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link">...</span>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recent Reviews -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Reviews</h5>
+                </div>
+                <div class="card-body">
+                    {% for rating in product.ratings|sort(attribute='created_at', reverse=True) %}
+                    <div class="review-item mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <h6 class="mb-0">{{ rating.user.username }}</h6>
+                                <small class="text-muted">{{ rating.created_at.strftime('%B %d, %Y') }}</small>
+                            </div>
+                            <div class="stars">
+                                {% for i in range(5) %}
+                                    {% if i < rating.rating %}
+                                        <i class="fas fa-star text-warning"></i>
+                                    {% else %}
+                                        <i class="far fa-star text-warning"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% if rating.review %}
+                            <p class="mb-0">{{ rating.review }}</p>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center">No reviews yet. Be the first to review this product!</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Add this before the Recent Reviews section -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Rating Analytics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="analytics-item mb-3">
+                                <h6>Verified Purchases</h6>
+                                <div class="progress">
+                                    <div class="progress-bar bg-success" role="progressbar" 
+                                         style="width: {{ analytics.verified_purchase_percentage }}%">
+                                        {{ "%.1f"|format(analytics.verified_purchase_percentage) }}%
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="analytics-item mb-3">
+                                <h6>Reviews with Photos</h6>
+                                <div class="progress">
+                                    <div class="progress-bar bg-info" role="progressbar" 
+                                         style="width: {{ analytics.with_photos_percentage }}%">
+                                        {{ "%.1f"|format(analytics.with_photos_percentage) }}%
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="analytics-item">
+                                <h6>Reviews with Text</h6>
+                                <div class="progress">
+                                    <div class="progress-bar bg-primary" role="progressbar" 
+                                         style="width: {{ analytics.with_reviews_percentage }}%">
+                                        {{ "%.1f"|format(analytics.with_reviews_percentage) }}%
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="analytics-item">
+                                <h6>Total Helpful Votes</h6>
+                                <h3 class="mb-0">{{ analytics.helpful_votes_total }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="analytics-item mb-3">
+                                <h6>Sentiment Analysis</h6>
+                                <div class="sentiment-distribution">
+                                    {% for sentiment, count in analytics.sentiment_distribution.items() %}
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <div class="sentiment-label">
+                                            <i class="fas fa-circle {% if sentiment == 'positive' %}text-success{% elif sentiment == 'negative' %}text-danger{% else %}text-warning{% endif %}"></i>
+                                            {{ sentiment|title }}
+                                        </div>
+                                        <div class="progress flex-grow-1 mx-2" style="height: 8px;">
+                                            <div class="progress-bar {% if sentiment == 'positive' %}bg-success{% elif sentiment == 'negative' %}bg-danger{% else %}bg-warning{% endif %}" 
+                                                 role="progressbar" 
+                                                 style="width: {{ (count / analytics.total * 100) if analytics.total > 0 else 0 }}%">
+                                            </div>
+                                        </div>
+                                        <div class="sentiment-count">{{ count }}</div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <div class="analytics-item">
+                                <h6>Category Ratings</h6>
+                                <div class="category-distribution">
+                                    {% for category, data in analytics.category_distribution.items() %}
+                                    <div class="category-item mb-2">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="category-label">{{ analytics.category_labels[category] }}</div>
+                                            <div class="category-score">
+                                                {{ "%.1f"|format(data.average) }} <i class="fas fa-star text-warning"></i>
+                                            </div>
+                                        </div>
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar bg-info" role="progressbar" 
+                                                 style="width: {{ (data.average / 5 * 100) }}%">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const helpfulButtons = document.querySelectorAll('.helpful-btn');
+    
+    helpfulButtons.forEach(button => {
+        button.addEventListener('click', async function() {
+            const ratingId = this.dataset.ratingId;
+            const countSpan = this.querySelector('.helpful-count');
+            const helpfulText = this.querySelector('.helpful-text');
+            
+            try {
+                const response = await fetch(`/rating/${ratingId}/helpful`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token() }}'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    countSpan.textContent = data.helpful_votes;
+                    
+                    if (data.action === 'added') {
+                        this.classList.add('active');
+                        this.dataset.voted = 'true';
+                        helpfulText.textContent = 'Helpful';
+                    } else {
+                        this.classList.remove('active');
+                        this.dataset.voted = 'false';
+                        helpfulText.textContent = 'Helpful';
+                    }
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while processing your request.');
+            }
+        });
+    });
+});
+
+// Photo upload handling
+const photoInput = document.getElementById('photoInput');
+const photoPreviewArea = document.getElementById('photoPreviewArea');
+const addPhotoBtn = document.getElementById('addPhotoBtn');
+
+addPhotoBtn.addEventListener('click', () => {
+    photoInput.click();
+});
+
+photoInput.addEventListener('change', async function() {
+    const files = this.files;
+    
+    for (let file of files) {
+        const formData = new FormData();
+        formData.append('photo', file);
+        
+        try {
+            const response = await fetch(`/rating/{{ product.get_user_rating(current_user.id).id }}/photo`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token() }}'
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                const photoPreview = document.createElement('div');
+                photoPreview.className = 'photo-preview';
+                photoPreview.innerHTML = `
+                    <img src="${data.photo_url}" alt="Review photo">
+                    <button type="button" class="btn-remove-photo" data-photo-url="${data.photo_url}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                photoPreviewArea.appendChild(photoPreview);
+            } else {
+                alert(data.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred while uploading the photo.');
+        }
+    }
+});
+
+// Photo removal handling
+document.addEventListener('click', async function(e) {
+    if (e.target.closest('.btn-remove-photo')) {
+        const button = e.target.closest('.btn-remove-photo');
+        const photoUrl = button.dataset.photoUrl;
+        const photoPreview = button.closest('.photo-preview');
+        
+        try {
+            const response = await fetch(`/rating/{{ product.get_user_rating(current_user.id).id }}/photo/${photoUrl}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token() }}'
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                photoPreview.remove();
+            } else {
+                alert(data.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred while removing the photo.');
+        }
+    }
+});
+</script>
+
+<style>
+.rating-input {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+
+.rating-input input {
+    display: none;
+}
+
+.rating-input label {
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: #ddd;
+    padding: 0 0.1em;
+}
+
+.rating-input input:checked ~ label,
+.rating-input label:hover,
+.rating-input label:hover ~ label {
+    color: #ffc107;
+}
+
+.rating-input label:hover i:before,
+.rating-input label:hover ~ label i:before {
+    content: "\f005";
+}
+
+.review-item {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 1rem;
+}
+
+.review-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.helpful-btn {
+    transition: all 0.2s ease;
+}
+
+.helpful-btn.active {
+    background-color: #6c757d;
+    color: white;
+}
+
+.helpful-btn:hover {
+    background-color: #e9ecef;
+}
+
+.helpful-btn.active:hover {
+    background-color: #5a6268;
+}
+
+.photo-upload-area {
+    border: 2px dashed #dee2e6;
+    border-radius: 5px;
+    padding: 20px;
+    text-align: center;
+}
+
+.photo-preview-area {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.photo-preview {
+    position: relative;
+    width: 100px;
+    height: 100px;
+}
+
+.photo-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.btn-remove-photo {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #dc3545;
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.review-photos {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.review-photo {
+    width: 100px;
+    height: 100px;
+    overflow: hidden;
+    border-radius: 5px;
+}
+
+.review-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.analytics-item h6 {
+    margin-bottom: 0.5rem;
+    color: #6c757d;
+}
+
+.progress {
+    height: 1.5rem;
+}
+
+.progress-bar {
+    line-height: 1.5rem;
+    font-size: 0.875rem;
+}
+
+.category-ratings {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+}
+
+.category-rating {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.category-rating .form-label {
+    margin-bottom: 0;
+    min-width: 120px;
+}
+
+.sentiment-label {
+    min-width: 80px;
+}
+
+.sentiment-count {
+    min-width: 40px;
+    text-align: right;
+}
+
+.category-label {
+    min-width: 120px;
+}
+
+.category-score {
+    min-width: 60px;
+    text-align: right;
+}
+
+.category-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.review-sentiment {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+</style>
+{% endblock %} 

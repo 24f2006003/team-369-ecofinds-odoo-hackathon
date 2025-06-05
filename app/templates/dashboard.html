@@ -9,7 +9,7 @@
                 <h2 class="text-center mb-3">{{ _('User Dashboard') }}</h2>
                 <div class="d-flex flex-column align-items-center mb-3">
                     <span class="badge bg-success mb-2">{{ _('ECO Points') }}: {{ user.eco_points }}</span>
-                    <form action="{{ url_for('dashboard') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ url_for('main.dashboard') }}" method="POST" enctype="multipart/form-data">
                         <label for="profile_img">
                             <div style="width:90px; height:90px; background:#e0e0e0; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2.5rem; color:#888; margin-bottom:1rem; cursor:pointer;">
                                 {% if user.profile_img %}
@@ -51,7 +51,25 @@
                         {% endfor %}
                     </div>
                 </div>
-                <a href="{{ url_for('purchases') }}" class="btn btn-outline-primary w-100 mt-3">{{ _('View All Purchases') }}</a>
+                <a href="{{ url_for('main.purchases') }}" class="btn btn-outline-primary w-100 mt-3">{{ _('View All Purchases') }}</a>
+            </div>
+            <div class="card shadow p-4 mb-4">
+                <h4 class="mb-3">{{ _('My Complaints') }}</h4>
+                <div class="list-group">
+                    {% for complaint in complaints %}
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ complaint.subject }}</h6>
+                                <span class="badge bg-{{ complaint.status_color }}">{{ complaint.status }}</span>
+                            </div>
+                            <p class="mb-1">{{ complaint.description[:100] }}{% if complaint.description|length > 100 %}...{% endif %}</p>
+                            <small class="text-muted">{{ _('Submitted on') }} {{ complaint.created_at.strftime('%Y-%m-%d') }}</small>
+                        </div>
+                    {% else %}
+                        <div class="list-group-item">{{ _('No complaints submitted yet') }}</div>
+                    {% endfor %}
+                </div>
+                <a href="{{ url_for('main.submit_complaint') }}" class="btn btn-danger w-100 mt-3">{{ _('Submit New Complaint') }}</a>
             </div>
             <div class="card shadow p-4 mb-4">
                 <h4 class="mb-3">{{ _('Previous Purchases') }}</h4>
@@ -81,8 +99,8 @@
                             <p class="text-success fw-bold">₹{{ '%.2f'|format(product.price) }}</p>
                             <p class="text-muted">{{ product.category }}</p>
                             <div class="d-flex gap-2">
-                                <a href="{{ url_for('edit_product', product_id=product.id) }}" class="btn btn-primary btn-sm">{{ _('Edit') }}</a>
-                                <form action="{{ url_for('delete_product', product_id=product.id) }}" method="POST">
+                                <a href="{{ url_for('main.edit_product', product_id=product.id) }}" class="btn btn-primary btn-sm">{{ _('Edit') }}</a>
+                                <form action="{{ url_for('main.delete_product', product_id=product.id) }}" method="POST">
                                     <button type="submit" class="btn btn-danger btn-sm">{{ _('Delete') }}</button>
                                 </form>
                             </div>

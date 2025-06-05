@@ -52,7 +52,7 @@
     {% else %}
         <div class="alert alert-info">
             {{ _('You haven\'t made any purchases yet.') }}
-            <a href="{{ url_for('products') }}" class="alert-link">{{ _('Browse products') }}</a>
+            <a href="{{ url_for('main.products') }}" class="alert-link">{{ _('Browse products') }}</a>
         </div>
     {% endif %}
 </div>

@@ -13,7 +13,7 @@ def rate_transaction(purchase_id):
     # Check if user is authorized to rate
     if purchase.user_id != current_user.id and purchase.product.owner_id != current_user.id:
         flash('You are not authorized to rate this transaction', 'danger')
-        return redirect(url_for('purchases'))
+        return redirect(url_for('main.purchases'))
     
     # Check if already rated
     existing_rating = Rating.query.filter_by(
@@ -23,7 +23,7 @@ def rate_transaction(purchase_id):
     
     if existing_rating:
         flash('You have already rated this transaction', 'warning')
-        return redirect(url_for('purchases'))
+        return redirect(url_for('main.purchases'))
     
     if request.method == 'POST':
         rating_value = request.form.get('rating', type=int)
@@ -31,7 +31,7 @@ def rate_transaction(purchase_id):
         
         if not rating_value or rating_value < 1 or rating_value > 5:
             flash('Invalid rating value', 'danger')
-            return redirect(url_for('rate_transaction', purchase_id=purchase_id))
+            return redirect(url_for('rating.rate_transaction', purchase_id=purchase_id))
         
         # Determine who is being rated
         rated_id = purchase.product.owner_id if purchase.user_id == current_user.id else purchase.user_id
@@ -49,7 +49,7 @@ def rate_transaction(purchase_id):
         db.session.commit()
         
         flash('Thank you for your rating!', 'success')
-        return redirect(url_for('purchases'))
+        return redirect(url_for('main.purchases'))
     
     return render_template('rate_transaction.html', purchase=purchase)
 

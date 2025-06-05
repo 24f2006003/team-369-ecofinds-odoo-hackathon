@@ -22,12 +22,12 @@
                                 </div>
                                 <div class="col-md-3">
                                     <div class="d-flex align-items-center">
-                                        <form action="{{ url_for('update_cart_quantity', cart_item_id=item.id) }}" method="POST" class="me-2">
+                                        <form action="{{ url_for('main.update_cart_quantity', cart_item_id=item.id) }}" method="POST" class="me-2">
                                             <input type="hidden" name="action" value="decrement">
                                             <button type="submit" class="btn btn-outline-secondary btn-sm">-</button>
                                         </form>
                                         <span class="mx-2">{{ item.quantity }}</span>
-                                        <form action="{{ url_for('update_cart_quantity', cart_item_id=item.id) }}" method="POST" class="ms-2">
+                                        <form action="{{ url_for('main.update_cart_quantity', cart_item_id=item.id) }}" method="POST" class="ms-2">
                                             <input type="hidden" name="action" value="increment">
                                             <button type="submit" class="btn btn-outline-secondary btn-sm">+</button>
                                         </form>
@@ -37,7 +37,7 @@
                                     <p class="fw-bold mb-0">₹{{ '%.2f'|format(item.product.price * item.quantity) }}</p>
                                 </div>
                                 <div class="col-md-1">
-                                    <form action="{{ url_for('remove_from_cart', cart_item_id=item.id) }}" method="POST">
+                                    <form action="{{ url_for('main.remove_from_cart', cart_item_id=item.id) }}" method="POST">
                                         <button type="submit" class="btn btn-danger btn-sm">×</button>
                                     </form>
                                 </div>
@@ -89,7 +89,7 @@
                             <strong id="final-total">₹{{ '%.2f'|format(subtotal.total) }}</strong>
                         </div>
                         
-                        <form id="purchase-form" action="{{ url_for('purchase_cart') }}" method="POST">
+                        <form id="purchase-form" action="{{ url_for('main.purchase_cart') }}" method="POST">
                             <input type="hidden" id="hidden_eco_points" name="redeem_eco_points" value="0">
                             <button type="submit" class="btn btn-success w-100">Purchase All</button>
                         </form>
@@ -99,7 +99,7 @@
         </div>
     {% else %}
         <div class="alert alert-info">
-            Your cart is empty. <a href="{{ url_for('products') }}" class="alert-link">Continue shopping</a>
+            Your cart is empty. <a href="{{ url_for('main.products') }}" class="alert-link">Continue shopping</a>
         </div>
     {% endif %}
 </div>
