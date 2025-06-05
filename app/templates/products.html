@@ -7,7 +7,7 @@
             <h1>{{ _('Products') }}</h1>
         </div>
         <div class="col-md-6">
-            <form class="d-flex" method="GET" action="{{ url_for('products') }}">
+            <form class="d-flex" method="GET" action="{{ url_for('main.products') }}">
                 <input class="form-control me-2" type="search" name="search" placeholder="{{ _('Search products...') }}" value="{{ request.args.get('search', '') }}">
                 <input class="form-control me-2" type="search" name="city" placeholder="{{ _('City') }}" value="{{ request.args.get('city', '') }}">
                 <input class="form-control me-2" type="search" name="state" placeholder="{{ _('State') }}" value="{{ request.args.get('state', '') }}">
@@ -33,12 +33,12 @@
                     <p class="card-text"><strong>{{ _('Price') }}: ${{ "%.2f"|format(product.price) }}</strong></p>
                     <p class="card-text"><small class="text-muted">{{ _('Category') }}: {{ product.category }}</small></p>
                     {% if current_user.is_authenticated %}
-                        <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="POST" class="d-inline">
+                        <form action="{{ url_for('main.add_to_cart', product_id=product.id) }}" method="POST" class="d-inline">
                             <button type="submit" class="btn btn-primary">{{ _('Add to Cart') }}</button>
                         </form>
                         <a href="{{ url_for('chat.chat_room', product_id=product.id) }}" class="btn btn-outline-primary">{{ _('Chat with Seller') }}</a>
                     {% else %}
-                        <a href="{{ url_for('login') }}" class="btn btn-outline-primary">{{ _('Login to Chat or Purchase') }}</a>
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary">{{ _('Login to Chat or Purchase') }}</a>
                     {% endif %}
                 </div>
             </div>

@@ -13,7 +13,7 @@
                         <div class="card-body">
                             <h5 class="card-title">{{ _('Buy') }}</h5>
                             <p class="card-text">{{ _('Discover eco-friendly products from local sellers') }}</p>
-                            <a href="{{ url_for('products') }}" class="btn btn-success">{{ _('Browse Products') }}</a>
+                            <a href="{{ url_for('main.products') }}" class="btn btn-success">{{ _('Browse Products') }}</a>
                         </div>
                     </div>
                 </div>
@@ -23,9 +23,9 @@
                             <h5 class="card-title">{{ _('Sell') }}</h5>
                             <p class="card-text">{{ _('List your sustainable products for sale') }}</p>
                             {% if current_user.is_authenticated %}
-                                <a href="{{ url_for('new_product') }}" class="btn btn-success">{{ _('Create Listing') }}</a>
+                                <a href="{{ url_for('main.new_product') }}" class="btn btn-success">{{ _('Create Listing') }}</a>
                             {% else %}
-                                <a href="{{ url_for('login') }}" class="btn btn-success">{{ _('Login to Sell') }}</a>
+                                <a href="{{ url_for('auth.login') }}" class="btn btn-success">{{ _('Login to Sell') }}</a>
                             {% endif %}
                         </div>
                     </div>
@@ -36,9 +36,9 @@
                             <h5 class="card-title">{{ _('Earn') }}</h5>
                             <p class="card-text">{{ _('Get ECO points for your sustainable actions') }}</p>
                             {% if current_user.is_authenticated %}
-                                <a href="{{ url_for('profile') }}" class="btn btn-success">{{ _('View Points') }}</a>
+                                <a href="{{ url_for('main.profile') }}" class="btn btn-success">{{ _('View Points') }}</a>
                             {% else %}
-                                <a href="{{ url_for('login') }}" class="btn btn-success">{{ _('Login to Earn') }}</a>
+                                <a href="{{ url_for('auth.login') }}" class="btn btn-success">{{ _('Login to Earn') }}</a>
                             {% endif %}
                         </div>
                     </div>
@@ -51,7 +51,7 @@
                     <div class="row">
                         {% for category in categories %}
                         <div class="col-md-3 mb-3">
-                            <a href="{{ url_for('products', category=category) }}" class="text-decoration-none">
+                            <a href="{{ url_for('main.products', category=category) }}" class="text-decoration-none">
                                 <div class="card h-100">
                                     <div class="card-body text-center">
                                         <h5 class="card-title">{{ _(category) }}</h5>

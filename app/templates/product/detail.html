@@ -1,0 +1,83 @@
+<!-- Add this after the product description -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="mb-0">Customer Reviews</h5>
+                <div class="stars">
+                    {% for i in range(5) %}
+                        {% if i < product.get_average_rating()|int %}
+                            <i class="fas fa-star text-warning"></i>
+                        {% elif i < product.get_average_rating()|round(0, 'ceil')|int %}
+                            <i class="fas fa-star-half-alt text-warning"></i>
+                        {% else %}
+                            <i class="far fa-star text-warning"></i>
+                        {% endif %}
+                    {% endfor %}
+                    <span class="ms-2">{{ "%.1f"|format(product.get_average_rating()) }}</span>
+                </div>
+                <small class="text-muted">{{ product.get_rating_count() }} ratings</small>
+            </div>
+            <a href="{{ url_for('main.rate_product', product_id=product.id) }}" class="btn btn-outline-primary">
+                {% if current_user.is_authenticated and product.has_user_rated(current_user.id) %}
+                    Update Your Review
+                {% else %}
+                    Write a Review
+                {% endif %}
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Add this before the product details section -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Rating Distribution</h5>
+                {% for rating, count in product.get_rating_distribution().items() %}
+                <div class="d-flex align-items-center mb-2">
+                    <div class="me-2">{{ rating }} <i class="fas fa-star text-warning"></i></div>
+                    <div class="progress flex-grow-1" style="height: 8px;">
+                        <div class="progress-bar bg-warning" role="progressbar" 
+                             style="width: {{ (count / product.get_rating_count() * 100) if product.get_rating_count() > 0 else 0 }}%">
+                        </div>
+                    </div>
+                    <div class="ms-2">{{ count }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Recent Reviews</h5>
+                {% for rating in product.ratings|sort(attribute='created_at', reverse=True)[:3] %}
+                <div class="review-item mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <div class="stars">
+                            {% for i in range(5) %}
+                                {% if i < rating.rating %}
+                                    <i class="fas fa-star text-warning"></i>
+                                {% else %}
+                                    <i class="far fa-star text-warning"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <small class="text-muted">{{ rating.created_at.strftime('%B %d, %Y') }}</small>
+                    </div>
+                    {% if rating.review %}
+                        <p class="mb-0 small">{{ rating.review|truncate(100) }}</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                {% if product.get_rating_count() > 3 %}
+                    <a href="{{ url_for('main.view_product_ratings', product_id=product.id) }}" class="btn btn-link btn-sm p-0">
+                        View all {{ product.get_rating_count() }} reviews
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div> 
