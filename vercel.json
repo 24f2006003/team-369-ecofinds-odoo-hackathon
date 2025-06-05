@@ -6,8 +6,8 @@
             "use": "@vercel/python",
             "config": {
                 "maxLambdaSize": "15mb",
-                "runtime": "python3.9",
-                "buildCommand": "pip install -r requirements.txt"
+                "runtime": "python3.12",
+                "buildCommand": "pip install --upgrade pip && pip install -r requirements.txt"
             }
         },
         {
@@ -37,7 +37,7 @@
         "FLASK_ENV": "production",
         "FLASK_APP": "run.py",
         "PYTHONPATH": ".",
-        "DATABASE_URL": "postgresql://neondb_owner:npg_bGkicNV37wFZ@ep-divine-silence-a1ps86k5-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require",
+        "DATABASE_URL": "@database_url",
         "BABEL_DEFAULT_LOCALE": "en",
         "PYTHONUNBUFFERED": "1"
     }
