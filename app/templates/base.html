@@ -59,18 +59,13 @@
                     </li>
                     {% endif %}
                 </ul>
-                <div class="dropdown ms-2">
-                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="langDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                        🌐 {{ config['LANGUAGES'][g.get('lang_code', 'en')] }}
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        {{ _('Language') }}
                     </button>
-                    <ul class="dropdown-menu" aria-labelledby="langDropdown">
+                    <ul class="dropdown-menu" aria-labelledby="languageDropdown">
                         {% for code, name in config['LANGUAGES'].items() %}
-                        <li>
-                            <a class="dropdown-item {% if g.get('lang_code', 'en') == code %}active{% endif %}" 
-                               href="{{ url_for('set_language', lang_code=code) }}">
-                                {{ name }}
-                            </a>
-                        </li>
+                            <li><a class="dropdown-item" href="{{ url_for('set_language', lang_code=code) }}">{{ name }}</a></li>
                         {% endfor %}
                     </ul>
                 </div>

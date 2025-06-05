@@ -1,20 +1,59 @@
 {% extends 'base.html' %}
-{% block title %}Previous Purchases - EcoFinds{% endblock %}
+{% block title %}{{ _('My Purchases') }} - EcoFinds{% endblock %}
 {% block content %}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 <div class="container py-4">
-    <h2 class="mb-4 text-center">Previous Purchases</h2>
-    <div class="product-list row justify-content-center">
-        {% for purchase in purchases %}
-            <div class="product-card mb-3 col-12 col-md-6 col-lg-4">
-                <img src="{{ purchase.product.image_url if purchase.product.image_url else 'https://static.vecteezy.com/system/resources/previews/024/382/868/non_2x/green-recycle-icon-sign-symbol-design-transparent-background-free-png.png' }}" alt="Product Image" class="img-fluid rounded mb-2">
-                <h4>{{ purchase.product.title }}</h4>
-                <p class="text-success fw-bold">₹{{ '%.2f'|format(purchase.purchase_price) }}</p>
-                <p class="text-muted">Purchased on {{ purchase.purchased_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="mb-4">{{ _('My Purchases') }}</h1>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h5 class="card-title">{{ _('Purchase Summary') }}</h5>
+                    <p class="card-text">
+                        <strong>{{ _('Total Spent') }}:</strong> ₹{{ "%.2f"|format(purchases|sum(attribute='purchase_price')) }}<br>
+                        <strong>{{ _('Points Earned') }}:</strong> {{ (purchases|sum(attribute='purchase_price') * 0.1)|int }} ECO
+                    </p>
+                </div>
             </div>
-        {% else %}
-            <p>No previous purchases found.</p>
-        {% endfor %}
+        </div>
     </div>
+
+    {% if purchases %}
+        <div class="row">
+            {% for purchase in purchases %}
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        {% if purchase.product.image_url %}
+                            <img src="{{ purchase.product.image_url }}" class="card-img-top" alt="{{ purchase.product.title }}" style="height: 200px; object-fit: cover;">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ purchase.product.title }}</h5>
+                            <p class="card-text">{{ purchase.product.description }}</p>
+                            <p class="card-text">
+                                <strong>{{ _('Price') }}:</strong> ₹{{ "%.2f"|format(purchase.purchase_price) }}<br>
+                                <strong>{{ _('Purchase Date') }}:</strong> {{ purchase.purchased_at.strftime('%Y-%m-%d %H:%M') }}<br>
+                                <strong>{{ _('Seller') }}:</strong> {{ purchase.product.owner.username }}<br>
+                                <strong>{{ _('Location') }}:</strong> {{ purchase.product.city }}, {{ purchase.product.state }}
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                {% if not purchase.is_rated %}
+                                    <a href="{{ url_for('rating.rate_product', purchase_id=purchase.id) }}" class="btn btn-primary">{{ _('Rate Product') }}</a>
+                                {% else %}
+                                    <button class="btn btn-secondary" disabled>{{ _('Already Rated') }}</button>
+                                {% endif %}
+                                <a href="{{ url_for('chat.chat_room', product_id=purchase.product_id) }}" class="btn btn-outline-success">{{ _('Contact Seller') }}</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            {{ _('You haven\'t made any purchases yet.') }}
+            <a href="{{ url_for('products') }}" class="alert-link">{{ _('Browse products') }}</a>
+        </div>
+    {% endif %}
 </div>
 {% endblock %} 
