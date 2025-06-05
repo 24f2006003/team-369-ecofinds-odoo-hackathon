@@ -11,6 +11,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.0\n"
 
 msgid "Register for EcoFinds"
 msgstr "EcoFinds के लिए पंजीकरण करें"
@@ -71,6 +72,9 @@ msgstr "विवरण"
 
 msgid "Price"
 msgstr "मूल्य"
+
+msgid "₹%.2f"
+msgstr "₹%.2f"
 
 msgid "Search"
 msgstr "खोज"
@@ -208,4 +212,217 @@ msgid "City"
 msgstr "शहर"
 
 msgid "State"
-msgstr "राज्य" 
+msgstr "राज्य"
+
+msgid "Welcome"
+msgstr "स्वागत है"
+
+msgid "Welcome to EcoFinds"
+msgstr "EcoFinds में आपका स्वागत है"
+
+msgid "Your one-stop shop for eco-friendly products"
+msgstr "पर्यावरण के अनुकूल उत्पादों के लिए आपकी एक-स्टॉप शॉप"
+
+msgid "Start Shopping"
+msgstr "खरीदारी शुरू करें"
+
+msgid "Sustainable Living"
+msgstr "टिकाऊ जीवन"
+
+msgid "Featured Categories"
+msgstr "विशेष श्रेणियां"
+
+msgid "View Products"
+msgstr "उत्पाद देखें"
+
+msgid "About EcoFinds"
+msgstr "EcoFinds के बारे में"
+
+msgid "We are committed to promoting sustainable living through eco-friendly products. Our platform connects conscious consumers with verified sellers who share our vision for a greener future."
+msgstr "हम पर्यावरण के अनुकूल उत्पादों के माध्यम से टिकाऊ जीवन को बढ़ावा देने के लिए प्रतिबद्ध हैं। हमारा प्लेटफॉर्म जागरूक उपभोक्ताओं को सत्यापित विक्रेताओं से जोड़ता है जो हमारे हरे भविष्य के विजन को साझा करते हैं।"
+
+msgid "Contact Us"
+msgstr "संपर्क करें"
+
+msgid "Email"
+msgstr "ईमेल"
+
+msgid "Phone"
+msgstr "फोन"
+
+msgid "Address"
+msgstr "पता"
+
+msgid "Follow Us"
+msgstr "हमें फॉलो करें"
+
+msgid "Terms of Service"
+msgstr "सेवा की शर्तें"
+
+msgid "Privacy Policy"
+msgstr "गोपनीयता नीति"
+
+msgid "FAQ"
+msgstr "अक्सर पूछे जाने वाले प्रश्न"
+
+msgid "Help Center"
+msgstr "सहायता केंद्र"
+
+msgid "Shipping Information"
+msgstr "शिपिंग जानकारी"
+
+msgid "Return Policy"
+msgstr "वापसी नीति"
+
+msgid "Payment Methods"
+msgstr "भुगतान के तरीके"
+
+msgid "Secure Checkout"
+msgstr "सुरक्षित चेकआउट"
+
+msgid "Free Shipping"
+msgstr "मुफ्त शिपिंग"
+
+msgid "100%% secure payment"
+msgstr "100%% सुरक्षित भुगतान"
+
+msgid "On orders over ₹500"
+msgstr "₹500 से अधिक के ऑर्डर पर"
+
+msgid "Why Choose EcoFinds?"
+msgstr "EcoFinds को क्यों चुनें?"
+
+msgid "Eco-Friendly Products"
+msgstr "पर्यावरण के अनुकूल उत्पाद"
+
+msgid "All products are verified for their environmental impact"
+msgstr "सभी उत्पादों के पर्यावरणीय प्रभाव की जांच की जाती है"
+
+msgid "Recycled Materials"
+msgstr "पुनर्नवीनीकृत सामग्री"
+
+msgid "Products made from recycled and sustainable materials"
+msgstr "पुनर्नवीनीकृत और टिकाऊ सामग्री से बने उत्पाद"
+
+msgid "Products designed to reduce water consumption"
+msgstr "जल खपत को कम करने के लिए डिज़ाइन किए गए उत्पाद"
+
+msgid "Quantity"
+msgstr "मात्रा"
+
+msgid "Quantity Available"
+msgstr "उपलब्ध मात्रा"
+
+msgid "Out of Stock"
+msgstr "स्टॉक में नहीं"
+
+msgid "Product Name"
+msgstr "उत्पाद का नाम"
+
+msgid "Select a category"
+msgstr "श्रेणी चुनें"
+
+msgid "Only administrators can add products to the Eco-Finds category."
+msgstr "केवल प्रशासक ही Eco-Finds श्रेणी में उत्पाद जोड़ सकते हैं।"
+
+msgid "Sorry, this product is out of stock."
+msgstr "क्षमा करें, यह उत्पाद स्टॉक में नहीं है।"
+
+msgid "View Details"
+msgstr "विवरण देखें"
+
+msgid "View All Products"
+msgstr "सभी उत्पाद देखें"
+
+msgid "Filter Products"
+msgstr "उत्पाद फ़िल्टर करें"
+
+msgid "Search by name or description"
+msgstr "नाम या विवरण से खोजें"
+
+msgid "Filter by City"
+msgstr "शहर से फ़िल्टर करें"
+
+msgid "Filter by State"
+msgstr "राज्य से फ़िल्टर करें"
+
+msgid "Apply Filters"
+msgstr "फ़िल्टर लागू करें"
+
+msgid "Clear Filters"
+msgstr "फ़िल्टर साफ़ करें"
+
+msgid "No products found"
+msgstr "कोई उत्पाद नहीं मिला"
+
+msgid "Try adjusting your search or filter criteria"
+msgstr "अपनी खोज या फ़िल्टर मानदंडों को समायोजित करें"
+
+msgid "Product Details"
+msgstr "उत्पाद विवरण"
+
+msgid "Contact Seller"
+msgstr "विक्रेता से संपर्क करें"
+
+msgid "Related Products"
+msgstr "संबंधित उत्पाद"
+
+msgid "You may also like"
+msgstr "आपको यह भी पसंद आ सकता है"
+
+msgid "Shopping Cart"
+msgstr "शॉपिंग कार्ट"
+
+msgid "Your cart is empty"
+msgstr "आपका कार्ट खाली है"
+
+msgid "Continue Shopping"
+msgstr "खरीदारी जारी रखें"
+
+msgid "Checkout"
+msgstr "चेकआउट"
+
+msgid "Total"
+msgstr "कुल"
+
+msgid "Remove"
+msgstr "हटाएं"
+
+msgid "Update Quantity"
+msgstr "मात्रा अपडेट करें"
+
+msgid "Proceed to Checkout"
+msgstr "चेकआउट के लिए आगे बढ़ें"
+
+msgid "Order Summary"
+msgstr "ऑर्डर सारांश"
+
+msgid "Shipping Address"
+msgstr "शिपिंग पता"
+
+msgid "Payment Method"
+msgstr "भुगतान का तरीका"
+
+msgid "Place Order"
+msgstr "ऑर्डर दें"
+
+msgid "Order Confirmation"
+msgstr "ऑर्डर पुष्टिकरण"
+
+msgid "Thank you for your order!"
+msgstr "आपके ऑर्डर के लिए धन्यवाद!"
+
+msgid "Order Number"
+msgstr "ऑर्डर नंबर"
+
+msgid "Order Date"
+msgstr "ऑर्डर की तारीख"
+
+msgid "Estimated Delivery"
+msgstr "अनुमानित डिलीवरी"
+
+msgid "Track Order"
+msgstr "ऑर्डर ट्रैक करें"
+
+msgid "Back to Home"
+msgstr "होम पर वापस जाएं" 

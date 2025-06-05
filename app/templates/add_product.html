@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('Add Product') }} - EcoFinds{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">{{ _('Add Product') }}</h1>
+    <form method="POST" action="{{ url_for('add_product') }}">
+        <div class="mb-3">
+            <label for="name" class="form-label">{{ _('Product Name') }}</label>
+            <input type="text" class="form-control" id="name" name="name" required>
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">{{ _('Description') }}</label>
+            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+        </div>
+        <div class="mb-3">
+            <label for="price" class="form-label">{{ _('Price') }}</label>
+            <div class="input-group">
+                <span class="input-group-text">₹</span>
+                <input type="number" class="form-control" id="price" name="price" step="0.01" min="0" required>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="quantity" class="form-label">{{ _('Quantity') }}</label>
+            <input type="number" class="form-control" id="quantity" name="quantity" min="1" value="1" required>
+        </div>
+        <div class="mb-3">
+            <label for="category" class="form-label">{{ _('Category') }}</label>
+            <select class="form-select" id="category" name="category" required>
+                <option value="">{{ _('Select a category') }}</option>
+                {% for category in categories %}
+                    {% if category != 'Eco-Finds' or current_user.is_admin %}
+                    <option value="{{ category }}">{{ _(category) }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="image_url" class="form-label">{{ _('Image URL') }}</label>
+            <input type="url" class="form-control" id="image_url" name="image_url">
+        </div>
+        <div class="mb-3">
+            <label for="city" class="form-label">{{ _('City') }}</label>
+            <input type="text" class="form-control" id="city" name="city" required>
+        </div>
+        <div class="mb-3">
+            <label for="state" class="form-label">{{ _('State') }}</label>
+            <input type="text" class="form-control" id="state" name="state" required>
+        </div>
+        <button type="submit" class="btn btn-primary">{{ _('Add Product') }}</button>
+    </form>
+</div>
+{% endblock %} 

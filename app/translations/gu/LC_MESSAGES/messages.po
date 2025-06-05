@@ -208,4 +208,7 @@ msgid "City"
 msgstr "શહેર"
 
 msgid "State"
-msgstr "રાજ્ય" 
+msgstr "રાજ્ય"
+
+msgid "₹%s"
+msgstr "₹%s" 
