@@ -1,99 +1,100 @@
 {% extends 'base.html' %}
-{% block title %}{{ _('Welcome to EcoFinds') }}{% endblock %}
+{% block title %}{{ _('Welcome') }} - EcoFinds{% endblock %}
 {% block content %}
 <div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8 text-center">
-            <h1 class="display-4 mb-4">{{ _('Welcome to EcoFinds') }}</h1>
-            <p class="lead mb-4">{{ _('Your marketplace for sustainable and eco-friendly products') }}</p>
-            
-            <div class="row mb-5">
-                <div class="col-md-4">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ _('Buy') }}</h5>
-                            <p class="card-text">{{ _('Discover eco-friendly products from local sellers') }}</p>
-                            <a href="{{ url_for('products') }}" class="btn btn-success">{{ _('Browse Products') }}</a>
+    <!-- Hero Section -->
+    <div class="row mb-5">
+        <div class="col-md-6">
+            <h1 class="display-4">{{ _('Welcome to EcoFinds') }}</h1>
+            <p class="lead">{{ _('Your one-stop shop for eco-friendly products') }}</p>
+            <a href="{{ url_for('products') }}" class="btn btn-primary btn-lg">{{ _('Start Shopping') }}</a>
+        </div>
+        <div class="col-md-6">
+            <img src="{{ url_for('static', filename='images/hero-image.jpg') }}" 
+                 alt="{{ _('Sustainable Living') }}" 
+                 class="img-fluid rounded shadow">
+        </div>
+    </div>
+
+    <!-- Featured Categories -->
+    <h2 class="text-center mb-4">{{ _('Featured Categories') }}</h2>
+    <div class="row">
+        {% for category in categories %}
+        <div class="col-md-3 mb-4">
+            <div class="card h-100">
+                <img src="{{ url_for('static', filename='images/categories/' + category.lower().replace(' ', '-') + '.jpg') }}" 
+                     alt="{{ category }}"
+                     class="card-img-top"
+                     style="height: 200px; object-fit: cover;"
+                     onerror="this.src={{ url_for('static', filename='images/placeholder.jpg') }};">
+                <div class="card-body">
+                    <h5 class="card-title">{{ category }}</h5>
+                    <a href="{{ url_for('products', category=category) }}" class="btn btn-outline-primary">
+                        {{ _('View Products') }}
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- About Section -->
+    <div class="row my-5">
+        <div class="col-md-6">
+            <img src="{{ url_for('static', filename='images/about-image.jpg') }}" 
+                 alt="{{ _('About EcoFinds') }}" 
+                 class="img-fluid rounded shadow">
+        </div>
+        <div class="col-md-6">
+            <h2>{{ _('About EcoFinds') }}</h2>
+            <p>{{ _('We are committed to promoting sustainable living through eco-friendly products. Our platform connects conscious consumers with verified sellers who share our vision for a greener future.') }}</p>
+            <div class="row mt-4">
+                <div class="col-6">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-truck fa-2x text-primary me-3"></i>
+                        <div>
+                            <h5 class="mb-0">{{ _('Free Shipping') }}</h5>
+                            <small class="text-muted">{{ _('On orders over ₹500') }}</small>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ _('Sell') }}</h5>
-                            <p class="card-text">{{ _('List your sustainable products for sale') }}</p>
-                            {% if current_user.is_authenticated %}
-                                <a href="{{ url_for('new_product') }}" class="btn btn-success">{{ _('Create Listing') }}</a>
-                            {% else %}
-                                <a href="{{ url_for('login') }}" class="btn btn-success">{{ _('Login to Sell') }}</a>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ _('Earn') }}</h5>
-                            <p class="card-text">{{ _('Get ECO points for your sustainable actions') }}</p>
-                            {% if current_user.is_authenticated %}
-                                <a href="{{ url_for('profile') }}" class="btn btn-success">{{ _('View Points') }}</a>
-                            {% else %}
-                                <a href="{{ url_for('login') }}" class="btn btn-success">{{ _('Login to Earn') }}</a>
-                            {% endif %}
+                <div class="col-6">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-shield-alt fa-2x text-primary me-3"></i>
+                        <div>
+                            <h5 class="mb-0">{{ _('Secure Checkout') }}</h5>
+                            <small class="text-muted">{{ _('100%% secure payment') }}</small>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <div class="row mb-5">
-                <div class="col-12">
-                    <h2 class="mb-4">{{ _('Featured Categories') }}</h2>
-                    <div class="row">
-                        {% for category in categories %}
-                        <div class="col-md-3 mb-3">
-                            <a href="{{ url_for('products', category=category) }}" class="text-decoration-none">
-                                <div class="card h-100">
-                                    <div class="card-body text-center">
-                                        <h5 class="card-title">{{ _(category) }}</h5>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
+    <!-- Features Section -->
+    <div class="row my-5">
+        <div class="col-12 text-center mb-4">
+            <h2>{{ _('Why Choose EcoFinds?') }}</h2>
+        </div>
+        <div class="col-md-4">
+            <div class="text-center">
+                <i class="fas fa-leaf fa-3x text-success mb-3"></i>
+                <h4>{{ _('Eco-Friendly Products') }}</h4>
+                <p>{{ _('All products are verified for their environmental impact') }}</p>
             </div>
-
-            <div class="row">
-                <div class="col-12">
-                    <h2 class="mb-4">{{ _('Why Choose EcoFinds?') }}</h2>
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <div class="card h-100">
-                                <div class="card-body">
-                                    <h5 class="card-title">{{ _('Sustainable') }}</h5>
-                                    <p class="card-text">{{ _('All products are eco-friendly and sustainable') }}</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="card h-100">
-                                <div class="card-body">
-                                    <h5 class="card-title">{{ _('Local') }}</h5>
-                                    <p class="card-text">{{ _('Support local sellers and reduce carbon footprint') }}</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="card h-100">
-                                <div class="card-body">
-                                    <h5 class="card-title">{{ _('Rewarding') }}</h5>
-                                    <p class="card-text">{{ _('Earn ECO points for sustainable actions') }}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        </div>
+        <div class="col-md-4">
+            <div class="text-center">
+                <i class="fas fa-recycle fa-3x text-success mb-3"></i>
+                <h4>{{ _('Recycled Materials') }}</h4>
+                <p>{{ _('Products made from recycled and sustainable materials') }}</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="text-center">
+                <i class="fas fa-tint fa-3x text-success mb-3"></i>
+                <h4>{{ _('Water Saving') }}</h4>
+                <p>{{ _('Products designed to reduce water consumption') }}</p>
             </div>
         </div>
     </div>

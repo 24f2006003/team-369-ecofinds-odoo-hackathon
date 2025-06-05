@@ -277,15 +277,14 @@ def create_app():
     def add_to_cart(product_id):
         try:
             product = Product.query.get_or_404(product_id)
-            cart_item = CartItem.query.filter_by(user_id=current_user.id, product_id=product_id).first()
+            if product.quantity <= 0:
+                flash('Sorry, this product is out of stock.', 'error')
+                return redirect(url_for('products'))
             
-            if cart_item:
-                cart_item.quantity += 1
-            else:
-                cart_item = CartItem(user_id=current_user.id, product_id=product_id, quantity=1)
-                db.session.add(cart_item)
-            
+            # Decrease product quantity
+            product.quantity -= 1
             db.session.commit()
+            
             flash('Product added to cart!', 'success')
             return redirect(url_for('products'))
         except Exception as e:
