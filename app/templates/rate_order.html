@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('Rate Order') }} - EcoFinds{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">{{ _('Rate Order') }}</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            {% if order.product.image_url %}
+                            <img src="{{ order.product.image_url }}" class="img-fluid rounded" alt="{{ order.product.title }}">
+                            {% else %}
+                            <img src="{{ url_for('static', filename='images/default_product.png') }}" class="img-fluid rounded" alt="{{ order.product.title }}">
+                            {% endif %}
+                        </div>
+                        <div class="col-md-8">
+                            <h5>{{ order.product.title }}</h5>
+                            <p class="text-muted">{{ order.product.description }}</p>
+                            <p><strong>{{ _('Price') }}:</strong> ₹{{ "%.2f"|format(order.price) }}</p>
+                            <p><strong>{{ _('Seller') }}:</strong> {{ order.product.seller.username }}</p>
+                        </div>
+                    </div>
+
+                    <form method="POST" action="{{ url_for('main.rate_order', id=order.id) }}">
+                        <div class="mb-4">
+                            <label class="form-label">{{ _('Rating') }}</label>
+                            <div class="rating">
+                                {% for i in range(5, 0, -1) %}
+                                <input type="radio" name="rating" value="{{ i }}" id="star{{ i }}" required>
+                                <label for="star{{ i }}"><i class="fas fa-star"></i></label>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="comment" class="form-label">{{ _('Comment') }}</label>
+                            <textarea class="form-control" id="comment" name="comment" rows="4" 
+                                    placeholder="{{ _('Share your experience with this order...') }}"></textarea>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('main.orders') }}" class="btn btn-outline-secondary">
+                                {{ _('Cancel') }}
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                {{ _('Submit Rating') }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+.rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+
+.rating input {
+    display: none;
+}
+
+.rating label {
+    cursor: pointer;
+    font-size: 2rem;
+    color: #ddd;
+    padding: 0 0.1em;
+}
+
+.rating input:checked ~ label,
+.rating label:hover,
+.rating label:hover ~ label {
+    color: #ffd700;
+}
+</style>
+{% endblock %} 

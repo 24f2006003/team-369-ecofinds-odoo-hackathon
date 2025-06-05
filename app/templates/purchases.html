@@ -11,8 +11,8 @@
                 <div class="card-body">
                     <h5 class="card-title">{{ _('Purchase Summary') }}</h5>
                     <p class="card-text">
-                        <strong>{{ _('Total Spent') }}:</strong> ₹{{ "%.2f"|format(purchases|sum(attribute='purchase_price')) if purchases else 0 }}<br>
-                        <strong>{{ _('Points Earned') }}:</strong> {{ ((purchases|sum(attribute='purchase_price') * 0.1)|int) if purchases else 0 }} ECO
+                        <strong>{{ _('Total Spent') }}:</strong> ₹{{ "%.2f"|format(purchases|sum(attribute='price')) if purchases else 0 }}<br>
+                        <strong>{{ _('Points Earned') }}:</strong> {{ ((purchases|sum(attribute='price') * 0.1)|int) if purchases else 0 }} ECO
                     </p>
                 </div>
             </div>

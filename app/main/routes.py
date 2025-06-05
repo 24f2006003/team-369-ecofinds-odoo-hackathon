@@ -4,7 +4,7 @@ from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 from app import db
 from app.main import bp
-from app.models import Product, Category, Bid, ChatMessage, Order, ProductRating, Complaint, Dispute, Notification, User, CartItem
+from app.models import Product, Category, Bid, ChatMessage, Order, ProductRating, Complaint, Dispute, Notification, User, CartItem, Rating
 from app.utils import secure_filename
 from datetime import datetime, timedelta
 from flask_babel import _
@@ -44,7 +44,7 @@ def products():
 def product(id):
     """View a single product"""
     product = Product.query.get_or_404(id)
-    return render_template('product.html', title=product.title, product=product)
+    return render_template('product_detail.html', title=product.title, product=product)
 
 @bp.route('/product/new', methods=['GET', 'POST'])
 @login_required
@@ -836,13 +836,17 @@ def purchase_cart():
     # Update user's ECO points
     current_user.eco_points -= eco_points
     
+    # Award new ECO points (10% of final amount)
+    points_earned = int(final_amount / 10)  # 10 points per dollar
+    current_user.eco_points += points_earned
+    
     # Clear cart
     for item in cart_items:
         db.session.delete(item)
     
     db.session.commit()
     
-    flash('Purchase completed successfully!', 'success')
+    flash(f'Purchase completed successfully! You earned {points_earned} ECO points.', 'success')
     return redirect(url_for('main.orders'))
 
 @bp.route('/admin/dashboard')

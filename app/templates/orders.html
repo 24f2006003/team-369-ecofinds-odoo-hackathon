@@ -48,7 +48,7 @@
                         </div>
                         <div class="col-md-8">
                             <p class="mb-1"><strong>{{ _('Order Date') }}:</strong> {{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
-                            <p class="mb-1"><strong>{{ _('Price') }}:</strong> ₹{{ "%.2f"|format(order.purchase_price) }}</p>
+                            <p class="mb-1"><strong>{{ _('Price') }}:</strong> ₹{{ "%.2f"|format(order.price) }}</p>
                             <p class="mb-1"><strong>{{ _('Seller') }}:</strong> {{ order.product.seller.username }}</p>
                             {% if order.status == 'completed' and not order.is_rated %}
                             <a href="{{ url_for('main.rate_order', id=order.id) }}" class="btn btn-outline-primary btn-sm mt-2">

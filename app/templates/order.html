@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('Order Details') }} - EcoFinds{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">{{ _('Order Details') }}</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            {% if order.product.image_url %}
+                            <img src="{{ order.product.image_url }}" class="img-fluid rounded" alt="{{ order.product.title }}">
+                            {% else %}
+                            <img src="{{ url_for('static', filename='images/default_product.png') }}" class="img-fluid rounded" alt="{{ order.product.title }}">
+                            {% endif %}
+                        </div>
+                        <div class="col-md-8">
+                            <h5>{{ order.product.title }}</h5>
+                            <p class="text-muted">{{ order.product.description }}</p>
+                            <p><strong>{{ _('Price') }}:</strong> ₹{{ "%.2f"|format(order.price) }}</p>
+                            <p><strong>{{ _('Quantity') }}:</strong> {{ order.quantity }}</p>
+                            <p><strong>{{ _('Total') }}:</strong> ₹{{ "%.2f"|format(order.price * order.quantity) }}</p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>{{ _('Order Information') }}</h5>
+                            <p><strong>{{ _('Order ID') }}:</strong> {{ order.id }}</p>
+                            <p><strong>{{ _('Order Date') }}:</strong> {{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                            <p><strong>{{ _('Status') }}:</strong> 
+                                <span class="badge {% if order.status == 'purchased' %}bg-primary
+                                                  {% elif order.status == 'delivered' %}bg-success
+                                                  {% elif order.status == 'cancelled' %}bg-danger
+                                                  {% elif order.status == 'returned' %}bg-warning
+                                                  {% else %}bg-secondary{% endif %}">
+                                    {{ order.status|title }}
+                                </span>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>{{ _('Seller Information') }}</h5>
+                            <p><strong>{{ _('Seller') }}:</strong> {{ order.product.seller.username }}</p>
+                            <p><strong>{{ _('Location') }}:</strong> {{ order.product.city }}, {{ order.product.state }}</p>
+                        </div>
+                    </div>
+
+                    {% if order.status == 'purchased' and not order.is_rated %}
+                    <div class="mt-4">
+                        <a href="{{ url_for('main.rate_order', id=order.id) }}" class="btn btn-primary">
+                            {{ _('Rate Order') }}
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ _('Actions') }}</h5>
+                </div>
+                <div class="card-body">
+                    <a href="{{ url_for('main.orders') }}" class="btn btn-outline-primary mb-2 w-100">
+                        {{ _('Back to Orders') }}
+                    </a>
+                    {% if order.status == 'purchased' %}
+                    <button class="btn btn-outline-success mb-2 w-100" onclick="markAsDelivered({{ order.id }})">
+                        {{ _('Mark as Delivered') }}
+                    </button>
+                    {% endif %}
+                    {% if order.status == 'purchased' %}
+                    <button class="btn btn-outline-danger w-100" onclick="cancelOrder({{ order.id }})">
+                        {{ _('Cancel Order') }}
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function markAsDelivered(orderId) {
+    if (confirm('{{ _("Are you sure you want to mark this order as delivered?") }}')) {
+        fetch(`/order/${orderId}/update-status`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ status: 'delivered' })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert('{{ _("Failed to update order status") }}');
+            }
+        });
+    }
+}
+
+function cancelOrder(orderId) {
+    if (confirm('{{ _("Are you sure you want to cancel this order?") }}')) {
+        fetch(`/order/${orderId}/update-status`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ status: 'cancelled' })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert('{{ _("Failed to cancel order") }}');
+            }
+        });
+    }
+}
+</script>
+{% endblock %} 

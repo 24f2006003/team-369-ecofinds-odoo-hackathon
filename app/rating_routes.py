@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for
 from flask_login import login_required, current_user
 from app import db
-from app.models import Rating, Order, User
+from app.models import Rating, Order, User, Product
 
 rating = Blueprint('rating', __name__)
 

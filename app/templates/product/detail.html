@@ -25,6 +25,7 @@
                     Write a Review
                 {% endif %}
             </a>
+            <a href="{{ url_for('main.submit_complaint', id=product.id) }}" class="btn btn-sm btn-outline-danger ms-2">Complaint</a>
         </div>
     </div>
 </div>
