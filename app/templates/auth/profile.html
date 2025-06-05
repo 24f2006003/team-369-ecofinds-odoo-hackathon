@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('Profile') }} - EcoFinds{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <!-- Profile Information -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <img src="{{ current_user.profile_img or url_for('static', filename='images/default_profile.png') }}" 
+                         alt="Profile Picture" 
+                         class="rounded-circle img-fluid mb-3"
+                         style="width: 150px; height: 150px; object-fit: cover;">
+                    <h4>{{ current_user.username }}</h4>
+                    <p class="text-muted">{{ current_user.email }}</p>
+                    <div class="d-flex justify-content-center mb-3">
+                        <div class="px-3">
+                            <h5>{{ current_user.eco_points }}</h5>
+                            <small class="text-muted">{{ _('ECO Points') }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Settings -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ _('Profile Settings') }}</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">{{ _('Username') }}</label>
+                            <input type="text" class="form-control" id="username" name="username" 
+                                   value="{{ current_user.username }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">{{ _('Email') }}</label>
+                            <input type="email" class="form-control" id="email" value="{{ current_user.email }}" readonly>
+                            <small class="text-muted">{{ _('Email cannot be changed') }}</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="phone_number" class="form-label">{{ _('Phone Number') }}</label>
+                            <input type="tel" class="form-control" id="phone_number" name="phone_number" 
+                                   value="{{ current_user.phone_number }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="profile_pic" class="form-label">{{ _('Profile Picture') }}</label>
+                            <input type="file" class="form-control" id="profile_pic" name="profile_pic" accept="image/*">
+                            <small class="text-muted">{{ _('Max file size: 5MB') }}</small>
+                        </div>
+                        <button type="submit" class="btn btn-primary">{{ _('Save Changes') }}</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Activity Section -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ _('Recent Activity') }}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for order in current_user.orders[:5] %}
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ order.product.title }}</h6>
+                                <small>{{ order.created_at.strftime('%Y-%m-%d') }}</small>
+                            </div>
+                            <p class="mb-1">{{ _('Status') }}: {{ order.status }}</p>
+                        </div>
+                        {% else %}
+                        <p class="text-muted text-center mb-0">{{ _('No recent activity') }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Preview profile picture before upload
+    const profilePicInput = document.getElementById('profile_pic');
+    const profilePicPreview = document.querySelector('.rounded-circle');
+    
+    profilePicInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 5 * 1024 * 1024) { // 5MB
+                alert('{{ _("File size must be less than 5MB") }}');
+                this.value = '';
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                profilePicPreview.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+});
+</script>
+{% endblock %} 

@@ -8,14 +8,9 @@
         <div class="col-md-8">
             <h1>{{ _('Products') }}</h1>
         </div>
-<<<<<<< HEAD
         <div class="col-md-4">
-            <form class="d-flex" method="GET" action="{{ url_for('products') }}">
-=======
-        <div class="col-md-6">
             <form class="d-flex" method="GET" action="{{ url_for('main.products') }}">
->>>>>>> f8154d4e29dfa251bcf1717aff9384e9fea610dc
-                <input class="form-control me-2" type="search" name="search" placeholder="{{ _('Search products...') }}" value="{{ request.args.get('search', '') }}">
+                <input class="form-control me-2" type="search" name="search" placeholder="{{ _('Search products...') }}" value="{{ search }}">
                 <button class="btn btn-outline-primary" type="submit">{{ _('Search') }}</button>
             </form>
         </div>
@@ -25,13 +20,13 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="btn-group" role="group">
-                <a href="{{ url_for('products') }}" class="btn btn-outline-primary {% if not request.args.get('category') %}active{% endif %}">
-                    {{ _('All Categories') }}
+                <a href="{{ url_for('main.products') }}" class="btn btn-outline-primary {% if not selected_category %}active{% endif %}">
+                    {{ _('All') }}
                 </a>
                 {% for category in categories %}
-                <a href="{{ url_for('products', category=category) }}" 
-                   class="btn btn-outline-primary {% if request.args.get('category') == category %}active{% endif %}">
-                    {{ _(category) }}
+                <a href="{{ url_for('main.products', category=category.id) }}"
+                   class="btn btn-outline-primary {% if selected_category == category.id %}active{% endif %}">
+                    {{ category.name }}
                 </a>
                 {% endfor %}
             </div>
@@ -39,55 +34,54 @@
     </div>
 
     <!-- Products Grid -->
-    <div class="row">
-        {% for product in products %}
-        <div class="col-md-4 mb-4">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
+        {% for product in products.items %}
+        <div class="col">
             <div class="card h-100">
                 {% if product.image_url %}
-                <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.title }}" style="height: 200px; object-fit: cover;">
                 {% else %}
-                <img src="{{ url_for('static', filename='images/placeholder.jpg') }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                <img src="{{ url_for('static', filename='images/default_product.png') }}" class="card-img-top" alt="{{ product.title }}" style="height: 200px; object-fit: cover;">
                 {% endif %}
                 <div class="card-body">
-                    <h5 class="card-title">{{ product.name }}</h5>
+                    <h5 class="card-title">{{ product.title }}</h5>
+                    <p class="card-text text-muted">{{ product.category_obj.name }}</p>
                     <p class="card-text">{{ product.description[:100] }}{% if product.description|length > 100 %}...{% endif %}</p>
-                    <p class="card-text">
-                        <strong>{{ _('Price') }}:</strong> {{ "₹%.2f"|format(product.price) }}<br>
-                        <strong>{{ _('Seller') }}:</strong> {{ 'Eco Finds' if product.category == 'Eco-Finds' else product.owner.username }}<br>
-                        <strong>{{ _('Location') }}:</strong> {{ product.city }}, {{ product.state }}<br>
-                        <strong>{{ _('Quantity') }}:</strong> {{ product.quantity }}
-                    </p>
-<<<<<<< HEAD
-                    <div class="d-flex justify-content-between align-items-center">
-                        <a href="{{ url_for('product_detail', product_id=product.id) }}" class="btn btn-primary">{{ _('View Details') }}</a>
-                        {% if current_user.is_authenticated %}
-                            {% if product.quantity > 0 %}
-                                <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="POST" class="d-inline">
-                                    <button type="submit" class="btn btn-success">{{ _('Add to Cart') }}</button>
-                                </form>
-                            {% else %}
-                                <button class="btn btn-secondary" disabled>{{ _('Out of Stock') }}</button>
-                            {% endif %}
-                        {% else %}
-                            <a href="{{ url_for('login') }}" class="btn btn-outline-primary">{{ _('Login to Purchase') }}</a>
-                        {% endif %}
-                    </div>
-=======
-                    <p class="card-text"><strong>{{ _('Price') }}: ${{ "%.2f"|format(product.price) }}</strong></p>
-                    <p class="card-text"><small class="text-muted">{{ _('Category') }}: {{ product.category }}</small></p>
-                    {% if current_user.is_authenticated %}
-                        <form action="{{ url_for('main.add_to_cart', product_id=product.id) }}" method="POST" class="d-inline">
-                            <button type="submit" class="btn btn-primary">{{ _('Add to Cart') }}</button>
-                        </form>
-                        <a href="{{ url_for('chat.chat_room', product_id=product.id) }}" class="btn btn-outline-primary">{{ _('Chat with Seller') }}</a>
-                    {% else %}
-                        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary">{{ _('Login to Chat or Purchase') }}</a>
-                    {% endif %}
->>>>>>> f8154d4e29dfa251bcf1717aff9384e9fea610dc
+                    <p class="card-text"><strong>₹{{ "%.2f"|format(product.price) }}</strong></p>
                 </div>
+                <div class="card-footer bg-transparent border-top-0">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('main.product', id=product.id) }}" class="btn btn-primary">{{ _('View Details') }}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                {{ _('No products found.') }}
             </div>
         </div>
         {% endfor %}
     </div>
+
+    <!-- Pagination -->
+    {% if products.pages > 1 %}
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% for page in products.iter_pages() %}
+                {% if page %}
+                    <li class="page-item {% if page == products.page %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('main.products', page=page, category=selected_category, search=search) }}">{{ page }}</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </nav>
+    {% endif %}
 </div>
 {% endblock %} 

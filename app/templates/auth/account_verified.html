@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Account Verified - EcoFinds{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Account Verified</h4>
+                </div>
+                <div class="card-body text-center">
+                    <h3 class="mb-3">Success!</h3>
+                    <p class="lead">Your account has been successfully verified.</p>
+                    <p>You can now log in and start using EcoFinds.</p>
+                    <div class="mt-4">
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Go to Login</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,46 +1,105 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+
 {% block title %}{{ _('Add New Product') }} - EcoFinds{% endblock %}
+
 {% block content %}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-<div class="container d-flex justify-content-center align-items-center" style="min-height:70vh;">
-    <div class="card shadow p-4" style="width: 100%; max-width: 500px;">
-        <a href="{{ url_for('main.products') }}" class="btn btn-secondary mb-3">&larr; {{ _('Back') }}</a>
-        <h2 class="text-center mb-4">{{ _('Add New Product') }}</h2>
-        <form action="{{ url_for('main.new_product') }}" method="POST">
-            <div class="mb-3">
-                <label for="title" class="form-label">{{ _('Product Title') }}:</label>
-                <input type="text" id="title" name="title" class="form-control" required>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">{{ _('Add New Product') }}</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">{{ _('Title') }}</label>
+                            <input type="text" class="form-control" id="title" name="title" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="category_id" class="form-label">{{ _('Category') }}</label>
+                            <select class="form-select" id="category_id" name="category_id" required>
+                                <option value="">{{ _('Select a category') }}</option>
+                                {% for category in categories %}
+                                <option value="{{ category.id }}">{{ category.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">{{ _('Description') }}</label>
+                            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="condition" class="form-label">{{ _('Condition') }}</label>
+                            <select class="form-select" id="condition" name="condition" required>
+                                <option value="new">{{ _('New') }}</option>
+                                <option value="like_new">{{ _('Like New') }}</option>
+                                <option value="good">{{ _('Good') }}</option>
+                                <option value="fair">{{ _('Fair') }}</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="image" class="form-label">{{ _('Product Image') }}</label>
+                            <input type="file" class="form-control" id="image" name="image" accept="image/*" required>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="is_auction" name="is_auction">
+                                <label class="form-check-label" for="is_auction">
+                                    {{ _('This is an auction item') }}
+                                </label>
+                            </div>
+                        </div>
+                        <div id="auction-fields" style="display: none;">
+                            <div class="mb-3">
+                                <label for="start_price" class="form-label">{{ _('Starting Price') }}</label>
+                                <input type="number" class="form-control" id="start_price" name="start_price" min="0" step="0.01">
+                            </div>
+                            <div class="mb-3">
+                                <label for="end_time" class="form-label">{{ _('Auction End Time') }}</label>
+                                <input type="datetime-local" class="form-control" id="end_time" name="end_time">
+                            </div>
+                        </div>
+                        <div id="regular-price-field">
+                            <div class="mb-3">
+                                <label for="price" class="form-label">{{ _('Price') }}</label>
+                                <input type="number" class="form-control" id="price" name="price" min="0" step="0.01" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">{{ _('Add Product') }}</button>
+                    </form>
+                </div>
             </div>
-            <div class="mb-3">
-                <label for="category" class="form-label">{{ _('Category') }}:</label>
-                <select id="category" name="category" class="form-select" required>
-                    {% for cat in categories %}
-                        <option value="{{ cat }}">{{ _(cat) }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="mb-3">
-                <label for="description" class="form-label">{{ _('Description') }}:</label>
-                <textarea id="description" name="description" rows="3" class="form-control" required></textarea>
-            </div>
-            <div class="mb-3">
-                <label for="price" class="form-label">{{ _('Price') }}:</label>
-                <input type="number" id="price" name="price" min="0" step="0.01" class="form-control" required>
-            </div>
-            <div class="mb-3">
-                <label for="city" class="form-label">{{ _('City') }}:</label>
-                <input type="text" id="city" name="city" class="form-control" required>
-            </div>
-            <div class="mb-3">
-                <label for="state" class="form-label">{{ _('State') }}:</label>
-                <input type="text" id="state" name="state" class="form-control" required>
-            </div>
-            <div class="mb-3">
-                <label for="image_url" class="form-label">{{ _('Image URL') }}:</label>
-                <input type="text" id="image_url" name="image_url" class="form-control" placeholder="{{ _('Enter image URL or leave blank for placeholder') }}">
-            </div>
-            <button type="submit" class="btn btn-success w-100">{{ _('Submit Listing') }}</button>
-        </form>
+        </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const isAuctionCheckbox = document.getElementById('is_auction');
+    const auctionFields = document.getElementById('auction-fields');
+    const regularPriceField = document.getElementById('regular-price-field');
+    const startPriceInput = document.getElementById('start_price');
+    const endTimeInput = document.getElementById('end_time');
+    const priceInput = document.getElementById('price');
+
+    isAuctionCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            auctionFields.style.display = 'block';
+            regularPriceField.style.display = 'none';
+            startPriceInput.required = true;
+            endTimeInput.required = true;
+            priceInput.required = false;
+        } else {
+            auctionFields.style.display = 'none';
+            regularPriceField.style.display = 'block';
+            startPriceInput.required = false;
+            endTimeInput.required = false;
+            priceInput.required = true;
+        }
+    });
+});
+</script>
 {% endblock %} 

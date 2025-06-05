@@ -4,6 +4,13 @@ from twilio.rest import Client
 from app import mail
 import logging
 from threading import Thread
+import os
+import re
+import unicodedata
+from datetime import datetime
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 def send_async_email(app, msg):
     with app.app_context():
@@ -48,31 +55,57 @@ def send_complaint_notification(complaint, recipient_email, is_admin=False):
     
     send_email(subject, [recipient_email], text_body, html_body)
 
-def send_verification_email(user):
-    """Send email verification link to user."""
-    try:
-        msg = Message(
-            'Verify your email address',
-            sender=current_app.config['MAIL_DEFAULT_SENDER'],
-            recipients=[user.email]
-        )
-        msg.body = f'''To verify your email address, visit the following link:
-{current_app.config['BASE_URL']}/verify-email/{user.email_verification_token}
+def secure_filename(filename):
+    """
+    Custom secure filename function to replace Werkzeug's secure_filename.
+    Sanitizes a filename to be safe for use in a filesystem.
+    """
+    # Convert to ASCII and normalize
+    filename = unicodedata.normalize('NFKD', filename).encode('ascii', 'ignore').decode('ascii')
+    
+    # Remove any non-alphanumeric characters except dots, dashes, and underscores
+    filename = re.sub(r'[^a-zA-Z0-9._-]', '', filename)
+    
+    # Ensure the filename is not empty
+    if not filename:
+        filename = 'unnamed_file'
+    
+    # Split into name and extension
+    name, ext = os.path.splitext(filename)
+    
+    # Ensure the extension is safe
+    ext = ext.lower()
+    if ext not in ['.jpg', '.jpeg', '.png', '.gif', '.pdf', '.doc', '.docx']:
+        ext = ''
+    
+    # Add timestamp to ensure uniqueness
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    return f"{name}_{timestamp}{ext}"
 
-If you did not make this request then simply ignore this email.
-'''
-        mail.send(msg)
+def send_verification_email(to_email, subject, message):
+    """Send a verification email to the user"""
+    try:
+        msg = MIMEMultipart()
+        msg['From'] = os.getenv('MAIL_DEFAULT_SENDER')
+        msg['To'] = to_email
+        msg['Subject'] = subject
+        
+        msg.attach(MIMEText(message, 'plain'))
+        
+        with smtplib.SMTP(os.getenv('MAIL_SERVER'), int(os.getenv('MAIL_PORT'))) as server:
+            if os.getenv('MAIL_USE_TLS'):
+                server.starttls()
+            if os.getenv('MAIL_USERNAME'):
+                server.login(os.getenv('MAIL_USERNAME'), os.getenv('MAIL_PASSWORD'))
+            server.send_message(msg)
+        
         return True
     except Exception as e:
-        current_app.logger.error(f'Failed to send verification email: {str(e)}')
+        print(f"Error sending email: {str(e)}")
         return False
 
-def send_otp_sms(phone_number, otp_code):
-    """Send OTP via SMS."""
-    try:
-        # In development, just log the OTP
-        current_app.logger.info(f'OTP for {phone_number}: {otp_code}')
-        return True
-    except Exception as e:
-        current_app.logger.error(f'Failed to send OTP SMS: {str(e)}')
-        return False 
+def send_otp_sms(phone_number, otp):
+    """Send OTP via SMS (placeholder for actual SMS service integration)"""
+    # TODO: Implement actual SMS service integration
+    print(f"Sending OTP {otp} to {phone_number}")
+    return True 

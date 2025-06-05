@@ -1,144 +1,105 @@
 {% extends 'base.html' %}
-{% block title %}Cart - EcoFinds{% endblock %}
+{% block title %}{{ _('Shopping Cart') }} - EcoFinds{% endblock %}
+
 {% block content %}
 <div class="container py-4">
-    <h2 class="mb-4">My Cart</h2>
+    <h1 class="mb-4">{{ _('Shopping Cart') }}</h1>
     
     {% if cart_items %}
         <div class="row">
             <div class="col-md-8">
                 {% for item in cart_items %}
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <div class="row align-items-center">
-                                <div class="col-md-2">
-                                    <img src="{{ item.product.image_url if item.product.image_url else 'https://static.vecteezy.com/system/resources/previews/024/382/868/non_2x/green-recycle-icon-sign-symbol-design-transparent-background-free-png.png' }}" 
-                                         alt="{{ item.product.title }}" 
-                                         class="img-fluid rounded">
-                                </div>
-                                <div class="col-md-4">
-                                    <h5 class="card-title">{{ item.product.title }}</h5>
-                                    <p class="text-success fw-bold mb-0">₹{{ '%.2f'|format(item.product.price) }} each</p>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="d-flex align-items-center">
-                                        <form action="{{ url_for('main.update_cart_quantity', cart_item_id=item.id) }}" method="POST" class="me-2">
-                                            <input type="hidden" name="action" value="decrement">
-                                            <button type="submit" class="btn btn-outline-secondary btn-sm">-</button>
-                                        </form>
-                                        <span class="mx-2">{{ item.quantity }}</span>
-                                        <form action="{{ url_for('main.update_cart_quantity', cart_item_id=item.id) }}" method="POST" class="ms-2">
-                                            <input type="hidden" name="action" value="increment">
-                                            <button type="submit" class="btn btn-outline-secondary btn-sm">+</button>
-                                        </form>
-                                    </div>
-                                </div>
-                                <div class="col-md-2">
-                                    <p class="fw-bold mb-0">₹{{ '%.2f'|format(item.product.price * item.quantity) }}</p>
-                                </div>
-                                <div class="col-md-1">
-                                    <form action="{{ url_for('main.remove_from_cart', cart_item_id=item.id) }}" method="POST">
-                                        <button type="submit" class="btn btn-danger btn-sm">×</button>
+                <div class="card mb-3">
+                    <div class="row g-0">
+                        <div class="col-md-4">
+                            <img src="{{ item.product.image_url }}" class="img-fluid rounded-start" alt="{{ item.product.title }}">
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ item.product.title }}</h5>
+                                <p class="card-text">{{ item.product.description[:100] }}...</p>
+                                <p class="card-text">
+                                    <small class="text-muted">{{ _('Price') }}: ${{ "%.2f"|format(item.product.price) }}</small>
+                                </p>
+                                <div class="d-flex align-items-center">
+                                    <form action="{{ url_for('main.update_cart_quantity', cart_item_id=item.id) }}" method="POST" class="me-2">
+                                        <input type="hidden" name="action" value="decrement">
+                                        <button type="submit" class="btn btn-outline-secondary btn-sm">-</button>
+                                    </form>
+                                    <span class="mx-2">{{ item.quantity }}</span>
+                                    <form action="{{ url_for('main.update_cart_quantity', cart_item_id=item.id) }}" method="POST" class="me-2">
+                                        <input type="hidden" name="action" value="increment">
+                                        <button type="submit" class="btn btn-outline-secondary btn-sm">+</button>
+                                    </form>
+                                    <form action="{{ url_for('main.remove_from_cart', cart_item_id=item.id) }}" method="POST" class="ms-auto">
+                                        <button type="submit" class="btn btn-danger btn-sm">{{ _('Remove') }}</button>
                                     </form>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
                 {% endfor %}
             </div>
             
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title mb-3">Order Summary</h4>
+                        <h5 class="card-title">{{ _('Order Summary') }}</h5>
                         
-                        {% set subtotal = namespace(total=0) %}
+                        {% set cart_total = namespace(value=0) %}
                         {% for item in cart_items %}
-                            {% set subtotal.total = subtotal.total + (item.product.price * item.quantity) %}
+                            {% set cart_total.value = cart_total.value + (item.product.price * item.quantity) %}
                         {% endfor %}
                         
                         <div class="d-flex justify-content-between mb-2">
-                            <span>Subtotal:</span>
-                            <span>₹{{ '%.2f'|format(subtotal.total) }}</span>
+                            <span>{{ _('Subtotal') }}</span>
+                            <span>${{ "%.2f"|format(cart_total.value) }}</span>
                         </div>
                         
-                        {% if g.user %}
-                            <div class="mb-3">
-                                <label for="redeem_eco_points" class="form-label">
-                                    Redeem ECO Points (Available: {{ g.user.eco_points }})
-                                </label>
-                                <input type="number" 
-                                       class="form-control" 
-                                       id="redeem_eco_points" 
-                                       min="0" 
-                                       max="{{ g.user.eco_points }}" 
-                                       value="0">
-                                <small class="text-muted">1 point = ₹1 discount</small>
-                            </div>
-                            
-                            <div class="d-flex justify-content-between mb-3">
-                                <span>ECO Points Discount:</span>
-                                <span id="eco-points-discount">₹0.00</span>
-                            </div>
-                        {% endif %}
-                        
-                        <hr>
+                        <div class="mb-3">
+                            <label for="eco_points" class="form-label">{{ _('Redeem ECO Points') }}</label>
+                            <input type="number" class="form-control" id="eco_points" name="eco_points" min="0" max="{{ current_user.eco_points }}" value="0">
+                        </div>
                         
                         <div class="d-flex justify-content-between mb-3">
-                            <strong>Total:</strong>
-                            <strong id="final-total">₹{{ '%.2f'|format(subtotal.total) }}</strong>
+                            <span>{{ _('Total') }}</span>
+                            <span id="final_total">${{ "%.2f"|format(cart_total.value) }}</span>
                         </div>
                         
-                        <form id="purchase-form" action="{{ url_for('main.purchase_cart') }}" method="POST">
-                            <input type="hidden" id="hidden_eco_points" name="redeem_eco_points" value="0">
-                            <button type="submit" class="btn btn-success w-100">Purchase All</button>
+                        <form action="{{ url_for('main.purchase_cart') }}" method="POST">
+                            <input type="hidden" name="eco_points" id="eco_points_input" value="0">
+                            <button type="submit" class="btn btn-primary w-100">{{ _('Proceed to Checkout') }}</button>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
     {% else %}
-        <div class="alert alert-info">
-            Your cart is empty. <a href="{{ url_for('main.products') }}" class="alert-link">Continue shopping</a>
+        <div class="text-center py-5">
+            <h3>{{ _('Your cart is empty') }}</h3>
+            <p class="text-muted">{{ _('Add some products to your cart to get started!') }}</p>
+            <a href="{{ url_for('main.products') }}" class="btn btn-primary">{{ _('Browse Products') }}</a>
         </div>
     {% endif %}
 </div>
 
+{% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const ecoPointsInput = document.getElementById('redeem_eco_points');
-    const hiddenEcoPoints = document.getElementById('hidden_eco_points');
-    const ecoPointsDiscount = document.getElementById('eco-points-discount');
-    const finalTotal = document.getElementById('final-total');
-    const purchaseForm = document.getElementById('purchase-form');
+    const ecoPointsInput = document.getElementById('eco_points');
+    const ecoPointsHidden = document.getElementById('eco_points_input');
+    const finalTotal = document.getElementById('final_total');
+    const initialTotal = {{ cart_total.value }};
     
-    if (ecoPointsInput) {
-        const subtotal = parseFloat(finalTotal.textContent.replace('₹', ''));
-        
-        ecoPointsInput.addEventListener('input', function() {
-            const points = Math.min(
-                Math.max(0, parseInt(this.value) || 0),
-                parseInt('{{ g.user.eco_points if g.user else 0 }}')
-            );
-            
-            const discount = points;
-            const newTotal = Math.max(0, subtotal - discount);
-            
-            ecoPointsDiscount.textContent = `₹${discount.toFixed(2)}`;
-            finalTotal.textContent = `₹${newTotal.toFixed(2)}`;
-            hiddenEcoPoints.value = points;
-            this.value = points;
-        });
-    }
-    
-    if (purchaseForm) {
-        purchaseForm.addEventListener('submit', function(e) {
-            const total = finalTotal.textContent;
-            if (!confirm(`Are you sure you want to purchase all items in your cart? Your total will be ${total}.`)) {
-                e.preventDefault();
-            }
-        });
-    }
+    ecoPointsInput.addEventListener('input', function() {
+        const points = parseInt(this.value) || 0;
+        const pointsValue = points * 0.01; // Each point is worth $0.01
+        const newTotal = Math.max(0, initialTotal - pointsValue);
+        finalTotal.textContent = '$' + newTotal.toFixed(2);
+        ecoPointsHidden.value = points;
+    });
 });
 </script>
+{% endblock %}
 {% endblock %} 

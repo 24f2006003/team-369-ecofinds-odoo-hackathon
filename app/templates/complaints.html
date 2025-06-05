@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">My Complaints</h4>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                            Filter by Status
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('main.list_complaints') }}">All</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('main.list_complaints', status='pending') }}">Pending</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('main.list_complaints', status='in_review') }}">In Review</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('main.list_complaints', status='resolved') }}">Resolved</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('main.list_complaints', status='rejected') }}">Rejected</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if complaints %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                    <th>Submitted</th>
+                                    <th>Last Updated</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for complaint in complaints %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="{{ complaint.product.image_url or url_for('static', filename='images/placeholder.jpg') }}" 
+                                                 class="rounded me-2" style="width: 50px; height: 50px; object-fit: cover;" 
+                                                 alt="{{ complaint.product.title }}">
+                                            <div>
+                                                <div>{{ complaint.product.title }}</div>
+                                                <small class="text-muted">
+                                                    {% if complaint.product.seller_id == complaint.user_id %}
+                                                        Buyer: {{ complaint.product.purchases[0].user.username }}
+                                                    {% else %}
+                                                        Seller: {{ complaint.product.seller.username }}
+                                                    {% endif %}
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ complaint.complaint_type|replace('_', ' ')|title }}</td>
+                                    <td>
+                                        <span class="badge {% if complaint.status == 'pending' %}bg-warning{% elif complaint.status == 'in_review' %}bg-info{% elif complaint.status == 'resolved' %}bg-success{% else %}bg-danger{% endif %}">
+                                            {{ complaint.status|replace('_', ' ')|title }}
+                                        </span>
+                                    </td>
+                                    <td>{{ complaint.created_at.strftime('%Y-%m-%d') }}</td>
+                                    <td>{{ complaint.updated_at.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{{ url_for('main.view_complaint', id=complaint.id) }}" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                View Details
+                                            </a>
+                                            {% if complaint.status != 'resolved' and complaint.status != 'rejected' %}
+                                            <a href="{{ url_for('main.chat', product_id=complaint.product_id) }}" 
+                                               class="btn btn-sm btn-outline-secondary">
+                                                Contact Support
+                                            </a>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <h5 class="text-muted">No complaints found</h5>
+                        <p class="text-muted">You haven't submitted any complaints yet.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

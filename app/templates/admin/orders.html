@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Orders - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Manage Orders</h4>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">
+                            Filter by Status
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('admin.orders') }}">All Orders</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('admin.orders', status='purchased') }}">Purchased</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('admin.orders', status='delivered') }}">Delivered</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('admin.orders', status='cancelled') }}">Cancelled</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('admin.orders', status='returned') }}">Returned</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Product</th>
+                                    <th>Buyer</th>
+                                    <th>Quantity</th>
+                                    <th>Price</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th>Updated</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in orders %}
+                                <tr>
+                                    <td>{{ order.id }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="{{ order.product.image_url }}" alt="{{ order.product.title }}" 
+                                                 class="img-thumbnail me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                                            <span>{{ order.product.title }}</span>
+                                        </div>
+                                    </td>
+                                    <td>{{ order.user.username }}</td>
+                                    <td>{{ order.quantity }}</td>
+                                    <td>${{ "%.2f"|format(order.price) }}</td>
+                                    <td>
+                                        <span class="badge {% if order.status == 'purchased' %}bg-primary
+                                                          {% elif order.status == 'delivered' %}bg-success
+                                                          {% elif order.status == 'cancelled' %}bg-danger
+                                                          {% elif order.status == 'returned' %}bg-warning
+                                                          {% else %}bg-secondary{% endif %}">
+                                            {{ order.status|title }}
+                                        </span>
+                                    </td>
+                                    <td>{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>{{ order.updated_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-sm btn-outline-primary dropdown-toggle" 
+                                                    data-bs-toggle="dropdown">
+                                                Update Status
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li><a class="dropdown-item" href="#" 
+                                                       onclick="updateOrderStatus({{ order.id }}, 'purchased')">Mark as Purchased</a></li>
+                                                <li><a class="dropdown-item" href="#" 
+                                                       onclick="updateOrderStatus({{ order.id }}, 'delivered')">Mark as Delivered</a></li>
+                                                <li><a class="dropdown-item" href="#" 
+                                                       onclick="updateOrderStatus({{ order.id }}, 'cancelled')">Mark as Cancelled</a></li>
+                                                <li><a class="dropdown-item" href="#" 
+                                                       onclick="updateOrderStatus({{ order.id }}, 'returned')">Mark as Returned</a></li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function updateOrderStatus(orderId, newStatus) {
+    if (confirm(`Are you sure you want to mark this order as ${newStatus}?`)) {
+        fetch(`/admin/order/${orderId}/update-status`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                status: newStatus
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Failed to update order status: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while updating the order status');
+        });
+    }
+}
+</script>
+{% endblock %} 

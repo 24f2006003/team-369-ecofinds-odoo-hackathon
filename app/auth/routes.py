@@ -2,15 +2,18 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request,
 from flask_login import login_user, logout_user, login_required, current_user
 from app import db
 from app.models import User, OTP
-from werkzeug.security import generate_password_hash
-import secrets
-from datetime import datetime, timedelta
 import re
-from app.utils import send_verification_email, send_otp_sms
+from datetime import datetime, timedelta
+from app.utils import send_verification_email, send_otp_sms, secure_filename
 from flask_babel import _
 from app.auth.google_auth import verify_google_token
+import secrets
+import os
+from werkzeug.urls import url_parse
+from app.auth.forms import LoginForm, RegistrationForm, ResetPasswordRequestForm, ResetPasswordForm
+from app.auth.email import send_password_reset_email
 
-auth = Blueprint('auth', __name__)
+from app.auth import bp
 
 def is_valid_phone(phone):
     # Basic phone number validation (can be enhanced based on requirements)
@@ -22,167 +25,129 @@ def is_valid_email(email):
     pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     return bool(re.match(pattern, email))
 
-@auth.route('/register', methods=['GET', 'POST'])
+@bp.route('/register', methods=['GET', 'POST'])
 def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('main.index'))
+    
     if request.method == 'POST':
+        email = request.form.get('email')
+        username = request.form.get('username')
+        password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
+        phone_number = request.form.get('phone_number')
+        
+        # Validate form data
+        if not all([email, username, password, confirm_password, phone_number]):
+            flash(_('Please fill in all fields.'), 'danger')
+            return render_template('auth/register.html')
+        
+        if password != confirm_password:
+            flash(_('Passwords do not match.'), 'danger')
+            return render_template('auth/register.html')
+        
+        # Check if user already exists
+        if User.query.filter_by(email=email).first():
+            flash(_('Email already registered.'), 'danger')
+            return render_template('auth/register.html')
+        
+        if User.query.filter_by(username=username).first():
+            flash(_('Username already taken.'), 'danger')
+            return render_template('auth/register.html')
+        
+        # Create new user
+        user = User(
+            email=email,
+            username=username,
+            phone_number=phone_number
+        )
+        user.set_password(password)
+        
         try:
-            # Get form data
-            username = request.form.get('username', '').strip()
-            email = request.form.get('email', '').strip()
-            phone_number = request.form.get('phone_number', '').strip()
-            password = request.form.get('password', '')
-            confirm_password = request.form.get('confirm_password', '')
+            db.session.add(user)
+            db.session.commit()
             
-            # Log form data for debugging
-            current_app.logger.info(f'Registration attempt - Username: {username}, Email: {email}, Phone: {phone_number}')
+            # Generate and send verification email
+            token = user.generate_email_verification_token()
+            send_verification_email(user.email, token)
             
-            # Validate required fields
-            if not all([username, email, phone_number, password, confirm_password]):
-                flash('All fields are required', 'danger')
-                return redirect(url_for('auth.register'))
-            
-            # Validate password match
-            if password != confirm_password:
-                flash('Passwords do not match', 'danger')
-                return redirect(url_for('auth.register'))
-            
-            # Validate password length
-            if len(password) < 6:
-                flash('Password must be at least 6 characters long', 'danger')
-                return redirect(url_for('auth.register'))
-            
-            # Validate email format
-            if not is_valid_email(email):
-                flash('Invalid email format', 'danger')
-                return redirect(url_for('auth.register'))
-            
-            # Validate phone number format
-            if not is_valid_phone(phone_number):
-                flash('Invalid phone number format. Please include country code (e.g., +1)', 'danger')
-                return redirect(url_for('auth.register'))
-            
-            # Check if user already exists
-            if User.query.filter_by(email=email).first():
-                flash('Email already registered', 'danger')
-                return redirect(url_for('auth.register'))
-            
-            if User.query.filter_by(phone_number=phone_number).first():
-                flash('Phone number already registered', 'danger')
-                return redirect(url_for('auth.register'))
-            
-            # Create new user
-            try:
-                user = User(
-                    email=email,
-                    username=username,
-                    phone_number=phone_number,
-                    is_email_verified=True,  # Temporarily set to True for testing
-                    is_phone_verified=True   # Temporarily set to True for testing
-                )
-                user.set_password(password)
-                
-                db.session.add(user)
-                db.session.commit()
-                
-                # Log successful registration
-                current_app.logger.info(f'User registered successfully - ID: {user.id}, Email: {user.email}')
-                
-                flash('Registration successful! You can now login.', 'success')
-                return redirect(url_for('auth.login'))
-                
-            except Exception as e:
-                current_app.logger.error(f'Error creating user: {str(e)}')
-                db.session.rollback()
-                flash('Error creating user account. Please try again.', 'danger')
-                return redirect(url_for('auth.register'))
-                
+            flash(_('Registration successful! Please check your email to verify your account.'), 'success')
+            return redirect(url_for('auth.login'))
         except Exception as e:
-            current_app.logger.error(f'Registration error: {str(e)}')
             db.session.rollback()
-            flash('An error occurred during registration. Please try again.', 'danger')
-            return redirect(url_for('auth.register'))
+            flash(_('An error occurred during registration. Please try again.'), 'danger')
+            current_app.logger.error(f"Registration error: {str(e)}")
     
     return render_template('auth/register.html')
 
-@auth.route('/verify-email/<token>')
+@bp.route('/verify-email/<token>')
 def verify_email(token):
     user = User.query.filter_by(email_verification_token=token).first()
-    if not user:
-        flash('Invalid or expired verification link')
-        return redirect(url_for('auth.login'))
-        
+    if user is None:
+        flash('Invalid or expired verification token.', 'danger')
+        return redirect(url_for('main.index'))
     user.is_email_verified = True
     user.email_verification_token = None
     db.session.commit()
-    
-    flash('Email verified successfully!')
-    return redirect(url_for('auth.login'))
+    flash('Your email has been verified!', 'success')
+    return redirect(url_for('main.index'))
 
-@auth.route('/verify-phone', methods=['POST'])
+@bp.route('/verify-phone', methods=['GET', 'POST'])
 def verify_phone():
-    data = request.get_json()
-    if not all(k in data for k in ['phone_number', 'otp']):
-        return jsonify({'error': 'Missing required fields'}), 400
+    if not current_user.is_authenticated:
+        return redirect(url_for('auth.login'))
+    
+    if request.method == 'POST':
+        otp_code = request.form.get('otp_code')
+        otp = OTP.query.filter_by(
+            user_id=current_user.id,
+            otp_code=otp_code,
+            is_used=False
+        ).first()
         
-    user = User.query.filter_by(phone_number=data['phone_number']).first()
-    if not user:
-        return jsonify({'error': 'User not found'}), 404
-        
-    otp = OTP.query.filter_by(user_id=user.id, is_used=False).order_by(OTP.created_at.desc()).first()
-    if not otp or not otp.is_valid():
-        return jsonify({'error': 'Invalid or expired OTP'}), 400
-        
-    if otp.otp_code != data['otp']:
-        return jsonify({'error': 'Invalid OTP'}), 400
-        
-    user.is_phone_verified = True
-    otp.is_used = True
+        if otp and otp.is_valid():
+            current_user.is_phone_verified = True
+            otp.is_used = True
+            db.session.commit()
+            flash('Your phone number has been verified!', 'success')
+            return redirect(url_for('main.index'))
+        else:
+            flash('Invalid or expired OTP code.', 'danger')
+    
+    # Generate new OTP
+    otp = OTP(current_user.id)
+    db.session.add(otp)
     db.session.commit()
     
-    return jsonify({'message': 'Phone number verified successfully'}), 200
+    # TODO: Send OTP via SMS
+    flash(f'OTP sent to your phone number: {otp.otp_code}', 'info')
+    
+    return render_template('auth/verify_phone.html', title='Verify Phone Number')
 
-@auth.route('/login', methods=['GET', 'POST'])
+@bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        if current_user.is_admin:
-            return redirect(url_for('admin.admin_dashboard'))
-        return redirect(url_for('main.dashboard'))
-
-    if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
-        
-        if not email or not password:
-            flash(_('Please provide both email and password'), 'danger')
+        return redirect(url_for('main.index'))
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user is None or not user.check_password(form.password.data):
+            flash('Invalid email or password', 'danger')
             return redirect(url_for('auth.login'))
-        
-        user = User.query.filter_by(email=email).first()
-        
-        if not user:
-            flash(_('No account found with this email. Please register first.'), 'warning')
-            return redirect(url_for('auth.register'))
-        
-        if not user.check_password(password):
-            flash(_('Invalid password. Please try again.'), 'danger')
-            return redirect(url_for('auth.login'))
-        
-        login_user(user)
-        flash(_('Login successful!'), 'success')
-        
-        if user.is_admin:
-            return redirect(url_for('admin.admin_dashboard'))
-        return redirect(url_for('main.dashboard'))
-    
-    return render_template('auth/login.html')
+        login_user(user, remember=form.remember_me.data)
+        next_page = request.args.get('next')
+        if not next_page or url_parse(next_page).netloc != '':
+            next_page = url_for('main.index')
+        return redirect(next_page)
+    return render_template('auth/login.html', title='Sign In', form=form)
 
-@auth.route('/logout')
+@bp.route('/logout')
 @login_required
 def logout():
     logout_user()
-    flash('You have been logged out.', 'info')
-    return redirect(url_for('auth.login'))
+    return redirect(url_for('main.index'))
 
-@auth.route('/resend-otp', methods=['POST'])
+@bp.route('/resend-otp', methods=['POST'])
 def resend_otp():
     data = request.get_json()
     if 'phone_number' not in data:
@@ -204,7 +169,7 @@ def resend_otp():
         'otp': otp.otp_code  # Remove this in production, only for testing
     }), 200
 
-@auth.route('/google-signin', methods=['POST'])
+@bp.route('/google-signin', methods=['POST'])
 def google_signin():
     try:
         data = request.get_json()
@@ -244,9 +209,59 @@ def google_signin():
         
         return jsonify({
             'success': True,
-            'redirect_url': url_for('main.dashboard')
+            'redirect_url': url_for('main.index')
         })
 
     except Exception as e:
         current_app.logger.error(f'Google sign-in error: {str(e)}')
-        return jsonify({'success': False, 'error': str(e)}), 500 
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@bp.route('/reset-password-request', methods=['GET', 'POST'])
+def reset_password_request():
+    if current_user.is_authenticated:
+        return redirect(url_for('main.index'))
+    form = ResetPasswordRequestForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            send_password_reset_email(user)
+        flash('Check your email for the instructions to reset your password', 'info')
+        return redirect(url_for('auth.login'))
+    return render_template('auth/reset_password_request.html', title='Reset Password', form=form)
+
+@bp.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    if current_user.is_authenticated:
+        return redirect(url_for('main.index'))
+    user = User.verify_reset_password_token(token)
+    if not user:
+        return redirect(url_for('main.index'))
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        user.set_password(form.password.data)
+        db.session.commit()
+        flash('Your password has been reset.', 'success')
+        return redirect(url_for('auth.login'))
+    return render_template('auth/reset_password.html', form=form)
+
+@bp.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    if request.method == 'POST':
+        # Handle profile update
+        current_user.username = request.form.get('username')
+        current_user.phone_number = request.form.get('phone_number')
+        
+        # Handle profile picture upload
+        profile_pic = request.files.get('profile_pic')
+        if profile_pic:
+            filename = secure_filename(profile_pic.filename)
+            profile_pic_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+            profile_pic.save(profile_pic_path)
+            current_user.profile_pic_url = url_for('static', filename=f'uploads/{filename}')
+        
+        db.session.commit()
+        flash('Your profile has been updated.', 'success')
+        return redirect(url_for('auth.profile'))
+    
+    return render_template('auth/profile.html', title='Profile') 

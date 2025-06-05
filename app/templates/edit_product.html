@@ -12,10 +12,11 @@
                 <input type="text" id="title" name="title" class="form-control" value="{{ product.title }}" required>
             </div>
             <div class="mb-3">
-                <label for="category" class="form-label">Category:</label>
-                <select id="category" name="category" class="form-select" required>
-                    {% for cat in categories %}
-                        <option value="{{ cat }}" {% if product.category == cat %}selected{% endif %}>{{ cat }}</option>
+                <label for="category_id" class="form-label">Category:</label>
+                <select id="category_id" name="category_id" class="form-select" required>
+                    <option value="">Select a category</option>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}" {% if category.id == product.category_id %}selected{% endif %}>{{ category.name }}</option>
                     {% endfor %}
                 </select>
             </div>

@@ -1,29 +1,29 @@
 from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for
 from flask_login import login_required, current_user
 from app import db
-from app.models import Rating, Purchase, User
+from app.models import Rating, Order, User
 
 rating = Blueprint('rating', __name__)
 
-@rating.route('/rate/<int:purchase_id>', methods=['GET', 'POST'])
+@rating.route('/rate/<int:order_id>', methods=['GET', 'POST'])
 @login_required
-def rate_transaction(purchase_id):
-    purchase = Purchase.query.get_or_404(purchase_id)
+def rate_transaction(order_id):
+    order = Order.query.get_or_404(order_id)
     
     # Check if user is authorized to rate
-    if purchase.user_id != current_user.id and purchase.product.owner_id != current_user.id:
+    if order.user_id != current_user.id and order.product.seller_id != current_user.id:
         flash('You are not authorized to rate this transaction', 'danger')
-        return redirect(url_for('main.purchases'))
+        return redirect(url_for('main.orders'))
     
     # Check if already rated
     existing_rating = Rating.query.filter_by(
-        purchase_id=purchase_id,
+        order_id=order_id,
         rater_id=current_user.id
     ).first()
     
     if existing_rating:
         flash('You have already rated this transaction', 'warning')
-        return redirect(url_for('main.purchases'))
+        return redirect(url_for('main.orders'))
     
     if request.method == 'POST':
         rating_value = request.form.get('rating', type=int)
@@ -31,27 +31,27 @@ def rate_transaction(purchase_id):
         
         if not rating_value or rating_value < 1 or rating_value > 5:
             flash('Invalid rating value', 'danger')
-            return redirect(url_for('rating.rate_transaction', purchase_id=purchase_id))
+            return redirect(url_for('rating.rate_transaction', order_id=order_id))
         
         # Determine who is being rated
-        rated_id = purchase.product.owner_id if purchase.user_id == current_user.id else purchase.user_id
+        rated_id = order.product.seller_id if order.user_id == current_user.id else order.user_id
         
         new_rating = Rating(
             rater_id=current_user.id,
             rated_id=rated_id,
-            purchase_id=purchase_id,
+            order_id=order_id,
             rating=rating_value,
             comment=comment
         )
         
         db.session.add(new_rating)
-        purchase.is_rated = True
+        order.is_rated = True
         db.session.commit()
         
         flash('Thank you for your rating!', 'success')
-        return redirect(url_for('main.purchases'))
+        return redirect(url_for('main.orders'))
     
-    return render_template('rate_transaction.html', purchase=purchase)
+    return render_template('rate_transaction.html', order=order)
 
 @rating.route('/ratings/<int:user_id>')
 def view_ratings(user_id):

@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('My Orders') }} - EcoFinds{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>{{ _('My Orders') }}</h1>
+        </div>
+        <div class="col-md-4">
+            <div class="btn-group" role="group">
+                <a href="{{ url_for('main.orders') }}" class="btn btn-outline-primary {% if not status %}active{% endif %}">
+                    {{ _('All') }}
+                </a>
+                <a href="{{ url_for('main.orders', status='pending') }}" class="btn btn-outline-primary {% if status == 'pending' %}active{% endif %}">
+                    {{ _('Pending') }}
+                </a>
+                <a href="{{ url_for('main.orders', status='completed') }}" class="btn btn-outline-primary {% if status == 'completed' %}active{% endif %}">
+                    {{ _('Completed') }}
+                </a>
+                <a href="{{ url_for('main.orders', status='cancelled') }}" class="btn btn-outline-primary {% if status == 'cancelled' %}active{% endif %}">
+                    {{ _('Cancelled') }}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {% if orders %}
+    <div class="row">
+        {% for order in orders %}
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">{{ order.product.title }}</h5>
+                    <span class="badge {% if order.status == 'completed' %}bg-success{% elif order.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %}">
+                        {{ order.status|title }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            {% if order.product.image_url %}
+                            <img src="{{ order.product.image_url }}" class="img-fluid rounded" alt="{{ order.product.title }}">
+                            {% else %}
+                            <img src="{{ url_for('static', filename='images/default_product.png') }}" class="img-fluid rounded" alt="{{ order.product.title }}">
+                            {% endif %}
+                        </div>
+                        <div class="col-md-8">
+                            <p class="mb-1"><strong>{{ _('Order Date') }}:</strong> {{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                            <p class="mb-1"><strong>{{ _('Price') }}:</strong> ₹{{ "%.2f"|format(order.purchase_price) }}</p>
+                            <p class="mb-1"><strong>{{ _('Seller') }}:</strong> {{ order.product.seller.username }}</p>
+                            {% if order.status == 'completed' and not order.is_rated %}
+                            <a href="{{ url_for('main.rate_order', id=order.id) }}" class="btn btn-outline-primary btn-sm mt-2">
+                                {{ _('Rate Order') }}
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="{{ url_for('main.view_order', id=order.id) }}" class="btn btn-primary btn-sm">
+                        {{ _('View Details') }}
+                    </a>
+                    {% if order.status == 'pending' %}
+                    <button class="btn btn-danger btn-sm float-end" onclick="cancelOrder({{ order.id }})">
+                        {{ _('Cancel Order') }}
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        {{ _('You have no orders yet.') }}
+        <a href="{{ url_for('main.products') }}" class="alert-link">{{ _('Browse products') }}</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function cancelOrder(orderId) {
+    if (confirm('{{ _("Are you sure you want to cancel this order?") }}')) {
+        fetch(`/order/${orderId}/cancel`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.error || '{{ _("An error occurred while cancelling the order.") }}');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('{{ _("An error occurred while cancelling the order.") }}');
+        });
+    }
+}
+</script>
+{% endblock %} 

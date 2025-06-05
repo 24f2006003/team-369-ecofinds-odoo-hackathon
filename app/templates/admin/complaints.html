@@ -1,167 +1,234 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2>Complaints Management</h2>
-    
-    <!-- Search and Filter Section -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <form method="GET" action="{{ url_for('admin.admin_complaints') }}" class="row g-3">
-                <div class="col-md-4">
-                    <input type="text" class="form-control" name="search" placeholder="Search by subject or description" value="{{ request.args.get('search', '') }}">
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Manage Complaints</h4>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                            Filter by Status
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('main.admin_complaints') }}">All</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('main.admin_complaints', status='pending') }}">Pending</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('main.admin_complaints', status='in_review') }}">In Review</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('main.admin_complaints', status='resolved') }}">Resolved</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('main.admin_complaints', status='rejected') }}">Rejected</a></li>
+                        </ul>
+                    </div>
                 </div>
-                <div class="col-md-3">
-                    <select class="form-select" name="status">
-                        <option value="all" {% if status == 'all' %}selected{% endif %}>All Statuses</option>
-                        <option value="pending" {% if status == 'pending' %}selected{% endif %}>Pending</option>
-                        <option value="in_progress" {% if status == 'in_progress' %}selected{% endif %}>In Progress</option>
-                        <option value="resolved" {% if status == 'resolved' %}selected{% endif %}>Resolved</option>
-                        <option value="rejected" {% if status == 'rejected' %}selected{% endif %}>Rejected</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <select class="form-select" name="timeframe">
-                        <option value="all" {% if timeframe == 'all' %}selected{% endif %}>All Time</option>
-                        <option value="today" {% if timeframe == 'today' %}selected{% endif %}>Today</option>
-                        <option value="week" {% if timeframe == 'week' %}selected{% endif %}>This Week</option>
-                        <option value="month" {% if timeframe == 'month' %}selected{% endif %}>This Month</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary w-100">Filter</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Status Filter Buttons -->
-    <div class="mb-4">
-        <div class="btn-group" role="group">
-            <a href="{{ url_for('admin.admin_complaints', status='all', search=request.args.get('search', ''), timeframe=request.args.get('timeframe', 'all')) }}" 
-               class="btn btn-outline-primary {% if status == 'all' %}active{% endif %}">
-                All
-            </a>
-            <a href="{{ url_for('admin.admin_complaints', status='pending', search=request.args.get('search', ''), timeframe=request.args.get('timeframe', 'all')) }}" 
-               class="btn btn-outline-warning {% if status == 'pending' %}active{% endif %}">
-                Pending
-            </a>
-            <a href="{{ url_for('admin.admin_complaints', status='in_progress', search=request.args.get('search', ''), timeframe=request.args.get('timeframe', 'all')) }}" 
-               class="btn btn-outline-info {% if status == 'in_progress' %}active{% endif %}">
-                In Progress
-            </a>
-            <a href="{{ url_for('admin.admin_complaints', status='resolved', search=request.args.get('search', ''), timeframe=request.args.get('timeframe', 'all')) }}" 
-               class="btn btn-outline-success {% if status == 'resolved' %}active{% endif %}">
-                Resolved
-            </a>
-            <a href="{{ url_for('admin.admin_complaints', status='rejected', search=request.args.get('search', ''), timeframe=request.args.get('timeframe', 'all')) }}" 
-               class="btn btn-outline-danger {% if status == 'rejected' %}active{% endif %}">
-                Rejected
-            </a>
-        </div>
-    </div>
-
-    <!-- Statistics Cards -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card bg-primary text-white">
                 <div class="card-body">
-                    <h5 class="card-title">Total Complaints</h5>
-                    <h2 class="card-text">{{ total_complaints }}</h2>
+                    {% if complaints.items %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Product</th>
+                                    <th>Complainant</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                    <th>Submitted</th>
+                                    <th>Last Updated</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for complaint in complaints.items %}
+                                <tr>
+                                    <td>#{{ complaint.id }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="{{ complaint.product.image_url or url_for('static', filename='images/placeholder.jpg') }}" 
+                                                 class="rounded me-2" style="width: 50px; height: 50px; object-fit: cover;" 
+                                                 alt="{{ complaint.product.title }}">
+                                            <div>
+                                                <div>{{ complaint.product.title }}</div>
+                                                <small class="text-muted">
+                                                    Seller: {{ complaint.product.seller.username }}
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>{{ complaint.user.username }}</div>
+                                        <small class="text-muted">{{ complaint.user.email }}</small>
+                                    </td>
+                                    <td>{{ complaint.complaint_type|replace('_', ' ')|title }}</td>
+                                    <td>
+                                        <span class="badge {% if complaint.status == 'pending' %}bg-warning{% elif complaint.status == 'in_review' %}bg-info{% elif complaint.status == 'resolved' %}bg-success{% else %}bg-danger{% endif %}">
+                                            {{ complaint.status|replace('_', ' ')|title }}
+                                        </span>
+                                    </td>
+                                    <td>{{ complaint.created_at.strftime('%Y-%m-%d') }}</td>
+                                    <td>{{ complaint.updated_at.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{{ url_for('main.view_complaint', id=complaint.id) }}" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                View Details
+                                            </a>
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-outline-info"
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#assignMediatorModal"
+                                                    data-complaint-id="{{ complaint.id }}"
+                                                    {% if not complaint.dispute or complaint.dispute.status == 'resolved' %}disabled{% endif %}>
+                                                Assign Mediator
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <nav aria-label="Page navigation" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            {% if complaints.has_prev %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('main.admin_complaints', page=complaints.prev_num, status=current_status) }}">
+                                    Previous
+                                </a>
+                            </li>
+                            {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">Previous</span>
+                            </li>
+                            {% endif %}
+
+                            {% for page_num in complaints.iter_pages(left_edge=2, left_current=2, right_current=3, right_edge=2) %}
+                                {% if page_num %}
+                                    {% if page_num == complaints.page %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ page_num }}</span>
+                                    </li>
+                                    {% else %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('main.admin_complaints', page=page_num, status=current_status) }}">
+                                            {{ page_num }}
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                {% else %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link">...</span>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if complaints.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('main.admin_complaints', page=complaints.next_num, status=current_status) }}">
+                                    Next
+                                </a>
+                            </li>
+                            {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">Next</span>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <h5 class="text-muted">No complaints found</h5>
+                        <p class="text-muted">There are no complaints matching the current filter.</p>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card bg-warning text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Pending</h5>
-                    <h2 class="card-text">{{ pending_count }}</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-info text-white">
-                <div class="card-body">
-                    <h5 class="card-title">In Progress</h5>
-                    <h2 class="card-text">{{ in_progress_count }}</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-success text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Resolved</h5>
-                    <h2 class="card-text">{{ resolved_count }}</h2>
-                </div>
-            </div>
-        </div>
     </div>
-
-    <!-- Complaints Table -->
-    <div class="table-responsive">
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>User</th>
-                    <th>Subject</th>
-                    <th>Status</th>
-                    <th>Created</th>
-                    <th>Last Updated</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for complaint in complaints %}
-                <tr>
-                    <td>{{ complaint.id }}</td>
-                    <td>{{ complaint.user.username }}</td>
-                    <td>{{ complaint.subject }}</td>
-                    <td>
-                        <span class="badge {% if complaint.status == 'pending' %}bg-warning
-                                         {% elif complaint.status == 'in_progress' %}bg-info
-                                         {% elif complaint.status == 'resolved' %}bg-success
-                                         {% else %}bg-danger{% endif %}">
-                            {{ complaint.status|replace('_', ' ')|title }}
-                        </span>
-                    </td>
-                    <td>{{ complaint.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
-                    <td>{{ complaint.updated_at.strftime('%Y-%m-%d %H:%M') }}</td>
-                    <td>
-                        <a href="{{ url_for('admin.complaint_detail', complaint_id=complaint.id) }}" 
-                           class="btn btn-sm btn-primary">
-                            View
-                        </a>
-                    </td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="7" class="text-center">No complaints found.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Pagination -->
-    {% if pagination.pages > 1 %}
-    <nav aria-label="Page navigation" class="mt-4">
-        <ul class="pagination justify-content-center">
-            {% for page in pagination.iter_pages() %}
-                {% if page %}
-                    <li class="page-item {% if page == pagination.page %}active{% endif %}">
-                        <a class="page-link" href="{{ url_for('admin.admin_complaints', page=page, status=status, search=request.args.get('search', ''), timeframe=request.args.get('timeframe', 'all')) }}">
-                            {{ page }}
-                        </a>
-                    </li>
-                {% else %}
-                    <li class="page-item disabled">
-                        <span class="page-link">...</span>
-                    </li>
-                {% endif %}
-            {% endfor %}
-        </ul>
-    </nav>
-    {% endif %}
 </div>
+
+<!-- Assign Mediator Modal -->
+<div class="modal fade" id="assignMediatorModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Assign Mediator</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="assignMediatorForm">
+                    <input type="hidden" name="complaint_id" id="complaintId">
+                    <div class="mb-3">
+                        <label class="form-label">Select Mediator</label>
+                        <select class="form-select" name="mediator_id" required>
+                            <option value="">Choose a mediator...</option>
+                            {% for admin in admins %}
+                            <option value="{{ admin.id }}">{{ admin.username }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mediation Notes</label>
+                        <textarea class="form-control" name="mediation_notes" rows="3" 
+                                  placeholder="Add any notes for the mediator..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="assignMediator()">Assign</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle mediator assignment modal
+    const mediatorModal = document.getElementById('assignMediatorModal');
+    if (mediatorModal) {
+        mediatorModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const complaintId = button.getAttribute('data-complaint-id');
+            document.getElementById('complaintId').value = complaintId;
+        });
+    }
+});
+
+async function assignMediator() {
+    const form = document.getElementById('assignMediatorForm');
+    const formData = new FormData(form);
+    const data = {
+        dispute: {
+            mediator_id: formData.get('mediator_id'),
+            mediation_notes: formData.get('mediation_notes'),
+            status: 'in_mediation',
+            mediation_status: 'pending'
+        }
+    };
+    
+    try {
+        const response = await fetch(`/complaint/${formData.get('complaint_id')}/update`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            location.reload();
+        } else {
+            alert(result.error || 'Error assigning mediator');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error assigning mediator');
+    }
+}
+</script>
 {% endblock %} 

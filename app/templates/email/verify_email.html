@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Verify Your Email</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .footer {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h2>Welcome to EcoFinds!</h2>
+    <p>Dear {{ user.username }},</p>
+    <p>Thank you for registering with EcoFinds. To complete your registration and verify your email address, please click the button below:</p>
+    
+    <a href="{{ url_for('auth.verify_email', token=token, _external=True) }}" class="button">Verify Email Address</a>
+    
+    <p>If you did not create an account with EcoFinds, please ignore this email.</p>
+    
+    <p>This verification link will expire in 24 hours.</p>
+    
+    <div class="footer">
+        <p>Best regards,<br>The EcoFinds Team</p>
+    </div>
+</body>
+</html> 

@@ -1,0 +1,14 @@
+Welcome to EcoFinds!
+
+Dear {{ user.username }},
+
+Thank you for registering with EcoFinds. To complete your registration and verify your email address, please visit the following link:
+
+{{ url_for('auth.verify_email', token=token, _external=True) }}
+
+If you did not create an account with EcoFinds, please ignore this email.
+
+This verification link will expire in 24 hours.
+
+Best regards,
+The EcoFinds Team 

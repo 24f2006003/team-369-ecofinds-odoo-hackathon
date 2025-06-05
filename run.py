@@ -1,5 +1,5 @@
 from app import create_app, db
-from app.models import User, Product, CartItem, Purchase
+from app.models import User, Product, Order
 import os
 from compile_translations import compile_translations
 
@@ -16,19 +16,48 @@ with app.app_context():
     try:
         db.create_all()
         # Create demo user if it doesn't exist
-        if not User.query.filter_by(email='demo@ecofinds.com').first():
-            user = User(
-                email='demo@ecofinds.com',
-                username='John Smith',
-                phone_number='+1234567890',
-                is_email_verified=True,
-                is_phone_verified=True,
-                eco_points=150,
-                profile_img='default_profile.png'
-            )
-            user.set_password('demo123')
-            db.session.add(user)
-            db.session.commit()
+        demo_user = User.query.filter_by(email='demo@ecofinds.com').first()
+        if not demo_user:
+            # First, check if there are any users
+            if User.query.count() == 0:
+                # If no users exist, we can safely create the demo user with ID 1
+                user = User(
+                    id=1,  # Explicitly set ID to 1
+                    email='demo@ecofinds.com',
+                    username='John Smith',
+                    phone_number='+1234567890',
+                    is_email_verified=True,
+                    is_phone_verified=True,
+                    eco_points=150,
+                    profile_img='default_profile.png',
+                    is_admin=True  # Make this user an admin
+                )
+                user.set_password('demo123')
+                db.session.add(user)
+                db.session.commit()
+                print("Demo admin user created with ID 1")
+            else:
+                # If other users exist, create demo user normally
+                user = User(
+                    email='demo@ecofinds.com',
+                    username='John Smith',
+                    phone_number='+1234567890',
+                    is_email_verified=True,
+                    is_phone_verified=True,
+                    eco_points=150,
+                    profile_img='default_profile.png',
+                    is_admin=True  # Make this user an admin
+                )
+                user.set_password('demo123')
+                db.session.add(user)
+                db.session.commit()
+                print("Demo admin user created with auto-generated ID")
+        else:
+            # Update existing demo user to be admin if not already
+            if not demo_user.is_admin:
+                demo_user.is_admin = True
+                db.session.commit()
+                print("Updated existing demo user to admin")
     except Exception as e:
         print(f"Warning: Database initialization failed: {str(e)}")
 

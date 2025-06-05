@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Product Summary -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <img src="{{ product.image_url or url_for('static', filename='images/placeholder.jpg') }}" 
+                                 class="img-fluid rounded" alt="{{ product.title }}">
+                        </div>
+                        <div class="col-md-8">
+                            <h4>{{ product.title }}</h4>
+                            <div class="rating-summary mb-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="h2 mb-0 me-2">{{ "%.1f"|format(product.get_average_rating()) }}</div>
+                                    <div class="stars">
+                                        {% for i in range(5) %}
+                                            <i class="fas fa-star {% if i < product.get_average_rating()|int %}text-warning{% else %}text-muted{% endif %}"></i>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <small class="text-muted">{{ product.get_rating_count() }} ratings</small>
+                            </div>
+                            
+                            <!-- Rating Distribution -->
+                            <div class="rating-distribution">
+                                {% set distribution = product.get_rating_distribution() %}
+                                {% for i in range(5, 0, -1) %}
+                                <div class="d-flex align-items-center mb-1">
+                                    <div class="me-2">{{ i }} <i class="fas fa-star text-warning"></i></div>
+                                    <div class="progress flex-grow-1" style="height: 8px;">
+                                        <div class="progress-bar bg-warning" 
+                                             style="width: {{ (distribution[i] / product.get_rating_count() * 100)|round }}%">
+                                        </div>
+                                    </div>
+                                    <div class="ms-2">{{ distribution[i] }}</div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reviews -->
+            <h5 class="mb-3">Customer Reviews</h5>
+            {% for rating in ratings %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <h6 class="mb-1">{{ rating.user.username }}</h6>
+                            <div class="stars mb-2">
+                                {% for i in range(5) %}
+                                    <i class="fas fa-star {% if i < rating.rating %}text-warning{% else %}text-muted{% endif %}"></i>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <small class="text-muted">{{ rating.created_at.strftime('%Y-%m-%d') }}</small>
+                    </div>
+
+                    {% if rating.verified_purchase %}
+                    <span class="badge bg-success mb-2">Verified Purchase</span>
+                    {% endif %}
+
+                    {% if rating.review %}
+                    <p class="card-text">{{ rating.review }}</p>
+                    {% endif %}
+
+                    {% if rating.photos %}
+                    <div class="rating-photos mb-3">
+                        {% for photo in rating.photos %}
+                        <img src="{{ photo }}" class="img-thumbnail me-2" style="max-height: 100px;" alt="Review photo">
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Category Ratings -->
+                    <div class="category-ratings">
+                        {% for category, score in rating.categories.items() %}
+                        <div class="d-flex align-items-center mb-1">
+                            <small class="text-muted me-2">{{ category|replace('_', ' ')|title }}:</small>
+                            <div class="stars">
+                                {% for i in range(5) %}
+                                    <i class="fas fa-star {% if i < score %}text-warning{% else %}text-muted{% endif %}"></i>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <button class="btn btn-sm btn-outline-primary helpful-btn" 
+                                data-rating-id="{{ rating.id }}"
+                                {% if current_user in rating.helpful_voters %}disabled{% endif %}>
+                            <i class="fas fa-thumbs-up"></i> Helpful ({{ rating.helpful_votes }})
+                        </button>
+                        <small class="text-muted">
+                            {% if rating.sentiment_score %}
+                                <span class="badge {% if rating.sentiment_score > 0 %}bg-success{% elif rating.sentiment_score < 0 %}bg-danger{% else %}bg-secondary{% endif %}">
+                                    {{ rating.get_sentiment_label() }}
+                                </span>
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="col-md-4">
+            <!-- Rating Analytics -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Rating Analytics</h5>
+                </div>
+                <div class="card-body">
+                    {% set analytics = product.get_rating_analytics() %}
+                    <div class="mb-3">
+                        <h6>Verified Purchases</h6>
+                        <div class="progress">
+                            <div class="progress-bar bg-success" 
+                                 style="width: {{ analytics.verified_purchase_percentage }}%">
+                                {{ "%.1f"|format(analytics.verified_purchase_percentage) }}%
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <h6>Reviews with Photos</h6>
+                        <div class="progress">
+                            <div class="progress-bar bg-info" 
+                                 style="width: {{ analytics.with_photos_percentage }}%">
+                                {{ "%.1f"|format(analytics.with_photos_percentage) }}%
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <h6>Detailed Reviews</h6>
+                        <div class="progress">
+                            <div class="progress-bar bg-primary" 
+                                 style="width: {{ analytics.with_reviews_percentage }}%">
+                                {{ "%.1f"|format(analytics.with_reviews_percentage) }}%
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <h6>Sentiment Distribution</h6>
+                        <div class="d-flex">
+                            <div class="flex-grow-1 text-center">
+                                <div class="h4 text-success">{{ analytics.sentiment_distribution.positive }}</div>
+                                <small>Positive</small>
+                            </div>
+                            <div class="flex-grow-1 text-center">
+                                <div class="h4 text-secondary">{{ analytics.sentiment_distribution.neutral }}</div>
+                                <small>Neutral</small>
+                            </div>
+                            <div class="flex-grow-1 text-center">
+                                <div class="h4 text-danger">{{ analytics.sentiment_distribution.negative }}</div>
+                                <small>Negative</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle helpful button clicks
+    document.querySelectorAll('.helpful-btn').forEach(button => {
+        button.addEventListener('click', async function() {
+            const ratingId = this.dataset.ratingId;
+            
+            try {
+                const response = await fetch(`/rating/${ratingId}/helpful`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    this.innerHTML = `<i class="fas fa-thumbs-up"></i> Helpful (${data.helpful_votes})`;
+                    this.disabled = true;
+                } else {
+                    alert(data.error || 'Error marking review as helpful');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error marking review as helpful');
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 

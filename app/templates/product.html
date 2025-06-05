@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.title }} - EcoFinds{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-6">
+            {% if product.image_url %}
+            <img src="{{ product.image_url }}" class="img-fluid rounded" alt="{{ product.title }}">
+            {% else %}
+            <img src="{{ url_for('static', filename='images/default_product.png') }}" class="img-fluid rounded" alt="{{ product.title }}">
+            {% endif %}
+        </div>
+        <div class="col-md-6">
+            <h1 class="mb-3">{{ product.title }}</h1>
+            <p class="text-muted mb-2">{{ product.category_obj.name }}</p>
+            <p class="h3 text-success mb-3">₹{{ "%.2f"|format(product.price) }}</p>
+            <p class="mb-4">{{ product.description }}</p>
+            
+            <div class="mb-3">
+                <strong>{{ _('Condition') }}:</strong> {{ product.condition|title }}
+            </div>
+            
+            <div class="mb-3">
+                <strong>{{ _('Seller') }}:</strong> {{ product.seller.username }}
+            </div>
+            
+            {% if current_user.is_authenticated %}
+                {% if current_user.id != product.seller_id %}
+                    <form action="{{ url_for('main.add_to_cart', product_id=product.id) }}" method="POST" class="d-inline">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-shopping-cart me-2"></i>{{ _('Add to Cart') }}
+                        </button>
+                    </form>
+                    <a href="{{ url_for('main.chat', product_id=product.id) }}" class="btn btn-outline-primary btn-lg ms-2">
+                        <i class="fas fa-comments me-2"></i>{{ _('Chat with Seller') }}
+                    </a>
+                {% else %}
+                    <div class="alert alert-info">
+                        {{ _('This is your own product.') }}
+                    </div>
+                {% endif %}
+            {% else %}
+                <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg">
+                    {{ _('Login to Purchase') }}
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

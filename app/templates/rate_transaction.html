@@ -2,38 +2,123 @@
 
 {% block content %}
 <div class="container mt-4">
-    <div class="row">
-        <div class="col-md-6 mx-auto">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
             <div class="card">
                 <div class="card-header">
-                    <h4 class="mb-0">Rate Transaction</h4>
+                    <h4 class="mb-0">Rate Your Transaction</h4>
                 </div>
                 <div class="card-body">
                     <div class="mb-4">
                         <h5>Transaction Details</h5>
-                        <p><strong>Product:</strong> {{ purchase.product.title }}</p>
-                        <p><strong>Price:</strong> ${{ "%.2f"|format(purchase.purchase_price) }}</p>
-                        <p><strong>Date:</strong> {{ purchase.created_at.strftime('%Y-%m-%d') }}</p>
-                    </div>
-                    
-                    <form method="POST">
-                        <div class="mb-3">
-                            <label class="form-label">Rating</label>
-                            <div class="rating">
-                                {% for i in range(5, 0, -1) %}
-                                    <input type="radio" name="rating" value="{{ i }}" id="star{{ i }}" required>
-                                    <label for="star{{ i }}">☆</label>
-                                {% endfor %}
+                        <div class="row">
+                            <div class="col-md-4">
+                                <img src="{{ purchase.product.image_url or url_for('static', filename='images/placeholder.jpg') }}" 
+                                     class="img-fluid rounded" alt="{{ purchase.product.title }}">
+                            </div>
+                            <div class="col-md-8">
+                                <h6>{{ purchase.product.title }}</h6>
+                                <p class="text-muted">
+                                    {% if purchase.product.seller_id == current_user.id %}
+                                        Buyer: {{ purchase.user.username }}
+                                    {% else %}
+                                        Seller: {{ purchase.product.seller.username }}
+                                    {% endif %}
+                                </p>
+                                <p class="text-muted">Transaction Date: {{ purchase.created_at.strftime('%Y-%m-%d') }}</p>
                             </div>
                         </div>
-                        
-                        <div class="mb-3">
-                            <label for="comment" class="form-label">Comment (optional)</label>
-                            <textarea class="form-control" id="comment" name="comment" rows="3" placeholder="Share your experience..."></textarea>
+                    </div>
+
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="mb-4">
+                            <h5>Rating</h5>
+                            <div class="rating-stars mb-2">
+                                {% for i in range(5, 0, -1) %}
+                                <input type="radio" name="rating" value="{{ i }}" id="star{{ i }}" required>
+                                <label for="star{{ i }}" class="star-label">
+                                    <i class="fas fa-star"></i>
+                                </label>
+                                {% endfor %}
+                            </div>
+                            <div class="rating-labels">
+                                <span class="text-muted">Poor</span>
+                                <span class="text-muted">Excellent</span>
+                            </div>
                         </div>
-                        
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">Submit Rating</button>
+
+                        <div class="mb-4">
+                            <h5>Review</h5>
+                            <textarea class="form-control" name="comment" rows="4" 
+                                      placeholder="Share your experience with this transaction..."></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5>Category Ratings</h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Communication</label>
+                                    <select class="form-select" name="categories[communication]" required>
+                                        <option value="">Select rating</option>
+                                        <option value="1">Poor</option>
+                                        <option value="2">Fair</option>
+                                        <option value="3">Good</option>
+                                        <option value="4">Very Good</option>
+                                        <option value="5">Excellent</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Item as Described</label>
+                                    <select class="form-select" name="categories[item_as_described]" required>
+                                        <option value="">Select rating</option>
+                                        <option value="1">Poor</option>
+                                        <option value="2">Fair</option>
+                                        <option value="3">Good</option>
+                                        <option value="4">Very Good</option>
+                                        <option value="5">Excellent</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Shipping Speed</label>
+                                    <select class="form-select" name="categories[shipping_speed]" required>
+                                        <option value="">Select rating</option>
+                                        <option value="1">Poor</option>
+                                        <option value="2">Fair</option>
+                                        <option value="3">Good</option>
+                                        <option value="4">Very Good</option>
+                                        <option value="5">Excellent</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Value for Money</label>
+                                    <select class="form-select" name="categories[value_for_money]" required>
+                                        <option value="">Select rating</option>
+                                        <option value="1">Poor</option>
+                                        <option value="2">Fair</option>
+                                        <option value="3">Good</option>
+                                        <option value="4">Very Good</option>
+                                        <option value="5">Excellent</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5>Photos (Optional)</h5>
+                            <input type="file" class="form-control" name="photos" multiple accept="image/*">
+                            <small class="text-muted">You can upload up to 5 photos</small>
+                        </div>
+
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" name="verified_purchase" id="verified_purchase" checked>
+                            <label class="form-check-label" for="verified_purchase">
+                                This is a verified purchase
+                            </label>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Submit Review</button>
+                            <a href="{{ url_for('auth.profile') }}" class="btn btn-outline-secondary">Skip for Now</a>
                         </div>
                     </form>
                 </div>
@@ -41,52 +126,69 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
+{% block styles %}
 <style>
-.rating {
+.rating-stars {
     display: flex;
     flex-direction: row-reverse;
     justify-content: flex-end;
 }
 
-.rating input {
+.rating-stars input {
     display: none;
 }
 
-.rating label {
+.star-label {
     cursor: pointer;
-    font-size: 2rem;
+    font-size: 1.5rem;
     color: #ddd;
-    padding: 0 0.1em;
+    padding: 0 0.1rem;
 }
 
-.rating input:checked ~ label,
-.rating label:hover,
-.rating label:hover ~ label {
-    color: #ffd700;
+.rating-stars input:checked ~ .star-label,
+.star-label:hover,
+.star-label:hover ~ .star-label {
+    color: #ffc107;
+}
+
+.rating-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.5rem;
 }
 </style>
+{% endblock %}
 
+{% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const labels = document.querySelectorAll('.rating label');
-    
-    labels.forEach(label => {
+    // Handle file input
+    const fileInput = document.querySelector('input[type="file"]');
+    fileInput.addEventListener('change', function() {
+        if (this.files.length > 5) {
+            alert('You can only upload up to 5 photos');
+            this.value = '';
+        }
+    });
+
+    // Handle star rating hover
+    const starLabels = document.querySelectorAll('.star-label');
+    starLabels.forEach(label => {
         label.addEventListener('mouseover', function() {
-            this.style.color = '#ffd700';
+            this.style.color = '#ffc107';
             let prev = this.nextElementSibling;
             while (prev) {
-                prev.style.color = '#ffd700';
+                prev.style.color = '#ffc107';
                 prev = prev.nextElementSibling;
             }
         });
-        
+
         label.addEventListener('mouseout', function() {
-            this.style.color = '#ddd';
-            let prev = this.nextElementSibling;
-            while (prev) {
-                prev.style.color = '#ddd';
-                prev = prev.nextElementSibling;
+            const checked = document.querySelector('input[name="rating"]:checked');
+            if (!checked) {
+                starLabels.forEach(s => s.style.color = '#ddd');
             }
         });
     });

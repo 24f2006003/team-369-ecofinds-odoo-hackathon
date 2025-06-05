@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Notifications</h4>
+                    {% if notifications %}
+                    <button class="btn btn-outline-primary btn-sm" onclick="markAllRead()">
+                        Mark All as Read
+                    </button>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if notifications %}
+                    <div class="list-group">
+                        {% for notification in notifications %}
+                        <div class="list-group-item list-group-item-action {% if not notification.is_read %}list-group-item-light{% endif %}"
+                             id="notification-{{ notification.id }}">
+                            <div class="d-flex w-100 justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">{{ notification.title }}</h6>
+                                    <p class="mb-1">{{ notification.message }}</p>
+                                    <small class="text-muted">{{ notification.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    {% if not notification.is_read %}
+                                    <span class="badge bg-primary me-2">New</span>
+                                    {% endif %}
+                                    {% if notification.link %}
+                                    <a href="{{ notification.link }}" class="btn btn-sm btn-outline-primary me-2">
+                                        View
+                                    </a>
+                                    {% endif %}
+                                    {% if not notification.is_read %}
+                                    <button class="btn btn-sm btn-outline-secondary" 
+                                            onclick="markAsRead({{ notification.id }})">
+                                        Mark as Read
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <h5 class="text-muted">No notifications</h5>
+                        <p class="text-muted">You don't have any notifications at the moment.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function markAsRead(notificationId) {
+    try {
+        const response = await fetch(`/notifications/${notificationId}/read`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            const notification = document.getElementById(`notification-${notificationId}`);
+            notification.classList.remove('list-group-item-light');
+            const badge = notification.querySelector('.badge');
+            if (badge) badge.remove();
+            const markReadBtn = notification.querySelector('button');
+            if (markReadBtn) markReadBtn.remove();
+        } else {
+            alert('Error marking notification as read');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error marking notification as read');
+    }
+}
+
+async function markAllRead() {
+    try {
+        const response = await fetch('/notifications/mark-all-read', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            location.reload();
+        } else {
+            alert('Error marking all notifications as read');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error marking all notifications as read');
+    }
+}
+</script>
+{% endblock %} 
