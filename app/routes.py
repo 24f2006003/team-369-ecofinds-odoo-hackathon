@@ -1,7 +1,12 @@
+import sys
+import os
+
+# Add the project root to the Python path
+sys.path.insert(0, os.path.abspath(os.path.dirname(os.path.dirname(__file__))))
+
 from flask import Blueprint, render_template, flash, redirect, url_for, request, current_app, jsonify
 from flask_login import current_user, login_required
 from werkzeug.utils import secure_filename
-import os
 from app import db
 from app.models import User, Product, Complaint, ProductRating, CartItem, Purchase
 from app.forms import ComplaintForm
